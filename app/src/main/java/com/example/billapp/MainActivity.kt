@@ -6,8 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import com.example.billapp.ui.theme.BillAppTheme
-import com.example.myapplication.MainScreen
-
+import com.example.billapp.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
