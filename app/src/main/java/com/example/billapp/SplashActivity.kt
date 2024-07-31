@@ -1,6 +1,7 @@
 package com.example.billapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowInsets
@@ -9,10 +10,19 @@ import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import android.graphics.Typeface
+import android.os.Handler
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -35,5 +45,11 @@ class SplashActivity : AppCompatActivity() {
         val tvAppName: TextView = findViewById(R.id.tv_app_name)
         val typeFace: Typeface = Typeface.createFromAsset(assets,"Montserrat-Bold.ttf")
         tvAppName.typeface = typeFace
+
+        Handler().postDelayed({
+            // Start the Intro Activity
+            startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
+            finish() // Call this when your activity is done and should be closed.
+        }, 2500) // Here we pass the delay time in milliSeconds after which the splash activity will disappear.
     }
 }

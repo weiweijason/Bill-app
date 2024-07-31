@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BillApp"
         tools:targetApi="31">
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -23,15 +24,15 @@
             </intent-filter>
         </activity>
 
-
+        <activity android:name=".IntroActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.BillApp"/>
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.BillApp">
-
-        </activity>
+            android:theme="@style/Theme.BillApp" />
     </application>
 
 </manifest>
