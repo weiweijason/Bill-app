@@ -2,6 +2,7 @@
 package com.example.billapp
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -70,7 +71,8 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp) // 占據頁面一半的位置
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .clickable(onClick = {/*跳轉至個人頁面邏輯*/}),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
