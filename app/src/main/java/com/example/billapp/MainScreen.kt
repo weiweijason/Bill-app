@@ -1,38 +1,65 @@
-// MainScreen.kt
 package com.example.billapp
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billapp.ui.theme.BillAppTheme
+import kotlinx.coroutines.launch
 
+data class User(
+    val id: String,
+    val name: String,
+    val avatarUrl: String
+)
+
+data class Transaction(
+    val from: User,
+    val to: User,
+    val amount: Double
+)
+
+data class Group(
+    val name: String,
+    val transactions: List<Transaction>
+)
+
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen() {
     var showAddItemScreen by remember { mutableStateOf(false) }
-    var groups by remember { mutableStateOf(listOf<String>()) }
+    var groups by remember { mutableStateOf(listOf<Group>()) }
 
     if (showAddItemScreen) {
         AddItemScreen(
             onAddItem = { item ->
-                groups = groups + item // 新增群組
+                val defaultUserA = User(id = "1", name = "A", avatarUrl = "")
+                val defaultUserB = User(id = "2", name = "B", avatarUrl = "")
+                val defaultTransaction = Transaction(from = defaultUserA, to = defaultUserB, amount = 100.0)
+                groups = groups + Group(name = item, transactions = listOf(defaultTransaction)) // 新增群組
                 showAddItemScreen = false
             },
             onBack = { showAddItemScreen = false }
@@ -67,20 +94,52 @@ fun MainScreen() {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Box(
+
+                val pagerState = rememberPagerState(pageCount = {2})
+                val coroutineScope = rememberCoroutineScope()
+
+                HorizontalPager(
+                    state = pagerState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp) // 占據頁面一半的位置
+                        .height(200.dp)
                         .padding(horizontal = 16.dp)
-                        .clickable(onClick = {/*跳轉至個人頁面邏輯*/}),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "餘額: $0",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                ) { page ->
+                    when (page) {
+                        0 -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    // 跳轉至個人頁面邏輯
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "餘額: $0",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        1 -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    // 跳轉至圓餅圖頁面邏輯
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // 空圓圈
+                            Canvas(modifier = Modifier.size(100.dp)) {
+                                drawCircle(
+                                    color = Color.Gray,
+                                    radius = size.minDimension / 2,
+                                    style = Stroke(width = 4.dp.toPx())
+                                )
+                            }
+                        }
+                    }
                 }
+
                 Spacer(modifier = Modifier.height(32.dp))
                 Text(
                     text = "群組",
@@ -98,15 +157,7 @@ fun MainScreen() {
                         .padding(horizontal = 16.dp)
                 ) {
                     items(groups) { group ->
-                        Button(
-                            onClick = { /* 導向群組詳細頁面 */ },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp) // 設定按鈕高度
-                                .padding(vertical = 4.dp)
-                        ) {
-                            Text(group)
-                        }
+                        GroupItem(group = group)
                     }
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -124,6 +175,92 @@ fun MainScreen() {
             }
         }
     }
+}
+
+@Composable
+fun GroupItem(group: Group) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable {  }
+    ) {
+        Text(
+            text = group.name,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        group.transactions.forEach { transaction ->
+            TransactionItem(transaction = transaction)
+        }
+    }
+}
+
+@Composable
+fun TransactionItem(transaction: Transaction) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
+        ) {
+            UserAvatar(user = transaction.from)
+            Text(
+                text = transaction.from.name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = "${transaction.amount} 元",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "----->",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
+        ) {
+            UserAvatar(user = transaction.to)
+            Text(
+                text = transaction.to.name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun UserAvatar(user: User) {
+    val avatarResource = if (user.id == "2") {
+        R.drawable.avatar_placeholder_2
+    } else {
+        R.drawable.avatar_placeholder
+    }
+
+    Image(
+        painter = painterResource(id = avatarResource),
+        contentDescription = user.name,
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop
+    )
 }
 
 @Preview(showBackground = true)
