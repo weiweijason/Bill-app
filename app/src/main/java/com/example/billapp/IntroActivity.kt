@@ -1,35 +1,30 @@
 package com.example.billapp
 
-import android.content.Intent
-import android.os.Build
+import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Handler
-import android.view.WindowInsets
-import android.view.WindowInsetsController
+import android.util.Log
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.billapp.SplashActivity
+import androidx.core.view.WindowCompat
+
 
 class IntroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        Log.d("IntroActivity", "onCreate called")
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_intro)
 
-        // Set Fullscreen and Make sure our app runs correctly on all versions of Android.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-        }
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+        val tvAppNameIntro: TextView = findViewById(R.id.tv_app_name_intro)
+        val typeface: Typeface = Typeface.createFromAsset(assets, "Montserrat-Bold.ttf")
+        tvAppNameIntro.typeface = typeface
 
     }
 }

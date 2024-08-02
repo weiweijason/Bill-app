@@ -10,13 +10,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BillApp"
+        android:theme="@style/AppTheme"
         tools:targetApi="31">
 
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.BillApp.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,15 +24,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".IntroActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.BillApp"/>
-
         <activity
-            android:name=".MainActivity"
+            android:name=".IntroActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.BillApp" />
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
