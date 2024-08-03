@@ -34,5 +34,12 @@ class IntroActivity : AppCompatActivity() {
             startActivity(Intent(this@IntroActivity, SignUpActivity::class.java))
         }
 
+        val btnSignInIntro: Button = findViewById(R.id.btn_sign_in_intro)
+        btnSignInIntro.setOnClickListener {
+            // Launch the sign up screen.
+            startActivity(Intent(this@IntroActivity, SignInActivity::class.java))
+        }
+
+
     }
 }
