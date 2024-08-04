@@ -7,7 +7,7 @@ import androidx.appcompat.widget.Toolbar
 import com.example.billapp.R
 
 
-class SignInActivity : AppCompatActivity() {
+class SignInActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)

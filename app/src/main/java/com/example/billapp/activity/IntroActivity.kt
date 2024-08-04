@@ -12,7 +12,7 @@ import androidx.core.view.WindowCompat
 import com.example.billapp.R
 
 
-class IntroActivity : AppCompatActivity() {
+class IntroActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("IntroActivity", "onCreate called")
