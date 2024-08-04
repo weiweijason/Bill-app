@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.billapp.R
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 

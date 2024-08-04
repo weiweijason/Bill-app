@@ -1,16 +1,16 @@
-package com.example.billapp
+package com.example.billapp.activity
 
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.example.billapp.R
 
 
-class SignInActivity : AppCompatActivity() {
+class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_in)
+        setContentView(R.layout.activity_sign_up)
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -18,7 +18,7 @@ class SignInActivity : AppCompatActivity() {
         )
 
         // 設置Toolbar
-        val toolbar: Toolbar = findViewById(R.id.toolbar_sign_in_activity)
+        val toolbar: Toolbar = findViewById(R.id.toolbar_sign_up_activity)
         setSupportActionBar(toolbar)
 
         // 啟用返回按鈕

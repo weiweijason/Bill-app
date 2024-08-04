@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.activity
 
 import android.content.Intent
 import android.graphics.Typeface
@@ -7,9 +7,9 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import com.example.billapp.R
 
 
 class IntroActivity : AppCompatActivity() {
