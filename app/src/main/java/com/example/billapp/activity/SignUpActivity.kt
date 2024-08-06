@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.billapp.R
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -21,6 +22,7 @@ class SignUpActivity : BaseActivity() {
     private lateinit var etName: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
+
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,12 +47,15 @@ class SignUpActivity : BaseActivity() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
 
+        // [START initialize_auth]
+        // Initialize Firebase Auth
+        auth = Firebase.auth
+        // [END initialize_auth]
+
         val btnSignUp: Button = findViewById(R.id.btn_sign_up)
         btnSignUp.setOnClickListener{
             registerUser()
         }
-
-        auth = Firebase.auth
 
     }
 
@@ -72,16 +77,19 @@ class SignUpActivity : BaseActivity() {
                     hideProgressDialog()
                     if(task.isSuccessful){
                         Log.d("SignUpActivity", "createUserWithEmail:success")
-                        val firebaseUser : FirebaseUser = task.result!!.user!!
-                        val registeredEmail = firebaseUser.email!!
+                        //val firebaseUser : FirebaseUser = task.result!!.user!!
+                        val firebaseUser = auth.currentUser
+                        val registeredEmail = firebaseUser!!.email!!
                         Toast.makeText(this,"$name, you have" +
                                 "successfully registered the email" +
                                 "address $registeredEmail", Toast.LENGTH_LONG).show()
-                        FirebaseAuth.getInstance().signOut()
+                        //FirebaseAuth.getInstance().signOut()
                         finish()
                     }else {
                         Log.w("SignUpActivity", "signInWithEmail:failure", task.exception)
-                        Toast.makeText(this, task.exception!!.message, Toast.LENGTH_SHORT)
+                        Toast.makeText(this,
+                            task.exception!!.message,
+                            Toast.LENGTH_SHORT)
                             .show()
                     }
                 }
