@@ -1,5 +1,6 @@
 package com.example.billapp.activity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -44,8 +45,8 @@ class SignUpActivity : BaseActivity() {
 
         // Initialize the EditText views
         etName = findViewById(R.id.et_name)
-        etEmail = findViewById(R.id.et_email)
-        etPassword = findViewById(R.id.et_password)
+        etEmail = findViewById(R.id.et_email_sign_up)
+        etPassword = findViewById(R.id.et_password_sign_up)
 
         // [START initialize_auth]
         // Initialize Firebase Auth
@@ -88,7 +89,7 @@ class SignUpActivity : BaseActivity() {
                     }else {
                         Log.w("SignUpActivity", "signInWithEmail:failure", task.exception)
                         Toast.makeText(this,
-                            task.exception!!.message,
+                            "Registration failed",
                             Toast.LENGTH_SHORT)
                             .show()
                     }
