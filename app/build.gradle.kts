@@ -72,6 +72,13 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
 
+    val compose_version = "1.5.1"
+    implementation ("androidx.compose.material:material:$compose_version")
+    implementation ("androidx.compose.runtime:runtime:$compose_version")
+    implementation ("androidx.compose.ui:ui-tooling-preview:$compose_version")
+    implementation ("androidx.compose.ui:ui:$compose_version")
+    implementation ("androidx.compose.material3:material3:1.1.0")
+
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-analytics")
@@ -80,7 +87,27 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
+    /////
+    val nav_version = "2.7.7"
 
+    // Java language implementation
+    implementation("androidx.navigation:navigation-fragment:$nav_version")
+    implementation("androidx.navigation:navigation-ui:$nav_version")
+
+    // Kotlin
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+
+    // Feature module Support
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
+
+    // Testing Navigation
+    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+
+    // Jetpack Compose Integration
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    //////
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

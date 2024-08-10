@@ -11,8 +11,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.billapp.R
+import com.example.billapp.firebase.FirestoreClass
+import com.example.billapp.models.User
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -74,26 +78,31 @@ class SignUpActivity : BaseActivity() {
         {
             showProgressDialog(resources.getString(R.string.please_wait))
             auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    hideProgressDialog()
-                    if(task.isSuccessful){
-                        Log.d("SignUpActivity", "createUserWithEmail:success")
-                        //val firebaseUser : FirebaseUser = task.result!!.user!!
-                        val firebaseUser = auth.currentUser
-                        val registeredEmail = firebaseUser!!.email!!
-                        Toast.makeText(this,"$name, you have" +
-                                "successfully registered the email" +
-                                "address $registeredEmail", Toast.LENGTH_LONG).show()
-                        //FirebaseAuth.getInstance().signOut()
-                        finish()
-                    }else {
-                        Log.w("SignUpActivity", "signInWithEmail:failure", task.exception)
-                        Toast.makeText(this,
-                            "Registration failed",
-                            Toast.LENGTH_SHORT)
-                            .show()
+                .addOnCompleteListener(
+                    OnCompleteListener<AuthResult> { task ->
+                        if(task.isSuccessful){
+                            Log.d("SignUpActivity", "createUserWithEmail:success")
+                            //val firebaseUser : FirebaseUser = task.result!!.user!!
+                            val firebaseUser = auth.currentUser
+                            val registeredEmail = firebaseUser!!.email!!
+                            val user = User(
+                                firebaseUser.uid, name, registeredEmail
+                            )
+
+                            // call the registerUser function of FirestoreClass to make an entry in the database.
+                            FirestoreClass().registerUser(this@SignUpActivity, user)
+
+                        }else {
+                            Log.w("SignUpActivity", "signInWithEmail:failure", task.exception)
+                            Toast.makeText(this,
+                                "Registration failed",
+                                Toast.LENGTH_SHORT)
+                                .show()
+                            hideProgressDialog()
+                        }
+
                     }
-                }
+                )
         }
     }
 
@@ -114,6 +123,26 @@ class SignUpActivity : BaseActivity() {
                 true
             }
         }
+    }
+
+    fun userRegisteredSuccess() {
+
+        Toast.makeText(
+            this@SignUpActivity,
+            "You have successfully registered.",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        // Hide the progress dialog
+        hideProgressDialog()
+
+        /**
+         * Here the new user registered is automatically signed-in so we just sign-out the user from firebase
+         * and send him to Intro Screen for Sign-In
+         */
+        FirebaseAuth.getInstance().signOut()
+        // Finish the Sign-Up Screen
+        finish()
     }
 
 }

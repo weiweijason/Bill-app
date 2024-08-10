@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.billapp.MainActivity
 import com.example.billapp.R
+import com.example.billapp.firebase.FirestoreClass
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 
@@ -34,8 +36,17 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             Log.d("SplashActivity", "Starting IntroActivity")
-            val introIntent = Intent(this@SplashActivity, IntroActivity::class.java)
-            startActivity(introIntent)
+
+            var currentUserID = FirestoreClass().getCurrentUserID()
+
+            if(currentUserID.isNotEmpty()){
+                val introIntent = Intent(this@SplashActivity, MainActivity::class.java)
+                startActivity(introIntent)
+            }else{
+                val introIntent = Intent(this@SplashActivity, IntroActivity::class.java)
+                startActivity(introIntent)
+            }
+
             finish()
         }, 2500)
     }
