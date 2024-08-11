@@ -1,6 +1,8 @@
 package com.example.billapp.firebase
 
+import android.app.Activity
 import android.util.Log
+import com.example.billapp.MainActivity
 import com.example.billapp.activity.SignInActivity
 import com.example.billapp.activity.SignUpActivity
 import com.example.billapp.models.User
@@ -47,11 +49,10 @@ class FirestoreClass {
                 Log.e(
                     activity.javaClass.simpleName, document.toString()
                 )
-
                 val loggedInUser = document.toObject(User::class.java)!!
 
-                // Here call a function of base activity for transferring the result to it.
                 activity.signInSuccess(loggedInUser)
+
             }
             .addOnFailureListener { e ->
                 Log.e(
@@ -59,9 +60,11 @@ class FirestoreClass {
                     "Error writing document",
                     e
                 )
+
                 activity.hideProgressDialog()
                 activity.showErrorSnackBar(e.message.toString())
-            }
+
+                }
     }
 
     fun getCurrentUserID(): String {
