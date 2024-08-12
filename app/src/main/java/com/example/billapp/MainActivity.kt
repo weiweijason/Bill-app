@@ -133,7 +133,7 @@ fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
                         )
                     }
                 ) { innerPadding ->
-                    MainContent(modifier = Modifier.padding(innerPadding))
+                    MainScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
             composable("profile") {
@@ -194,20 +194,6 @@ fun DrawerContent(
                 onLogOut()
             }
         )
-    }
-}
-
-@Composable
-fun MainContent(modifier: Modifier = Modifier){
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("MainContent")
-        }
     }
 }
 

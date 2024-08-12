@@ -32,7 +32,7 @@ data class Group(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(modifier: Modifier) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("首頁", "個人", "新增", "群組", "設定")
     val icons = listOf(
@@ -98,6 +98,6 @@ fun PlaceholderScreen(title: String) {
 @Composable
 fun MainScreenPreview() {
     BillAppTheme {
-        MainScreen()
+        MainScreen(Modifier)
     }
 }
