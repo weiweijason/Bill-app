@@ -70,8 +70,8 @@ fun MainScreen() {
                 0 -> HomeScreen()
                 1 -> PlaceholderScreen("個人")
                 2 -> PlaceholderScreen("新增")
-                3 -> PlaceholderScreen("群組")
-                4 -> PlaceholderScreen("設定")
+                3 -> GroupScreen()
+                4 -> SettingScreen()
             }
         }
     }
