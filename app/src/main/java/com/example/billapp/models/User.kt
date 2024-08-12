@@ -9,6 +9,7 @@ data class User(
     val email: String = "",
     val image: String = "",
     val transactions: List<PersonalTransaction> = emptyList(), // 使用者的交易記錄列表
+    val groupsID: List<String> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
