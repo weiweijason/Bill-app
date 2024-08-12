@@ -31,7 +31,6 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
         user?.let {
             name = it.name
             email = it.email
-            mobile = it.mobile.toString()
         }
     }
 
@@ -108,7 +107,6 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                             val updatedUser = it.copy(
                                 name = name,
                                 email = email,
-                                mobile = mobile.toLongOrNull() ?: 0
                             )
                             viewModel.updateUserProfile(updatedUser)
                         }

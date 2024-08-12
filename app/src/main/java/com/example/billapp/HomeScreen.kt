@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billapp.models.Group
-import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.User
+import com.example.billapp.models.GroupTransaction
+import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -51,16 +51,17 @@ fun HomeScreen() {
     var groups by remember { mutableStateOf(listOf<Group>()) }
 
     if (showAddItemScreen) {
-        AddItemScreen(
-            onAddItem = { item ->
-                val defaultUserA = User(id = "1", name = "A", image = "")
-                val defaultUserB = User(id = "2", name = "B", image = "")
-                val defaultTransaction = GroupTransaction(from = defaultUserA, to = defaultUserB, amount = 100.0)
-                groups = groups + Group(name = item, transactions = listOf(defaultTransaction)) // 新增群組
-                showAddItemScreen = false
-            },
-            onBack = { showAddItemScreen = false }
-        )
+//        AddItemScreen(
+//            onAddItem = { item ->
+//                val defaultUserA = User(id = "1", name = "A", image = "")
+//                val defaultUserB = User(id = "2", name = "B", image = "")
+//                val defaultDeptRelation = DeptRelation(from = defaultUserA.id, to = defaultUserB.id, amount = 100.0)
+//                val defaultGroupTransaction = GroupTransaction()
+//                groups = groups + Group(name = item, listOf(defaultGroupTransaction) ,listOf(defaultDeptRelation)) // 新增群組
+//                showAddItemScreen = false
+//            },
+//            onBack = { showAddItemScreen = false }
+//        )
     } else {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -148,7 +149,7 @@ fun HomeScreen() {
                         .padding(horizontal = 16.dp)
                 ) {
                     items(groups) { group ->
-                        GroupItem(group = group)
+//                        GroupItem(group = group)
                     }
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +170,9 @@ fun HomeScreen() {
 }
 
 @Composable
-fun GroupItem(group: Group) {
+fun GroupItem(group: Group, viewModel: MainViewModel) {
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,9 +185,9 @@ fun GroupItem(group: Group) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        group.transactions.forEach { transaction ->
-            TransactionItem(transaction = transaction)
-        }
+//        group.transactions?.forEach { transaction ->
+//            TransactionItem(transaction = transaction)
+//        }
     }
 }
 
@@ -200,12 +203,7 @@ fun TransactionItem(transaction: GroupTransaction) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f)
         ) {
-            UserAvatar(user = transaction.from)
-            Text(
-                text = transaction.from.name,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
+
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -226,12 +224,7 @@ fun TransactionItem(transaction: GroupTransaction) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f)
         ) {
-            UserAvatar(user = transaction.to)
-            Text(
-                text = transaction.to.name,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
+
         }
     }
 }

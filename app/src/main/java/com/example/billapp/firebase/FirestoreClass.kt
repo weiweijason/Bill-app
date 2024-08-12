@@ -1,8 +1,6 @@
 package com.example.billapp.firebase
 
-import android.app.Activity
 import android.util.Log
-import com.example.billapp.MainActivity
 import com.example.billapp.activity.SignInActivity
 import com.example.billapp.activity.SignUpActivity
 import com.example.billapp.models.User
