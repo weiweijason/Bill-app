@@ -40,6 +40,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.billapp.models.Group
+import com.example.billapp.models.GroupTransaction
+import com.example.billapp.models.User
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -50,9 +53,9 @@ fun HomeScreen() {
     if (showAddItemScreen) {
         AddItemScreen(
             onAddItem = { item ->
-                val defaultUserA = User(id = "1", name = "A", avatarUrl = "")
-                val defaultUserB = User(id = "2", name = "B", avatarUrl = "")
-                val defaultTransaction = Transaction(from = defaultUserA, to = defaultUserB, amount = 100.0)
+                val defaultUserA = User(id = "1", name = "A", image = "")
+                val defaultUserB = User(id = "2", name = "B", image = "")
+                val defaultTransaction = GroupTransaction(from = defaultUserA, to = defaultUserB, amount = 100.0)
                 groups = groups + Group(name = item, transactions = listOf(defaultTransaction)) // 新增群組
                 showAddItemScreen = false
             },
@@ -186,7 +189,7 @@ fun GroupItem(group: Group) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: GroupTransaction) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
