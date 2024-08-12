@@ -20,6 +20,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.foundation.clickable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
 fun StylishTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    label: String
+    label: String,
+    modifier: Modifier = Modifier
 ) {
     val capybaraBrown = colorResource(id = R.color.colorAccent)
 
@@ -47,15 +49,15 @@ fun StylishTextField(
         label = { Text(label) },
         textStyle = TextStyle(
             fontSize = 18.sp,
-            fontFamily = FontFamily.Cursive,  // 酷酷字體 待改
+            fontFamily = FontFamily.Cursive,
             color = capybaraBrown
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .border(2.dp, capybaraBrown, RoundedCornerShape(8.dp)),  // 加圓角
+            .border(2.dp, capybaraBrown, RoundedCornerShape(8.dp)),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = colorResource(id = R.color.colorLight), // 聚焦时的背景色
+            focusedContainerColor = colorResource(id = R.color.colorLight), // 聚焦時的背景色
             unfocusedContainerColor = colorResource(id = R.color.colorLight), // 未聚焦時的背景色
             focusedIndicatorColor = capybaraBrown, // 聚焦時
             unfocusedIndicatorColor = Color.Transparent // 未聚焦時
@@ -63,23 +65,171 @@ fun StylishTextField(
     )
 }
 
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownMenuField(
+    label: String,
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val items = listOf("選項 1", "選項 2", "選項 3")
+
+    val capybaraBrown = colorResource(id = R.color.colorAccent)
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        TextField(
+            value = selectedItem,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = colorResource(id = R.color.colorLight), // 聚焦时的背景色
+                unfocusedContainerColor = colorResource(id = R.color.colorLight), // 未聚焦時的背景色
+                focusedIndicatorColor = capybaraBrown, // 聚焦時
+                unfocusedIndicatorColor = Color.Transparent // 未聚焦時
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(2.dp, capybaraBrown, RoundedCornerShape(8.dp))  // 添加深色外框
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            items.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        onItemSelected(selectionOption)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun CustomKeyboard(
+    onKeyClick: (String) -> Unit,
+    onDeleteClick: () -> Unit,
+    onClearClick: () -> Unit,
+    onOkClick: () -> Unit
+) {
+    val capybaraBrown = colorResource(id = R.color.colorAccent)
+    val capybaraLight = colorResource(id = R.color.colorLight)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        val buttonModifier = Modifier
+            .weight(1f)
+            .padding(4.dp)
+
+        val buttonColors = ButtonDefaults.buttonColors(
+            containerColor = capybaraLight
+        )
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(modifier = buttonModifier, onClick = { onKeyClick("÷") }, colors = buttonColors) {
+                Text("÷", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("1") }, colors = buttonColors) {
+                Text("1", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("4") }, colors = buttonColors) {
+                Text("4", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("7") }, colors = buttonColors) {
+                Text("7", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick(".") }, colors = buttonColors) {
+                Text(".", color = capybaraBrown)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(modifier = buttonModifier, onClick = { onKeyClick("×") }, colors = buttonColors) {
+                Text("×", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("2") }, colors = buttonColors) {
+                Text("2", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("5") }, colors = buttonColors) {
+                Text("5", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("8") }, colors = buttonColors) {
+                Text("8", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("0") }, colors = buttonColors) {
+                Text("0", color = capybaraBrown)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(modifier = buttonModifier, onClick = { onKeyClick("-") }, colors = buttonColors) {
+                Text("-", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("3") }, colors = buttonColors) {
+                Text("3", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("6") }, colors = buttonColors) {
+                Text("6", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = { onKeyClick("9") }, colors = buttonColors) {
+                Text("9", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = onDeleteClick, colors = buttonColors) {
+                Text("⌫", color = capybaraBrown)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(modifier = buttonModifier, onClick = { onKeyClick("+") }, colors = buttonColors) {
+                Text("+", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = onClearClick, colors = buttonColors) {
+                Text("AC", color = capybaraBrown)
+            }
+            Button(modifier = buttonModifier, onClick = onOkClick, colors = buttonColors) {
+                Text("OK", color = capybaraBrown)
+            }
+        }
+    }
+}
+
+
+
 @Composable
 fun BillAppScreen() {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf(TextFieldValue("")) }
-    var category by remember { mutableStateOf(TextFieldValue("")) }
-    var name by remember { mutableStateOf(TextFieldValue("")) }
-    var payer by remember { mutableStateOf(TextFieldValue("")) }
-    var splitMethod by remember { mutableStateOf(TextFieldValue("")) }
+    var category by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var payer by remember { mutableStateOf("") }
+    var splitMethod by remember { mutableStateOf("") }
+    var showKeyboard by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFD9C9BA))  // 設置背景顏色
-            .padding(16.dp)  // 背景padding
+            .background(Color(0xFFD9C9BA))  // 設置頁面的背景顏色
+            .padding(16.dp)  // 在背景上應用 padding
     ) {
-        // (個人/群組)
+        // 選項卡 (個人/群組)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -87,7 +237,7 @@ fun BillAppScreen() {
             Button(
                 onClick = { selectedTab = "個人" },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedTab == "個人") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
+                    containerColor = if (selectedTab == "個人") colorResource(id = R.color.colorAccent) else Color.LightGray
                 )
             ) {
                 Text("個人")
@@ -95,7 +245,7 @@ fun BillAppScreen() {
             Button(
                 onClick = { selectedTab = "群組" },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedTab == "群組") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
+                    containerColor = if (selectedTab == "群組") colorResource(id = R.color.colorAccent) else Color.LightGray
                 )
             ) {
                 Text("群組")
@@ -104,7 +254,7 @@ fun BillAppScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 當前(個人/群組)的內容
+        // 當前選項卡的內容
         if (selectedTab == "群組") {
             StylishTextField(
                 value = TextFieldValue(groupName),
@@ -124,45 +274,67 @@ fun BillAppScreen() {
             Spacer(modifier = Modifier.width(8.dp))
             StylishTextField(
                 value = amount,
-                onValueChange = { amount = it },
-                label = "金額"
+                onValueChange = {
+                    amount = it
+                    showKeyboard = true
+                },
+                label = "金額",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        showKeyboard = true
+                    }
+            )
+        }
+
+        if (showKeyboard) {
+            CustomKeyboard(
+                onKeyClick = { key ->
+                    amount = TextFieldValue(amount.text + key)
+                },
+                onDeleteClick = {
+                    if (amount.text.isNotEmpty()) {
+                        amount = TextFieldValue(amount.text.dropLast(1))
+                    }
+                },
+                onClearClick = {
+                    amount = TextFieldValue("")
+                },
+                onOkClick = {
+                    showKeyboard = false
+                }
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // 類別、名稱、付款人、分帳方式
-        StylishTextField(
-            value = category,
-            onValueChange = { category = it },
-            label = "類別"
+        DropDownMenuField(
+            label = "類別",
+            selectedItem = category,
+            onItemSelected = { category = it }
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        StylishTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = "名稱"
+        DropDownMenuField(
+            label = "名稱",
+            selectedItem = name,
+            onItemSelected = { name = it }
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        StylishTextField(
-            value = payer,
-            onValueChange = { payer = it },
-            label = "付款人"
+        DropDownMenuField(
+            label = "付款人",
+            selectedItem = payer,
+            onItemSelected = { payer = it }
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        StylishTextField(
-            value = splitMethod,
-            onValueChange = { splitMethod = it },
-            label = "分帳方式"
+        DropDownMenuField(
+            label = "分帳方式",
+            selectedItem = splitMethod,
+            onItemSelected = { splitMethod = it }
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
