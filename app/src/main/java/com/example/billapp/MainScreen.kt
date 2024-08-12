@@ -69,28 +69,11 @@ fun MainScreen(modifier: Modifier) {
             when (selectedItem) {
                 0 -> HomeScreen()
                 1 -> PersonalUIScreen()
-                2 -> PlaceholderScreen("新增")
+                2 -> ItemAdd()
                 3 -> GroupScreen()
                 4 -> SettingScreen()
             }
         }
-    }
-}
-
-@Composable
-fun PlaceholderScreen(title: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = title,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 

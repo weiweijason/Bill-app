@@ -2,18 +2,7 @@
 package com.example.billapp
 
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.remember
-import com.example.billapp.ui.theme.BillAppTheme
-import com.example.billapp.PersonalUIScreen
-
 import android.content.Intent
-import androidx.activity.compose.setContent
-
-import androidx.compose.runtime.*
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.billapp.BillAppScreen
-
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

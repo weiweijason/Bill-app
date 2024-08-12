@@ -37,9 +37,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StylishTextField(
@@ -219,7 +216,7 @@ fun CustomKeyboard(
 }
 
 @Composable
-fun BillAppScreen() {
+fun ItemAdd() {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf(TextFieldValue("")) }
