@@ -3,8 +3,6 @@ package com.example.billapp
 
 
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -242,13 +240,4 @@ fun PersonalDetailNull(user: User) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(user.name)
     }
-}
-
-
-
-@Preview
-@Composable
-fun MainScreenPreview()
-{
-
 }
