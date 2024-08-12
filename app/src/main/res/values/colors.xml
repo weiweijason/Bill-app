@@ -8,6 +8,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="colorPrimary2">#BF5888</color>
+    <color name="colorPrimaryDark2">#604874</color>
+    <color name="colorAccent2">#735645</color>
+    <color name="colorLight2">#D9BBA0</color>
+    <color name="colorDarkRed2">#552723</color>
+    <color name="primary_text_color2">#36363F</color>
+    <color name="secondary_text_color2">#7A8089</color>
+
     <color name="colorPrimary">#BFA588</color>
     <color name="colorPrimaryDark">#604847</color>
     <color name="colorAccent">#7B533E</color>

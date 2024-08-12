@@ -8,6 +8,11 @@ import com.example.billapp.PersonalUIScreen
 
 import android.content.Intent
 import androidx.activity.compose.setContent
+
+import androidx.compose.runtime.*
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.billapp.BillAppScreen
+
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
@@ -79,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         // 禁止螢幕旋轉
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
@@ -148,6 +154,7 @@ fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
     }
 }
 
+
 @Composable
 fun DrawerContent(
     navController: NavController,
@@ -201,6 +208,7 @@ fun DrawerContent(
     }
 }
 
+
 @Composable
 fun PersonalDetail(user: User) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -231,4 +239,3 @@ fun PersonalDetailNull(user: User) {
         Text(user.name)
     }
 }
-
