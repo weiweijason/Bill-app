@@ -13,23 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billapp.ui.theme.BillAppTheme
 
-data class User(
-    val id: String,
-    val name: String,
-    val avatarUrl: String
-)
-
-data class Transaction(
-    val from: User,
-    val to: User,
-    val amount: Double
-)
-
-data class Group(
-    val name: String,
-    val transactions: List<Transaction>
-)
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(modifier: Modifier) {
