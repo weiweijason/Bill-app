@@ -39,6 +39,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateUserProfile(updatedUser: User) {
+        viewModelScope.launch {
+            FirebaseFirestore.getInstance().collection(Constants.USERS)
+                .document(getCurrentUserID())
+                .set(updatedUser)
+                .addOnSuccessListener {
+                    _user.value = updatedUser
+                }
+                .addOnFailureListener { e ->
+                    Log.e("updateUserProfile", "Error updating user profile", e)
+                }
+        }
+    }
+
     private fun getCurrentUserID(): String {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return currentUser?.uid ?: ""

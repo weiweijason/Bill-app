@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,25 +14,33 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,32 +102,34 @@ fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
             }
         }
     ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("My App") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
+        NavHost(
+            navController = navController,
+            startDestination = "main"
+        ) {
+            composable("main") {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("My App") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        drawerState.open()
+                                    }
+                                }) {
+                                    Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                                }
                             }
-                        }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                        }
+                        )
                     }
-                )
+                ) { innerPadding ->
+                    MainContent(modifier = Modifier.padding(innerPadding))
+                }
             }
-        ) { innerPadding ->
-            // Main content
-            NavHost(
-                navController = navController,
-                startDestination = "main",
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable("main") { MainContent() }
-                composable("profile") { ProfileScreen() }
-                // 添加其他需要的路由
+            composable("profile") {
+                ProfileScreen(navController, viewModel)
             }
+            // 添加其他需要的路由
         }
     }
 }
@@ -144,9 +155,10 @@ fun DrawerContent(
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            when (val currentUser = user) {
-                null -> Text("Loading...")
-                else -> PersonalDetail(currentUser)
+            val currentUser = user
+            when (user?.image) {
+                "" -> PersonalDetailNull(user!!)
+                else -> currentUser?.let { PersonalDetail(it) }
             }
         }
 
@@ -176,21 +188,7 @@ fun DrawerContent(
 }
 
 @Composable
-fun ProfileScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("ProfileScreen")
-        }
-    }
-}
-
-@Composable
-fun MainContent(){
+fun MainContent(modifier: Modifier = Modifier){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -215,6 +213,19 @@ fun PersonalDetail(user: User) {
             contentDescription = "User Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier.clip(CircleShape)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(user.name)
+    }
+}
+
+@Composable
+fun PersonalDetailNull(user: User) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_user_place_holder),
+            contentDescription = "User Image",
+            modifier = Modifier.size(100.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(user.name)
