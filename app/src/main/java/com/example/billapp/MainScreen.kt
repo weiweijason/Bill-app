@@ -68,7 +68,7 @@ fun MainScreen(modifier: Modifier) {
         ) {
             when (selectedItem) {
                 0 -> HomeScreen()
-                1 -> PlaceholderScreen("個人")
+                1 -> PersonalUIScreen()
                 2 -> PlaceholderScreen("新增")
                 3 -> GroupScreen()
                 4 -> SettingScreen()
