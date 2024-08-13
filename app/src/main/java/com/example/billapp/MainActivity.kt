@@ -54,6 +54,11 @@ import kotlinx.coroutines.launch
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 
 class MainActivity : ComponentActivity() {
@@ -79,140 +84,4 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    val navController = rememberNavController()
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                val onCloseDrawer: () -> Unit = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }
-                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel)
-            }
-        }
-    ) {
-        NavHost(
-            navController = navController,
-            startDestination = "main"
-        ) {
-            composable("main") {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("My App") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch {
-                                        drawerState.open()
-                                    }
-                                }) {
-                                    Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    }
-                ) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
-                }
-            }
-            composable("profile") {
-                ProfileScreen(navController, viewModel)
-            }
-            // 添加其他需要的路由
-        }
-    }
-}
-
-
-@Composable
-fun DrawerContent(
-    navController: NavController,
-    onCloseDrawer: () -> Unit,
-    onLogOut: () -> Unit,
-    viewModel: MainViewModel
-) {
-    val user by viewModel.user.collectAsState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            val currentUser = user
-            when (user?.image) {
-                "" -> PersonalDetailNull(user!!)
-                else -> currentUser?.let { PersonalDetail(it) }
-            }
-        }
-
-        Divider()
-
-        // Menu items
-        Spacer(modifier = Modifier.height(16.dp))
-        NavigationDrawerItem(
-            icon = { Icon(painter = painterResource(id = R.drawable.ic_nav_user), contentDescription = null) },
-            label = { Text("My Profile") },
-            selected = false,
-            onClick = {
-                navController.navigate("profile")
-                onCloseDrawer()
-            }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        NavigationDrawerItem(
-            icon = { Icon(painter = painterResource(id = R.drawable.ic_nav_sign_out), contentDescription = null) },
-            label = { Text("Sign Out") },
-            selected = false,
-            onClick = {
-                onLogOut()
-            }
-        )
-    }
-}
-
-
-@Composable
-fun PersonalDetail(user: User) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(user.image)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.ic_user_place_holder),
-            contentDescription = "User Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(user.name)
-    }
-}
-
-@Composable
-fun PersonalDetailNull(user: User) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_user_place_holder),
-            contentDescription = "User Image",
-            modifier = Modifier.size(100.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(user.name)
-    }
-}
