@@ -34,6 +34,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.billapp.ui.theme.BillAppTheme
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +53,6 @@ import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -98,5 +100,4 @@ class MainActivity : ComponentActivity() {
     }
 
 }
-
 
