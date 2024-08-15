@@ -18,10 +18,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,38 +47,72 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.models.Group
 import com.example.billapp.models.User
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.viewModel.MainViewModel
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onOpenDrawer: () -> Unit
+) {
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("首頁", "個人", "新增", "群組", "設定")
+    val icons = listOf(
+        R.drawable.baseline_home_24,
+        R.drawable.baseline_person_24,
+        R.drawable.baseline_add_24,
+        R.drawable.baseline_groups_24,
+        R.drawable.baseline_settings_24
+    )
+    val navController = rememberNavController()
+    val groups = listOf(
+        Group("Group 1", "", listOf(), listOf(), listOf()),
+        Group("Group 2", "", listOf(), listOf(), listOf())
+    )
     var showAddItemScreen by remember { mutableStateOf(false) }
-    var groups by remember { mutableStateOf(listOf<Group>()) }
 
-    if (showAddItemScreen) {
-//        AddItemScreen(
-//            onAddItem = { item ->
-//                val defaultUserA = User(id = "1", name = "A", image = "")
-//                val defaultUserB = User(id = "2", name = "B", image = "")
-//                val defaultDeptRelation = DeptRelation(from = defaultUserA.id, to = defaultUserB.id, amount = 100.0)
-//                val defaultGroupTransaction = GroupTransaction()
-//                groups = groups + Group(name = item, listOf(defaultGroupTransaction) ,listOf(defaultDeptRelation)) // 新增群組
-//                showAddItemScreen = false
-//            },
-//            onBack = { showAddItemScreen = false }
-//        )
-    } else {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                BottomAppBar {
-                    Spacer(modifier = Modifier.weight(1f, true))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("My App") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = icons[index]),
+                                contentDescription = item
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            when (index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("personal")
+                                2 -> navController.navigate("add")
+                                3 -> navController.navigate("group")
+                                4 -> navController.navigate("settings")
+                            }
+                        }
+                    )
                 }
             }
-        ) { innerPadding ->
+        }
+    ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -167,7 +209,7 @@ fun HomeScreen() {
             }
         }
     }
-}
+
 
 @Composable
 fun GroupItem(group: Group, viewModel: MainViewModel) {

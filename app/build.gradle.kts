@@ -113,6 +113,9 @@ dependencies {
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+
+    implementation("androidx.compose.material:material:1.4.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

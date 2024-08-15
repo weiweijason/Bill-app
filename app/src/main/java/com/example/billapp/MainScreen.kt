@@ -31,7 +31,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
+fun MainScreen(
+    onLogOut: () -> Unit,
+    viewModel: MainViewModel,
+    requestPermission: (String) -> Unit
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -59,61 +63,30 @@ fun MainScreen(onLogOut: () -> Unit, viewModel: MainViewModel) {
             }
         }
     ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("My App") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
-                            }
-                        }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                        }
-                    }
-                )
-            },
-            bottomBar = {
-                NavigationBar {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = icons[index]),
-                                    contentDescription = item
-                                )
-                            },
-                            label = { Text(item) },
-                            selected = selectedItem == index,
-                            onClick = {
-                                selectedItem = index
-                                when (index) {
-                                    0 -> navController.navigate("home")
-                                    1 -> navController.navigate("personal")
-                                    2 -> navController.navigate("add")
-                                    3 -> navController.navigate("group")
-                                    4 -> navController.navigate("settings")
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        ) { innerPadding ->
+
             NavHost(
                 navController = navController,
                 startDestination = "home",
-                modifier = Modifier.padding(innerPadding)
             ) {
-                composable("home") { HomeScreen() }
+                composable("home") {
+                    HomeScreen(
+                        onOpenDrawer = {
+                            scope.launch { drawerState.open() }
+                        }
+                    )
+                }
                 composable("personal") { PersonalUIScreen() }
                 composable("add") { ItemAdd() }
                 composable("group") { GroupScreen() }
                 composable("settings") { SettingScreen() }
-                composable("profile") { ProfileScreen(navController, viewModel) }
+                composable("profile") {
+                    ProfileScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                        requestPermission = requestPermission
+                    )
+                }
             }
-        }
     }
 }
 
