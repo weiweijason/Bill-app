@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.billapp.viewModel.MainViewModel
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -28,7 +30,10 @@ data class FinanceRecord(
 )
 
 @Composable
-fun PersonalUIScreen() {
+fun PersonalUIScreen(
+    navController: NavController,
+    viewModel: MainViewModel
+) {
     var year by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var month by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH) + 1) }
 

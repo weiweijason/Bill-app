@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
 fun GroupSettingScreen(groupName: String, navController: NavController) {
@@ -108,7 +109,10 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
 
 
 @Composable
-fun GroupScreen() {
+fun GroupScreen(
+    navController: NavController,
+    viewModel: MainViewModel,
+) {
     val groups = remember { mutableStateListOf<String>() }
 
     Column(

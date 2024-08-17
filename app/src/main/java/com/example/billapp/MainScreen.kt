@@ -63,22 +63,71 @@ fun MainScreen(
             }
         }
     ) {
-
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    items.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = icons[index]),
+                                    contentDescription = item
+                                )
+                            },
+                            label = { Text(item) },
+                            selected = selectedItem == index,
+                            onClick = {
+                                selectedItem = index
+                                when (index) {
+                                    0 -> navController.navigate("home")
+                                    1 -> navController.navigate("personal")
+                                    2 -> navController.navigate("add")
+                                    3 -> navController.navigate("group")
+                                    4 -> navController.navigate("settings")
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        ) { innerPadding ->
             NavHost(
                 navController = navController,
                 startDestination = "home",
+                modifier = Modifier.padding(innerPadding)
             ) {
                 composable("home") {
                     HomeScreen(
+                        navController = navController,
                         onOpenDrawer = {
                             scope.launch { drawerState.open() }
                         }
                     )
                 }
-                composable("personal") { PersonalUIScreen() }
-                composable("add") { ItemAdd() }
-                composable("group") { GroupScreen() }
-                composable("settings") { SettingScreen() }
+                composable("personal") {
+                    PersonalUIScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                    )
+                }
+                composable("add") {
+                    ItemAdd(
+                        navController = navController,
+                        viewModel = viewModel,
+                    )
+                }
+                composable("group") {
+                    GroupScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                    )
+                }
+                composable("settings") {
+                    SettingScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                    )
+                }
                 composable("profile") {
                     ProfileScreen(
                         navController = navController,
@@ -87,8 +136,16 @@ fun MainScreen(
                     )
                 }
             }
+        }
     }
 }
+
+
+
+
+
+
+
 
 
 @Composable

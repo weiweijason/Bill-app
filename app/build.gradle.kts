@@ -52,12 +52,6 @@ android {
 }
 
 dependencies {
-    // 使用相同版本的 Coil 庫
-    implementation("io.coil-kt:coil:2.4.0")
-    implementation("io.coil-kt:coil-compose:2.4.0")
-
-    implementation("androidx.navigation:navigation-compose:2.5.3")
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

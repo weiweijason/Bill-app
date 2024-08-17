@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.billapp.models.Group
 import com.example.billapp.models.User
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    navController: NavController,
     onOpenDrawer: () -> Unit
 ) {
     var selectedItem by remember { mutableStateOf(0) }
@@ -68,10 +70,9 @@ fun HomeScreen(
         R.drawable.baseline_groups_24,
         R.drawable.baseline_settings_24
     )
-    val navController = rememberNavController()
     val groups = listOf(
-        Group("Group 1", "", listOf(), listOf(), listOf()),
-        Group("Group 2", "", listOf(), listOf(), listOf())
+        Group("Group 1", "", "", listOf(), listOf(), listOf()),
+        Group("Group 2", "", "", listOf(), listOf(), listOf())
     )
     var showAddItemScreen by remember { mutableStateOf(false) }
 
@@ -85,32 +86,6 @@ fun HomeScreen(
                     }
                 }
             )
-        },
-        bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = icons[index]),
-                                contentDescription = item
-                            )
-                        },
-                        label = { Text(item) },
-                        selected = selectedItem == index,
-                        onClick = {
-                            selectedItem = index
-                            when (index) {
-                                0 -> navController.navigate("home")
-                                1 -> navController.navigate("personal")
-                                2 -> navController.navigate("add")
-                                3 -> navController.navigate("group")
-                                4 -> navController.navigate("settings")
-                            }
-                        }
-                    )
-                }
-            }
         }
     ) { innerPadding ->
             Column(

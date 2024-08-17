@@ -36,6 +36,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -216,7 +218,10 @@ fun CustomKeyboard(
 }
 
 @Composable
-fun ItemAdd() {
+fun ItemAdd(
+    navController: NavController,
+    viewModel: MainViewModel,
+) {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf(TextFieldValue("")) }
