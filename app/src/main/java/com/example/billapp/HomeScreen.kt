@@ -171,7 +171,9 @@ fun HomeScreen(
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { showAddItemScreen = true },
+                            onClick = {
+                                navController.navigate("addItemScreen")
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(60.dp) // 設定按鈕高度

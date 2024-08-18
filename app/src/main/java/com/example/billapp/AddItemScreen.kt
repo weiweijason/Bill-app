@@ -15,10 +15,14 @@ import androidx.compose.ui.text.input.ImeAction
 
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.billapp.ui.theme.BillAppTheme
 
 @Composable
-fun AddItemScreen(onAddItem: (String) -> Unit, onBack: () -> Unit) {
+fun AddItemScreen(
+    navController: NavController,
+    onAddItem: (String) -> Unit
+) {
     var text by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
 
@@ -27,7 +31,7 @@ fun AddItemScreen(onAddItem: (String) -> Unit, onBack: () -> Unit) {
             TopAppBar(
                 title = { Text("Add Group") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -76,13 +80,5 @@ fun AddItemScreen(onAddItem: (String) -> Unit, onBack: () -> Unit) {
                 Text("Add")
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AddItemScreenPreview() {
-    BillAppTheme {
-        AddItemScreen(onAddItem = {}, onBack = {})
     }
 }
