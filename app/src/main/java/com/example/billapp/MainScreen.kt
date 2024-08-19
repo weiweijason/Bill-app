@@ -135,6 +135,9 @@ fun MainScreen(
                         requestPermission = requestPermission
                     )
                 }
+                composable("addItemScreen") {
+                    AddItemScreen(navController = navController,onAddItem = {})
+                }
             }
         }
     }
