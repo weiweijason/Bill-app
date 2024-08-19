@@ -141,6 +141,9 @@ fun MainScreen(
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
                 }
+                composable("about"){
+                    AboutScreen(navController = navController)
+                }
             }
         }
     }
