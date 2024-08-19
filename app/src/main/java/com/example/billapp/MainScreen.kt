@@ -138,6 +138,9 @@ fun MainScreen(
                 composable("addItemScreen") {
                     AddItemScreen(navController = navController,onAddItem = {})
                 }
+                composable("contact_us"){
+                    ContactUsScreen(navController = navController, viewModel = viewModel)
+                }
             }
         }
     }

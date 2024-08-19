@@ -41,8 +41,19 @@ fun SettingScreen(
         SettingButton(text = "帳號") {
             // 帳號按鈕點擊邏輯
         }
-        SettingButton(text = "聯絡我們") {
-            // 聯絡我們按鈕點擊邏輯
+        Button(onClick = {
+            navController.navigate("contact_us")
+        },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .size(height = 60.dp, width = 200.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(Color.LightGray)
+        ) {
+            Text(text = "聯絡我們",
+                fontSize = 18.sp,
+                color = Color.Black)
         }
         SettingButton(text = "關於") {
             // 關於按鈕點擊邏輯
@@ -66,5 +77,6 @@ fun SettingButton(text: String, onClick: () -> Unit) {
             fontSize = 18.sp,
             color = Color.Black
         )
+
     }
 }
