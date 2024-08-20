@@ -101,7 +101,8 @@ fun MainScreen(
                         navController = navController,
                         onOpenDrawer = {
                             scope.launch { drawerState.open() }
-                        }
+                        },
+                        viewModel = viewModel,
                     )
                 }
                 composable("personal") {
@@ -143,6 +144,9 @@ fun MainScreen(
                 }
                 composable("about"){
                     AboutScreen(navController = navController)
+                }
+                composable("Join_Group"){
+                    AddInvitationScreen(navController = navController, viewModel = viewModel)
                 }
             }
         }
@@ -215,7 +219,7 @@ fun DrawerContent(
 fun PersonalDetail(user: User) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
+            model = coil.request.ImageRequest.Builder(LocalContext.current)
                 .data(user.image)
                 .crossfade(true)
                 .build(),

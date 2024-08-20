@@ -9,10 +9,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -108,6 +114,8 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
 }
 
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupScreen(
     navController: NavController,
@@ -115,40 +123,53 @@ fun GroupScreen(
 ) {
     val groups = remember { mutableStateListOf<String>() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "群組",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            color = Color.Black
-        )
-
-        Button(
-            onClick = { groups.add("新群組 ${groups.size + 1}") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text(text = "新增群組", fontSize = 18.sp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "群組",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        color = Color.Black
+                    ) },
+                actions = {
+                    IconButton(onClick = { navController.navigate("Join_Group") }) {
+                        Icon(Icons.Default.Add, contentDescription = "加入群組")
+                    }
+                }
+            )
         }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = { navController.navigate("addItemScreen") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(text = "新增群組", fontSize = 18.sp)
+            }
 
-        LazyColumn {
-            items(groups) { group ->
-                Text(
-                    text = group,
-                    fontSize = 18.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
+            LazyColumn {
+                items(groups) { group ->
+                    Text(
+                        text = group,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+                }
             }
         }
     }

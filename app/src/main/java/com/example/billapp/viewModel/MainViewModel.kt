@@ -100,4 +100,8 @@ class MainViewModel : ViewModel() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return currentUser?.uid ?: ""
     }
+
+    fun getUserAmount(): Double {
+        return _user.value?.amount ?: 0.0
+    }
 }

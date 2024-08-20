@@ -59,7 +59,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavController,
-    onOpenDrawer: () -> Unit
+    onOpenDrawer: () -> Unit,
+    viewModel: MainViewModel
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("首頁", "個人", "新增", "群組", "設定")
@@ -120,11 +121,13 @@ fun HomeScreen(
                                 .fillMaxSize()
                                 .clickable {
                                     // 跳轉至個人頁面邏輯
+                                    navController.navigate("personal")
                                 },
                             contentAlignment = Alignment.Center
                         ) {
+                            val amount = viewModel.getUserAmount()
                             Text(
-                                text = "餘額: $0",
+                                text = "餘額: $amount",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -134,6 +137,7 @@ fun HomeScreen(
                                 .fillMaxSize()
                                 .clickable {
                                     // 跳轉至圓餅圖頁面邏輯
+                                    navController.navigate("personal")
                                 },
                             contentAlignment = Alignment.Center
                         ) {
