@@ -148,6 +148,9 @@ fun MainScreen(
                 composable("Join_Group"){
                     AddInvitationScreen(navController = navController, viewModel = viewModel)
                 }
+                composable("Group_Invite"){
+                    GroupInviteLinkScreen(navController = navController)
+                }
             }
         }
     }

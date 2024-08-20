@@ -109,7 +109,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
     //////
-
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.3.0")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")

@@ -1,5 +1,9 @@
 package com.example.billapp
 
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,17 @@ fun AddInvitationScreen(
     var groupLink by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
 
+    val qrCodeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contents = result.data?.getStringExtra("SCAN_RESULT")
+            if (contents != null) {
+                groupLink = contents
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -33,7 +48,10 @@ fun AddInvitationScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO: 跳轉至掃描 QR code 的邏輯*/ }) {
+                    IconButton(onClick = {
+                        val intent = Intent(navController.context, QRCodeScannerActivity::class.java)
+                        qrCodeLauncher.launch(intent)
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_qr_code_scanner_24),
                             contentDescription = "掃描 QR code"

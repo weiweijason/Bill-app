@@ -160,6 +160,14 @@ fun GroupScreen(
                 Text(text = "新增群組", fontSize = 18.sp)
             }
 
+            Button(onClick = { navController.navigate("Group_Invite") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(text = "test", fontSize = 18.sp)
+            }
+
             LazyColumn {
                 items(groups) { group ->
                     Text(
