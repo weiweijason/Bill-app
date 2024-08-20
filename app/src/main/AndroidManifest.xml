@@ -46,6 +46,7 @@
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity"/>
+        <activity android:name=".QRCodeScannerActivity" />
     </application>
 
 </manifest>

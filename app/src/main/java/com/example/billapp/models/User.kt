@@ -9,7 +9,8 @@ data class User(
     val email: String = "",
     val image: String = "",
     val transactions: List<PersonalTransaction> = emptyList(), // 使用者的交易記錄列表
-    val amount: Double = 0.0, // 新增的結餘屬性
+    val income: Double = 0.0, // 新增的收入屬性
+    val expense: Double = 0.0, // 新增的支出屬性
     val groupsID: List<String> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -20,7 +21,8 @@ data class User(
         mutableListOf<PersonalTransaction>().apply {
             parcel.readList(this, PersonalTransaction::class.java.classLoader)
         },
-        parcel.readDouble() // 讀取 amount
+        parcel.readDouble(), // 讀取 income
+        parcel.readDouble()  // 讀取 expense
     )
 
     override fun describeContents(): Int = 0
@@ -31,7 +33,8 @@ data class User(
         dest.writeString(email)
         dest.writeString(image)
         dest.writeList(transactions)
-        dest.writeDouble(amount) // 寫入 amount
+        dest.writeDouble(income) // 寫入 income
+        dest.writeDouble(expense) // 寫入 expense
     }
 
     companion object CREATOR : Parcelable.Creator<User> {

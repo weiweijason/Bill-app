@@ -1,45 +1,84 @@
 package com.example.billapp
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.billapp.ui.theme.BillAppTheme
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.common.BitMatrix
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupInviteLinkScreen() {
+fun GroupInviteLinkScreen(navController: NavController) {
+    val groupId = "asfgjsagdsafs12234"
+    val inviteLink = "https://example.com/invite/$groupId"
+    val qrCodeBitmap = remember { generateQRCode(groupId) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Text(
-                text = "群組邀請連結",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                fontSize = 24.sp
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "群組邀請連結",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        fontSize = 24.sp
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
         }
     ) { innerPadding ->
-        // 這裡會顯示邀請連結
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Add invite link UI here
-            Text(text = "邀請連結： https://example.com/invite")
+            Text(text = "邀請連結： $inviteLink")
+            Spacer(modifier = Modifier.height(16.dp))
+            qrCodeBitmap?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "QR Code",
+                    modifier = Modifier.size(200.dp)
+                )
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GroupInviteLinkScreenPreview() {
-    BillAppTheme {
-        GroupInviteLinkScreen()
+fun generateQRCode(content: String): Bitmap? {
+    val writer = QRCodeWriter()
+    val bitMatrix: BitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, 200, 200)
+    val width = bitMatrix.width
+    val height = bitMatrix.height
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+        }
     }
+    return bitmap
 }
+

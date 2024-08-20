@@ -100,4 +100,17 @@ class MainViewModel : ViewModel() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return currentUser?.uid ?: ""
     }
+
+    fun getUserAmount(): Float {
+        val user = _user.value
+        return (user?.income?.toFloat() ?: 0.0f) - (user?.expense?.toFloat() ?: 0.0f)
+    }
+
+    fun getUserIncome(): Float {
+        return _user.value?.income?.toFloat() ?: 0.0f
+    }
+
+    fun getUserExpense(): Float {
+        return _user.value?.expense?.toFloat() ?: 0.0f
+    }
 }
