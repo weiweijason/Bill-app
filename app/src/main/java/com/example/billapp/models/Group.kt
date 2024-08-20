@@ -42,4 +42,3 @@ data class Group(
             return arrayOfNulls(size)
         }
     }
-}
