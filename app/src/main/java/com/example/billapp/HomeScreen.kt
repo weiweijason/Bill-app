@@ -39,7 +39,6 @@ import com.example.billapp.models.User
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
-import kotlin.math.exp
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -164,31 +163,57 @@ fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
     val expenseAngle = (expense / total) * 360f
 
     Box(contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.size(200.dp)) {
-            withTransform({
-                rotate(270f)
-            }) {
-                drawArc(
-                    color = Color.Green,
-                    startAngle = 0f,
-                    sweepAngle = incomeAngle,
-                    useCenter = false,
-                    style = Stroke(width = 20.dp.toPx())
-                )
-                drawArc(
-                    color = Color.Red,
-                    startAngle = incomeAngle,
-                    sweepAngle = expenseAngle,
-                    useCenter = false,
-                    style = Stroke(width = 20.dp.toPx())
-                )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            Text(
+                text = "收入: $income",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+            )
+            Text(
+                text = "支出: $expense",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = 16.dp, start = 16.dp)
+            )
+            Canvas(modifier = Modifier
+                .size(200.dp)
+                .align(Alignment.Center)
+            ) {
+                withTransform({
+                    rotate(270f)
+                }) {
+                    drawArc(
+                        color = Color.Green,
+                        startAngle = 0f,
+                        sweepAngle = incomeAngle,
+                        useCenter = false,
+                        style = Stroke(width = 20.dp.toPx())
+                    )
+                    drawArc(
+                        color = Color.Red,
+                        startAngle = incomeAngle,
+                        sweepAngle = expenseAngle,
+                        useCenter = false,
+                        style = Stroke(width = 20.dp.toPx())
+                    )
+                }
             }
+            Text(
+                text = "結餘: $balance",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
-        Text(
-            text = "結餘: $balance",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 

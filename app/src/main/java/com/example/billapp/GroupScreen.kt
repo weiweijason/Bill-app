@@ -120,6 +120,7 @@ fun GroupSettingScreen(
                     // 成員按鈕
                     Button(
                         onClick = {
+                            // Navigate to 成員 screen
                             navController.navigate("memberListScreen")
                         },
                         modifier = Modifier
@@ -132,6 +133,7 @@ fun GroupSettingScreen(
                     // 群組邀請連結按鈕
                     Button(
                         onClick = {
+                            // Navigate to 群組邀請連結 screen
                             navController.navigate("groupInviteLinkScreen")
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -192,10 +194,21 @@ fun GroupScreen(
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
                         color = Color.Black
-                    ) },
+                    )
+                },
                 actions = {
-                    IconButton(onClick = { navController.navigate("Join_Group") }) {
-                        Icon(Icons.Default.Add, contentDescription = "加入群組")
+                    Button(
+                        onClick = { navController.navigate("Join_Group") },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                    ) {
+                        Text(
+                            text = "加入群組",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
                 }
             )
