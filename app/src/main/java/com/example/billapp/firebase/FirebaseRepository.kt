@@ -27,12 +27,12 @@ object FirebaseRepository {
             .document(groupId)
             .set(groupData, SetOptions.merge())
             .addOnSuccessListener {
-                Log.e("CreateBoard", "Board created successfully with ID: $groupId")
+                Log.e("CreateGroup", "Group created successfully with ID: $groupId")
             }
             .addOnFailureListener { e ->
                 Log.e(
-                    "CreateBoard",
-                    "Error while creating a board.",
+                    "CreateGroup",
+                    "Error while creating a group.",
                     e
                 )
             }
@@ -53,4 +53,30 @@ object FirebaseRepository {
             .await()
             .toObjects(Group::class.java)
     }
+
+    suspend fun deleteGroup(groupId: String) = withContext(Dispatchers.IO) {
+        getFirestoreInstance().collection("groups").document(groupId).delete().await()
+    }
+
+    suspend fun updateGroup(groupId: String, group: Group) = withContext(Dispatchers.IO) {
+        getFirestoreInstance().collection("groups").document(groupId).set(group).await()
+    }
+
+    suspend fun assignUserToGroup(groupId: String, userId: String) = withContext(Dispatchers.IO) {
+        val groupRef = getFirestoreInstance().collection("groups").document(groupId)
+        val group = groupRef.get().await().toObject(Group::class.java)
+        group?.assignedTo?.add(userId)
+        groupRef.set(group!!).await()
+    }
+
+    suspend fun getGroup(groupId: String): Group = withContext(Dispatchers.IO) {
+        return@withContext getFirestoreInstance()
+            .collection("groups")
+            .document(groupId)
+            .get()
+            .await()
+            .toObject(Group::class.java) ?: throw IllegalStateException("Group not found")
+    }
+
+
 }
