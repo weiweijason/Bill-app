@@ -110,7 +110,7 @@ dependencies {
 
     //////
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation("com.google.zxing:core:3.3.0")
+    implementation("com.google.zxing:core:3.5.1")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")

@@ -46,12 +46,28 @@ object FirebaseRepository {
 
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
-        return@withContext getFirestoreInstance()
-            .collection("groups")
-            .whereArrayContains("assignedTo", currentUser.uid)
+        val userId = currentUser.uid
+
+        // Query for groups where the user is in assignedTo
+        val assignedGroups = getFirestoreInstance()
+            .collection(Constants.GROUPS)
+            .whereArrayContains("assignedTo", userId)
             .get()
             .await()
             .toObjects(Group::class.java)
+
+        // Query for groups where the user is the creator
+        val createdGroups = getFirestoreInstance()
+            .collection(Constants.GROUPS)
+            .whereEqualTo("createdBy", userId)
+            .get()
+            .await()
+            .toObjects(Group::class.java)
+
+        // Combine both lists, removing any duplicates if necessary
+        val allGroups = (assignedGroups + createdGroups).distinctBy { it.id }
+
+        return@withContext allGroups
     }
 
     suspend fun deleteGroup(groupId: String) = withContext(Dispatchers.IO) {

@@ -118,7 +118,7 @@ fun MainScreen(
                     )
                 }
                 composable("group") {
-                    GroupScreen(
+                    GroupAddScreen(
                         navController = navController,
                         viewModel = viewModel,
                     )
@@ -155,13 +155,6 @@ fun MainScreen(
         }
     }
 }
-
-
-
-
-
-
-
 
 
 @Composable

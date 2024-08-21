@@ -4,6 +4,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.billapp.firebase.FirebaseRepository
+import com.example.billapp.models.Group
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -19,8 +21,19 @@ class MainViewModel : ViewModel() {
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _userGroups = MutableStateFlow<List<Group>>(emptyList())
+    val userGroups: StateFlow<List<Group>> = _userGroups.asStateFlow()
+
+
     init {
         loadUserData()
+        loadUserGroups()
     }
 
     private fun loadUserData() {
@@ -113,4 +126,77 @@ class MainViewModel : ViewModel() {
     fun getUserExpense(): Float {
         return _user.value?.expense?.toFloat() ?: 0.0f
     }
+
+    // Groups Function //
+    fun loadUserGroups() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val groups = FirebaseRepository.getUserGroups()
+                _userGroups.value = groups
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun updateGroup(groupId: String, updatedGroup: Group) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.updateGroup(groupId, updatedGroup)
+                loadUserGroups() // Refresh the list after updating
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteGroup(groupId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.deleteGroup(groupId)
+                loadUserGroups() // Refresh the list after deletion
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun assignUserToGroup(groupId: String, userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.assignUserToGroup(groupId, userId)
+                loadUserGroups() // Refresh the list after assignment
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun getGroup(groupId: String): StateFlow<Group?> {
+        val groupFlow = MutableStateFlow<Group?>(null)
+        viewModelScope.launch {
+            try {
+                val group = FirebaseRepository.getGroup(groupId)
+                groupFlow.value = group
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
+        }
+        return groupFlow.asStateFlow()
+    }
+
+    /////
+
 }

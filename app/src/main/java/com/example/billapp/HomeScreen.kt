@@ -56,11 +56,10 @@ fun HomeScreen(
         R.drawable.baseline_groups_24,
         R.drawable.baseline_settings_24
     )
-    val groups = listOf(
-        Group("Group 1", "", "", listOf(), listOf(), listOf()),
-        Group("Group 2", "", "", listOf(), listOf(), listOf())
-    )
+
     var showAddItemScreen by remember { mutableStateOf(false) }
+
+    val groups by viewModel.userGroups.collectAsState()
 
     Scaffold(
         topBar = {
@@ -151,9 +150,10 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
-                items(groups) { group ->
-                    GroupItem(group = group, viewModel = viewModel)
-                }
+                // Group list
+
+
+                // Add button
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
