@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -113,8 +114,6 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupScreen(
@@ -135,10 +134,21 @@ fun GroupScreen(
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
                         color = Color.Black
-                    ) },
+                    )
+                },
                 actions = {
-                    IconButton(onClick = { navController.navigate("Join_Group") }) {
-                        Icon(Icons.Default.Add, contentDescription = "加入群組")
+                    Button(
+                        onClick = { navController.navigate("Join_Group") },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                    ) {
+                        Text(
+                            text = "加入群組",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
                 }
             )
@@ -182,4 +192,3 @@ fun GroupScreen(
         }
     }
 }
-

@@ -1,5 +1,6 @@
 package com.example.billapp
 
+import androidx.annotation.XmlRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -137,7 +138,9 @@ fun MainScreen(
                     )
                 }
                 composable("addItemScreen") {
-                    AddItemScreen(navController = navController,onAddItem = {})
+                    AddItemScreen(navController = navController, onAddItem = { groupName, imageResId ->
+                        // 處理新增群組邏輯
+                    })
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
@@ -151,12 +154,13 @@ fun MainScreen(
                 composable("Group_Invite"){
                     GroupInviteLinkScreen(navController = navController)
                 }
+                composable("selectImageScreen") {
+                    SelectImageScreen(navController = navController)
+                }
             }
         }
     }
 }
-
-
 
 
 
