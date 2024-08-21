@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -145,30 +146,11 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                // Group list
 
-
-                // Add button
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            navController.navigate("addItemScreen")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp) // 設定按鈕高度
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text("新增群組")
-                    }
-                }
-            }
+            // Group list
+            GroupList(boardItems = groups, onGroupClick = { groupId ->
+                navController.navigate("boardDetail/$groupId")
+            },navController)
         }
     }
 }
@@ -204,26 +186,6 @@ fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
-    }
-}
-
-@Composable
-fun GroupItem(group: Group, viewModel: MainViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { }
-    ) {
-        Text(
-            text = group.name,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        // group.transactions?.forEach { transaction ->
-        //     TransactionItem(transaction = transaction)
-        // }
     }
 }
 

@@ -9,8 +9,8 @@ data class Group(
     val image: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),  // List of user id
-    val transactions: List<GroupTransaction>,
-    val deptRelations: List<DeptRelation>
+    val transactions: List<GroupTransaction> = emptyList(),
+    val deptRelations: List<DeptRelation> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,

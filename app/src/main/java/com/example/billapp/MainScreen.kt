@@ -118,7 +118,7 @@ fun MainScreen(
                     )
                 }
                 composable("group") {
-                    GroupAddScreen(
+                    GroupScreen(
                         navController = navController,
                         viewModel = viewModel,
                     )
@@ -136,8 +136,8 @@ fun MainScreen(
                         requestPermission = requestPermission
                     )
                 }
-                composable("addItemScreen") {
-                    AddItemScreen(navController = navController,onAddItem = {})
+                composable("CreateGroupScreen") {
+                    CreateGroup(navController = navController,viewModel = viewModel)
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)

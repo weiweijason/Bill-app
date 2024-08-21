@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,7 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +34,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,17 +55,26 @@ import com.example.billapp.R
 import com.example.billapp.models.Group
 
 @Composable
-fun GroupSettingScreen(groupName: String, navController: NavController) {
+fun GroupSettingScreen(
+    groupId: String,
+    viewModel: MainViewModel,
+    navController: NavController
+) {
+    val group by viewModel.getGroup(groupId).collectAsState(initial = null)
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Text(
-                text = groupName,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                fontSize = 24.sp
+            androidx.compose.material.TopAppBar(
+                title = { androidx.compose.material.Text(group?.name ?: "Board Detail") },
+                navigationIcon = {
+                    androidx.compose.material.IconButton(onClick = { navController.navigateUp() }) {
+                        androidx.compose.material.Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -73,10 +87,10 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp) // Increased padding
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
                     .background(Color.White)
                     .border(2.dp, Color.Gray)
-                    .padding(24.dp) // Increased internal padding
+                    .padding(24.dp)
             ) {
                 Text(
                     text = "債務關係",
@@ -105,7 +119,6 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
                     // 成員按鈕
                     Button(
                         onClick = {
-                            // Navigate to 成員 screen
                             navController.navigate("memberListScreen")
                         },
                         modifier = Modifier
@@ -118,12 +131,36 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
                     // 群組邀請連結按鈕
                     Button(
                         onClick = {
-                            // Navigate to 群組邀請連結 screen
                             navController.navigate("groupInviteLinkScreen")
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "群組邀請連結")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Delete Group Button
+                    Button(
+                        onClick = {
+                            group?.let {
+                                viewModel.deleteGroup(it.id)
+                                navController.navigateUp() // Navigate back after deletion
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red, // Background color
+                            contentColor = Color.White  // Text and icon color
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_delete), // Your delete icon resource
+                            contentDescription = "Delete Group"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "刪除群組")
                     }
                 }
             }
@@ -133,9 +170,10 @@ fun GroupSettingScreen(groupName: String, navController: NavController) {
 
 
 
+// 下方群組圖示點擊後會導到 GroupScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupAddScreen(
+fun GroupScreen(
     navController: NavController,
     viewModel: MainViewModel,
 ) {
@@ -253,7 +291,11 @@ fun GroupItem(groupName: String, createdBy: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun GroupList(boardItems: List<Group>, onGroupClick: (String) -> Unit) {
+fun GroupList(
+    boardItems: List<Group>,
+    onGroupClick: (String) -> Unit,
+    navController: NavController
+) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(boardItems) { groupItem ->
             GroupItem(
@@ -261,6 +303,20 @@ fun GroupList(boardItems: List<Group>, onGroupClick: (String) -> Unit) {
                 createdBy = groupItem.createdBy,
                 onClick = { onGroupClick(groupItem.id) }
             )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    navController.navigate("CreateGroupScreen")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp) // 設定按鈕高度
+                    .padding(vertical = 4.dp)
+            ) {
+                Text("新增群組")
+            }
         }
     }
 }

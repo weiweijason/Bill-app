@@ -1,5 +1,6 @@
 package com.example.billapp.viewModel
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -11,10 +12,13 @@ import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class MainViewModel : ViewModel() {
@@ -30,6 +34,8 @@ class MainViewModel : ViewModel() {
     private val _userGroups = MutableStateFlow<List<Group>>(emptyList())
     val userGroups: StateFlow<List<Group>> = _userGroups.asStateFlow()
 
+    private val _groupCreationStatus = MutableStateFlow<GroupCreationStatus>(GroupCreationStatus.IDLE)
+    val groupCreationStatus: StateFlow<GroupCreationStatus> = _groupCreationStatus.asStateFlow()
 
     init {
         loadUserData()
@@ -197,6 +203,41 @@ class MainViewModel : ViewModel() {
         return groupFlow.asStateFlow()
     }
 
+    fun createGroup(name: String, imageUri: Uri?, context: Context) {
+        viewModelScope.launch {
+            _groupCreationStatus.value = GroupCreationStatus.LOADING
+            try {
+                val imageUrl = imageUri?.let { uploadImage(it, context) }
+                val group = Group(name = name, image = (imageUrl ?: "").toString())
+                FirebaseRepository.createGroup(group)
+                loadUserGroups() // 在成功創建Group後更新userGroups
+                _groupCreationStatus.value = GroupCreationStatus.SUCCESS
+            } catch (e: Exception) {
+                _groupCreationStatus.value = GroupCreationStatus.ERROR
+                _error.value = e.message
+            }
+        }
+    }
+
+    private suspend fun uploadImage(imageUri: Uri, context: Context): String {
+        return withContext(Dispatchers.IO) {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val imageRef = storageRef.child("group_images/${UUID.randomUUID()}")
+
+            val uploadTask = imageRef.putFile(imageUri).await()
+            return@withContext imageRef.downloadUrl.await().toString()
+        }
+    }
+
+    fun resetGroupCreationStatus() {
+        _groupCreationStatus.value = GroupCreationStatus.IDLE
+    }
+
+
     /////
 
+}
+
+enum class GroupCreationStatus {
+    IDLE, LOADING, SUCCESS, ERROR
 }
