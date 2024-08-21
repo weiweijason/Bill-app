@@ -1,6 +1,5 @@
 package com.example.billapp.activity
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -8,17 +7,14 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.billapp.R
 import com.example.billapp.firebase.FirestoreClass
 import com.example.billapp.models.User
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 
 

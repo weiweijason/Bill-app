@@ -52,7 +52,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -72,6 +71,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.volley)
 
     val compose_version = "1.5.1"
     implementation ("androidx.compose.material:material:$compose_version")
@@ -109,10 +109,16 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
     //////
-
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
+    implementation ("androidx.compose.ui:ui-graphics:1.0.0")
+    implementation ("androidx.core:core-ktx:1.6.0")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+
+    implementation("androidx.compose.material:material:1.4.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -122,3 +128,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+
+
