@@ -16,7 +16,7 @@ object FirebaseRepository {
     private fun getFirestoreInstance() = FirebaseFirestore.getInstance()
     private fun getAuthInstance() = FirebaseAuth.getInstance()
 
-    suspend fun createBoard(group: Group) = withContext(Dispatchers.IO) {
+    suspend fun createGroup(group: Group) = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val groupId = getFirestoreInstance().collection(Constants.GROUPS).document().id
         val groupData = group.copy(
@@ -44,7 +44,7 @@ object FirebaseRepository {
             ?: throw IllegalStateException("User data not found")
     }
 
-    suspend fun getUserBoards(): List<Group> = withContext(Dispatchers.IO) {
+    suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         return@withContext getFirestoreInstance()
             .collection("groups")
