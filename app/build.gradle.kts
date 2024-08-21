@@ -111,6 +111,8 @@ dependencies {
     //////
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.3.0")
+    implementation ("androidx.compose.ui:ui-graphics:1.0.0")
+    implementation ("androidx.core:core-ktx:1.6.0")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
