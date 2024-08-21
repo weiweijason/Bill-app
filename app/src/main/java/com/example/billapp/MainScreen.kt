@@ -151,6 +151,16 @@ fun MainScreen(
                 composable("Group_Invite"){
                     GroupInviteLinkScreen(navController = navController)
                 }
+                composable("groupDetail/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId")
+                    groupId?.let {
+                        GroupSettingScreen(
+                            groupId = it,
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
     }
