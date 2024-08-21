@@ -4,16 +4,21 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+//import androidx.compose.material.icons.filled.
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -70,15 +75,22 @@ fun SelectImageScreen(navController: NavController, imageViewModel: ImageViewMod
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                Button(
-                    onClick = {
-                        launcher.launch("image/*")
-                    },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
+                        .background(Color.Gray, RoundedCornerShape(8.dp))
+                        .clickable {
+                            launcher.launch("image/*")
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Upload Image")
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_image_24),
+                        contentDescription = "Upload Image",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp)
+                    )
                 }
             }
             if (imageViewModel.selectedImageBitmap.value != null) {
