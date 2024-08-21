@@ -148,9 +148,12 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Group list
-            GroupList(boardItems = groups, onGroupClick = { groupId ->
-                navController.navigate("boardDetail/$groupId")
-            },navController)
+            GroupList(
+                groupItems = groups,
+                onGroupClick = { groupId ->
+                    navController.navigate("groupDetail/$groupId")
+                },
+                navController)
         }
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.ui.theme.BillAppTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
@@ -21,8 +22,10 @@ import com.google.zxing.common.BitMatrix
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupInviteLinkScreen(navController: NavController) {
-    val groupId = "asfgjsagdsafs12234"
+fun GroupInviteLinkScreen(
+    groupId: String,
+    navController: NavController
+) {
     val inviteLink = "https://example.com/invite/$groupId"
     val qrCodeBitmap = remember { generateQRCode(groupId) }
 
@@ -80,5 +83,18 @@ fun generateQRCode(content: String): Bitmap? {
         }
     }
     return bitmap
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GroupInviteLinkScreenPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+
+    // Call the composable you want to preview
+    GroupInviteLinkScreen(
+        groupId = "mockGroupId",
+        navController = navController
+    )
 }
 

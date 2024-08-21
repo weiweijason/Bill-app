@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.viewModel.MainViewModel
 import com.example.billapp.R
 import com.example.billapp.models.Group
@@ -66,7 +67,7 @@ fun GroupSettingScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             androidx.compose.material.TopAppBar(
-                title = { androidx.compose.material.Text(group?.name ?: "Board Detail") },
+                title = { androidx.compose.material.Text(group?.name ?: "Group Detail") },
                 navigationIcon = {
                     androidx.compose.material.IconButton(onClick = { navController.navigateUp() }) {
                         androidx.compose.material.Icon(
@@ -292,12 +293,12 @@ fun GroupItem(groupName: String, createdBy: String, onClick: () -> Unit) {
 
 @Composable
 fun GroupList(
-    boardItems: List<Group>,
+    groupItems: List<Group>,
     onGroupClick: (String) -> Unit,
     navController: NavController
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(boardItems) { groupItem ->
+        items(groupItems) { groupItem ->
             GroupItem(
                 groupName = groupItem.name,
                 createdBy = groupItem.createdBy,
@@ -328,3 +329,19 @@ fun GroupItemPreview()
     GroupItem("Travel","Jason",{})
 }
 
+@Preview(showBackground = true)
+@Composable
+fun GroupSettingScreenPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+
+    // Call the composable you want to preview
+    GroupSettingScreen(
+        groupId = "mockGroupId",
+        viewModel = viewModel,
+        navController = navController
+    )
+}

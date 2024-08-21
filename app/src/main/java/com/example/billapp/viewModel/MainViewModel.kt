@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.Group
+import com.example.billapp.models.GroupMember
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -36,6 +37,9 @@ class MainViewModel : ViewModel() {
 
     private val _groupCreationStatus = MutableStateFlow<GroupCreationStatus>(GroupCreationStatus.IDLE)
     val groupCreationStatus: StateFlow<GroupCreationStatus> = _groupCreationStatus.asStateFlow()
+
+    private val _members = MutableStateFlow<List<GroupMember>>(emptyList())
+    val members: StateFlow<List<GroupMember>> = _members
 
     init {
         loadUserData()
