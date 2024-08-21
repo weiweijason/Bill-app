@@ -24,9 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,16 +96,40 @@ fun ContactUsScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                Button(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.office.com/r/xbfaNM01rW"))
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.fillMaxWidth(0.8f)
-                ) {
-                    Text(text = "意見調查")
+                Column(){
+                    Button(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.office.com/r/xbfaNM01rW"))
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "意見調查")
+                    }
+                    Button(
+                        onClick = {
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://forms.office.com/r/xbfaNM01rW")
+                            )
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "問題回報(還沒做)")
+                    }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ContactUsScreenPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+    ContactUsScreen(navController = navController, viewModel = viewModel)
 }

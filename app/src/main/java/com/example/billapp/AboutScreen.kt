@@ -18,9 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +30,17 @@ fun AboutScreen(navController: NavController) {
     val context = LocalContext.current
     val packageManager = context.packageManager
     val packageName = context.packageName
+
+    // Using remember to cache the result and avoid recomputation
     val packageInfo = remember {
-        packageManager.getPackageInfo(packageName, 0)
+        try {
+            packageManager.getPackageInfo(packageName, 0)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
     }
-    val versionName = packageInfo.versionName
+
+    val versionName = packageInfo?.versionName ?: "Unknown"
 
     Scaffold(
         topBar = {
@@ -80,4 +89,12 @@ fun AboutScreen(navController: NavController) {
             )
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun AboutScreenPreview() {
+    val navController = rememberNavController()
+    AboutScreen(navController = navController)
 }

@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.group
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,6 +36,7 @@ import com.example.billapp.viewModel.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.R
 import com.example.billapp.viewModel.GroupCreationStatus
 
 @Composable

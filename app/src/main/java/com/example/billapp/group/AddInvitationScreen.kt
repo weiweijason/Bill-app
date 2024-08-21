@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.group
 
 import android.app.Activity
 import android.content.Intent
@@ -18,6 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.QRCodeScannerActivity
+import com.example.billapp.R
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

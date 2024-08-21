@@ -5,8 +5,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,20 +23,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.billapp.models.Group
+import androidx.navigation.compose.rememberNavController
+import com.example.billapp.group.GroupList
 import com.example.billapp.models.User
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.viewModel.MainViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -158,6 +156,18 @@ fun HomeScreen(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+    HomeScreen(navController = navController, onOpenDrawer = {}, viewModel = viewModel)
+    // HomeScreen(navController = navController, onOpenDrawer = {})
+}
+
+
 @Composable
 fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
     val incomeAngle = (income / total) * 360f
@@ -217,6 +227,11 @@ fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
         }
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun PieChartPreview() {
+    PieChart(income = 100f, expense = 50f, balance = 50f, total = 150f)
+}
 
 @Composable
 fun TransactionItem(transaction: GroupTransaction) {
@@ -256,6 +271,7 @@ fun TransactionItem(transaction: GroupTransaction) {
     }
 }
 
+
 @Composable
 fun UserAvatar(user: User) {
     val avatarResource = if (user.id == "2") {
@@ -273,3 +289,10 @@ fun UserAvatar(user: User) {
         contentScale = ContentScale.Crop
     )
 }
+@Preview(showBackground = true)
+@Composable
+fun UserAvatarPreview() {
+    UserAvatar(user = User(id = "1", name = "John Doe"))
+}
+
+
