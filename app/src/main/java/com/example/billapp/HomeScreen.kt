@@ -152,7 +152,8 @@ fun HomeScreen(
                 onGroupClick = { groupId ->
                     navController.navigate("groupDetail/$groupId")
                 },
-                navController)
+                navController
+            )
         }
     }
 }

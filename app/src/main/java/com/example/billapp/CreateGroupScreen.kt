@@ -29,11 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.billapp.viewModel.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.viewModel.GroupCreationStatus
 
 @Composable
@@ -107,4 +109,15 @@ fun CreateGroup(
             viewModel.resetGroupCreationStatus()
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateGroupPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+
+    CreateGroup(navController = navController, viewModel = viewModel)
 }

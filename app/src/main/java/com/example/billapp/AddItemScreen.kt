@@ -15,10 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
 fun AddItemScreen(
@@ -127,4 +130,16 @@ fun AddItemScreen(
             }
         }
     }
+}
+
+
+@Preview
+@Composable
+fun AddItemScreenPreview(){
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+
+    AddItemScreen(navController = navController, onAddItem = { _, _ -> })
 }
