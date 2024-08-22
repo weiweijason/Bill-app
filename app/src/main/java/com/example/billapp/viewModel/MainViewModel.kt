@@ -45,8 +45,25 @@ class MainViewModel : ViewModel() {
     private val _members = MutableStateFlow<List<GroupMember>>(emptyList())
     val members: StateFlow<List<GroupMember>> = _members
 
+    // 個人交易紀錄(List)
     private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
     val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
+
+    // Transaction fields
+    private val _transactionType = MutableStateFlow("支出")
+    val transactionType: StateFlow<String> = _transactionType.asStateFlow()
+
+    private val _amount = MutableStateFlow(0.0)
+    val amount: StateFlow<Double> = _amount.asStateFlow()
+
+    private val _category = MutableStateFlow<String>("") // Assuming _category is a String
+    val category: StateFlow<String> get() = _category
+
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name.asStateFlow()
+
+    private val _note = MutableStateFlow("")
+    val note: StateFlow<String> = _note.asStateFlow()
 
 
     init {
@@ -249,7 +266,7 @@ class MainViewModel : ViewModel() {
 
     ///////////////// 個人資料 ///////////////////////
 
-    // Function to get user transactions
+    // 取得個人交易紀錄
     fun getUserTransactions() {
         viewModelScope.launch {
             try {
@@ -261,21 +278,41 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    // StateFlow properties
-    private val _transactionType = MutableStateFlow("支出")
-    val transactionType: StateFlow<String> = _transactionType.asStateFlow()
+    // 新增一筆個人交易
+    fun addPersonalTransaction() {
+        viewModelScope.launch {
+            try {
+                val amountValue = _amount.value
+                val categoryValue = _category.value
 
-    private val _amount = MutableStateFlow(0.0)
-    val amount: StateFlow<Double> = _amount.asStateFlow()
-
-    private val _category = MutableStateFlow<String>("") // Assuming _category is a String
-    val category: StateFlow<String> get() = _category
-
-    private val _name = MutableStateFlow("")
-    val name: StateFlow<String> = _name.asStateFlow()
-
-    private val _note = MutableStateFlow("")
-    val note: StateFlow<String> = _note.asStateFlow()
+                if (categoryValue.isNotEmpty()) {
+                    val category = stringToCategory(categoryValue)
+                    FirebaseRepository.addPersonalTransaction(
+                        PersonalTransaction(
+                            userId = getCurrentUserID(),
+                            type = _transactionType.value,
+                            amount = amountValue,
+                            category = category,
+                            name = _name.value,
+                            note = _note.value,
+                            date = Timestamp.now(),
+                            createdAt = Timestamp.now(),
+                            updatedAt = Timestamp.now()
+                        )
+                    )
+                    // Reset fields
+                    _amount.value = 0.0
+                    _category.value = TransactionCategory.FOOD.name // Reset to a default category
+                    _name.value = ""
+                    _note.value = ""
+                } else {
+                    Log.e("TransactionAdd", "Amount or category value is invalid")
+                }
+            } catch (e: Exception) {
+                Log.e("TransactionAdd", "Error adding personal transaction: ${e.message}", e)
+            }
+        }
+    }
 
     // Setters for fields
     fun setTransactionType(type: String) {
@@ -318,41 +355,7 @@ class MainViewModel : ViewModel() {
         _note.value = value
     }
 
-    // Add a personal transaction
-    fun addPersonalTransaction() {
-        viewModelScope.launch {
-            try {
-                val amountValue = _amount.value
-                val categoryValue = _category.value
 
-                if (categoryValue.isNotEmpty()) {
-                    val category = stringToCategory(categoryValue)
-                    FirebaseRepository.addPersonalTransaction(
-                        PersonalTransaction(
-                            userId = getCurrentUserID(),
-                            type = _transactionType.value,
-                            amount = amountValue,
-                            category = category,
-                            name = _name.value,
-                            note = _note.value,
-                            date = Timestamp.now(),
-                            createdAt = Timestamp.now(),
-                            updatedAt = Timestamp.now()
-                        )
-                    )
-                    // Reset fields
-                    _amount.value = 0.0
-                    _category.value = TransactionCategory.FOOD.name // Reset to a default category
-                    _name.value = ""
-                    _note.value = ""
-                } else {
-                    Log.e("TransactionAdd", "Amount or category value is invalid")
-                }
-            } catch (e: Exception) {
-                Log.e("TransactionAdd", "Error adding personal transaction: ${e.message}", e)
-            }
-        }
-    }
 }
 
 enum class GroupCreationStatus {
