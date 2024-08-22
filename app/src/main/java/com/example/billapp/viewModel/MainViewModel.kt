@@ -3,13 +3,17 @@ package com.example.billapp.viewModel
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.Group
 import com.example.billapp.models.GroupMember
+import com.example.billapp.models.PersonalTransaction
+import com.example.billapp.models.TransactionCategory
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -40,6 +44,10 @@ class MainViewModel : ViewModel() {
 
     private val _members = MutableStateFlow<List<GroupMember>>(emptyList())
     val members: StateFlow<List<GroupMember>> = _members
+
+    private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
+    val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
+
 
     init {
         loadUserData()
@@ -236,10 +244,115 @@ class MainViewModel : ViewModel() {
     fun resetGroupCreationStatus() {
         _groupCreationStatus.value = GroupCreationStatus.IDLE
     }
-
-
     /////
 
+
+    ///////////////// 個人資料 ///////////////////////
+
+    // Function to get user transactions
+    fun getUserTransactions() {
+        viewModelScope.launch {
+            try {
+                val transactions = FirebaseRepository.getUserTransactions(getCurrentUserID())
+                _userTransactions.value = transactions
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
+        }
+    }
+
+    // StateFlow properties
+    private val _transactionType = MutableStateFlow("支出")
+    val transactionType: StateFlow<String> = _transactionType.asStateFlow()
+
+    private val _amount = MutableStateFlow(0.0)
+    val amount: StateFlow<Double> = _amount.asStateFlow()
+
+    private val _category = MutableStateFlow<String>("") // Assuming _category is a String
+    val category: StateFlow<String> get() = _category
+
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name.asStateFlow()
+
+    private val _note = MutableStateFlow("")
+    val note: StateFlow<String> = _note.asStateFlow()
+
+    // Setters for fields
+    fun setTransactionType(type: String) {
+        _transactionType.value = type
+    }
+
+    fun setAmount(amount: Double) {
+        _amount.value = amount
+    }
+
+    // Convert String to TransactionCategory
+    fun stringToCategory(value: String): TransactionCategory {
+        val category = TransactionCategory.values().find { it.name.equals(value, ignoreCase = true) }
+        if (category == null) {
+            Log.e("CategoryConversion", "Invalid category value: $value")
+        }
+        return category ?: TransactionCategory.OTHER
+    }
+
+    // Convert TransactionCategory to String
+    fun categoryToString(category: TransactionCategory): String {
+        return category.name
+    }
+
+    // Set category as String
+    fun setCategory(value: String) {
+        _category.value = value
+    }
+
+    // Set category using TransactionCategory
+    fun setCategory(category: TransactionCategory) {
+        _category.value = categoryToString(category)
+    }
+
+    fun setName(value: String) {
+        _name.value = value
+    }
+
+    fun setNote(value: String) {
+        _note.value = value
+    }
+
+    // Add a personal transaction
+    fun addPersonalTransaction() {
+        viewModelScope.launch {
+            try {
+                val amountValue = _amount.value
+                val categoryValue = _category.value
+
+                if (categoryValue.isNotEmpty()) {
+                    val category = stringToCategory(categoryValue)
+                    FirebaseRepository.addPersonalTransaction(
+                        PersonalTransaction(
+                            userId = getCurrentUserID(),
+                            type = _transactionType.value,
+                            amount = amountValue,
+                            category = category,
+                            name = _name.value,
+                            note = _note.value,
+                            date = Timestamp.now(),
+                            createdAt = Timestamp.now(),
+                            updatedAt = Timestamp.now()
+                        )
+                    )
+                    // Reset fields
+                    _amount.value = 0.0
+                    _category.value = TransactionCategory.FOOD.name // Reset to a default category
+                    _name.value = ""
+                    _note.value = ""
+                } else {
+                    Log.e("TransactionAdd", "Amount or category value is invalid")
+                }
+            } catch (e: Exception) {
+                Log.e("TransactionAdd", "Error adding personal transaction: ${e.message}", e)
+            }
+        }
+    }
 }
 
 enum class GroupCreationStatus {

@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StylishTextField(
+fun StylishTextField2(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -87,7 +87,7 @@ fun StylishTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropDownMenuField(
+fun DropDownMenuField2(
     label: String,
     selectedItem: String,
     onItemSelected: (String) -> Unit,
@@ -139,7 +139,7 @@ fun DropDownMenuField(
 }
 
 @Composable
-fun CustomKeyboard(
+fun CustomKeyboard2(
     onKeyClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
     onClearClick: () -> Unit,
@@ -232,7 +232,7 @@ fun CustomKeyboard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemAdd(
+fun ItemAdd2(
     navController: NavController,
     viewModel: MainViewModel
 ) {
@@ -420,7 +420,7 @@ fun ItemAdd(
 //                onItemSelected = { viewModel.setName(it) }
 //            )
 
-            TransactionCategoryDropdown(
+            TransactionCategoryDropdown2(
                 selectedCategory = selectedCategory,
                 onCategorySelected = { category ->
                     if (isValidCategory(category)) {
@@ -535,7 +535,7 @@ fun ItemAdd(
 }
 
 @Composable
-fun TransactionCategoryDropdown(
+fun TransactionCategoryDropdown2(
     selectedCategory: TransactionCategory,
     onCategorySelected: (TransactionCategory) -> Unit
 ) {
@@ -566,6 +566,21 @@ fun TransactionCategoryDropdown(
             )
         }
     }
+}
+
+fun isValidAmount(amount: String): Boolean {
+    return amount.toDoubleOrNull() != null && amount.isNotEmpty()
+}
+fun isValidCategory(category: TransactionCategory): Boolean {
+    return TransactionCategory.values().contains(category)
+}
+
+@Preview
+@Composable
+fun ItemAddPreview() {
+    val navController = rememberNavController()
+    val viewModel = MainViewModel()
+    ItemAdd2(navController, viewModel)
 }
 
 

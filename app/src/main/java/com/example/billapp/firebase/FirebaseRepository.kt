@@ -2,9 +2,11 @@ package com.example.billapp.firebase
 
 import android.util.Log
 import com.example.billapp.models.Group
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
@@ -95,4 +97,38 @@ object FirebaseRepository {
     }
 
 
+
+    // 新增一筆個人交易紀錄
+    suspend fun addPersonalTransaction(transaction: PersonalTransaction) = withContext(Dispatchers.IO) {
+        val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
+        val userId = currentUser.uid
+
+        // Add the transaction to the user's transactions subcollection
+        getFirestoreInstance().collection(Constants.USERS)
+            .document(userId)
+            .collection("transactions")
+            .add(transaction)
+            .await()
+
+        // Update the user's total income or expense
+        val userRef = getFirestoreInstance().collection(Constants.USERS).document(userId)
+        if (transaction.type == "收入") {
+            userRef.update("income", FieldValue.increment(transaction.amount))
+        } else if (transaction.type == "支出") {
+            userRef.update("expense", FieldValue.increment(transaction.amount))
+        }
+        else{
+            Log.e("addPersonalTransaction", "Invalid transaction type: ${transaction.type}")
+        }
+    }
+
+    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
+        return@withContext getFirestoreInstance()
+            .collection(Constants.USERS)
+            .document(userId)
+            .collection("transactions")
+            .get()
+            .await()
+            .toObjects(PersonalTransaction::class.java)
+    }
 }
