@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +57,10 @@ fun PersonalTest(
     navController: NavController,
     viewModel: MainViewModel
 ) {
+    // Initialize the category to ensure it has a default value
+    LaunchedEffect(Unit) {
+        viewModel.setCategory(TransactionCategory.OTHER)
+    }
     val transactionType by viewModel.transactionType.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val category by viewModel.category.collectAsState()
@@ -71,7 +76,7 @@ fun PersonalTest(
     var isBottomSheetVisible by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
-    viewModel.setCategory(TransactionCategory.OTHER)
+
 
     Column(
         modifier = Modifier

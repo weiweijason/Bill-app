@@ -103,24 +103,36 @@ object FirebaseRepository {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val userId = currentUser.uid
 
+        // Generate a unique transactionId using Firestore's document ID
+        val transactionId = getFirestoreInstance().collection(Constants.USERS)
+            .document(userId)
+            .collection("transactions")
+            .document()
+            .id
+
+        // Create a transaction object with the generated transactionId
+        val transactionWithId = transaction.copy(
+            transactionId = transactionId,
+            userId = userId
+        )
+
         // Add the transaction to the user's transactions subcollection
         getFirestoreInstance().collection(Constants.USERS)
             .document(userId)
             .collection("transactions")
-            .add(transaction)
+            .document(transactionId)
+            .set(transactionWithId)
             .await()
 
         // Update the user's total income or expense
         val userRef = getFirestoreInstance().collection(Constants.USERS).document(userId)
-        if (transaction.type == "收入") {
-            userRef.update("income", FieldValue.increment(transaction.amount))
-        } else if (transaction.type == "支出") {
-            userRef.update("expense", FieldValue.increment(transaction.amount))
-        }
-        else{
-            Log.e("addPersonalTransaction", "Invalid transaction type: ${transaction.type}")
+        when (transaction.type) {
+            "收入" -> userRef.update("income", FieldValue.increment(transaction.amount)).await()
+            "支出" -> userRef.update("expense", FieldValue.increment(transaction.amount)).await()
+            else -> Log.e("addPersonalTransaction", "Invalid transaction type: ${transaction.type}")
         }
     }
+
 
     suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
         return@withContext getFirestoreInstance()
