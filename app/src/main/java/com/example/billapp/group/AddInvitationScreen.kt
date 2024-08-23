@@ -1,9 +1,5 @@
 package com.example.billapp.group
 
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -18,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.billapp.QRCodeScannerActivity
+import com.example.billapp.QRCodeScannerScreen
 import com.example.billapp.R
 import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
@@ -34,17 +30,6 @@ fun AddInvitationScreen(
     val currentUser = viewModel.user.collectAsState().value
 
 
-    val qrCodeLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val contents = result.data?.getStringExtra("SCAN_RESULT")
-            if (contents != null) {
-                groupLink = contents
-            }
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -56,8 +41,7 @@ fun AddInvitationScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        val intent = Intent(navController.context, QRCodeScannerActivity::class.java)
-                        qrCodeLauncher.launch(intent)
+                        navController.navigate("qrCodeScanner")
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_qr_code_scanner_24),
