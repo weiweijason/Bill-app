@@ -4,14 +4,16 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Group(
+    val id: String = "",
     val name: String = "",
     val image: String = "",
     val createdBy: String = "",
-    val usersID: List<String> = ArrayList(),  // List of user id
-    val transactions: List<GroupTransaction>,
-    val deptRelations: List<DeptRelation>
+    val assignedTo: ArrayList<String> = ArrayList(),  // List of user id
+    val transactions: List<GroupTransaction> = emptyList(),
+    val deptRelations: List<DeptRelation> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
@@ -21,10 +23,11 @@ data class Group(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeString(image)
         parcel.writeString(createdBy)
-        parcel.writeStringList(usersID)
+        parcel.writeStringList(assignedTo)
         parcel.writeTypedList(transactions)
         parcel.writeTypedList(deptRelations)
     }
@@ -42,3 +45,4 @@ data class Group(
             return arrayOfNulls(size)
         }
     }
+}

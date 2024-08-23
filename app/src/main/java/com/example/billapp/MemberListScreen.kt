@@ -11,15 +11,14 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.models.GroupMember
 import com.example.billapp.ui.theme.BillAppTheme
 import com.example.billapp.viewModel.MainViewModel
-
-data class GroupMember(val name: String)
 
 @Composable
 fun MemberListScreen(
     navController: NavController,
-    viewModel: MainViewModel,
+    groupId: String,
 ) {
     // Sample list of members
     val members = listOf(

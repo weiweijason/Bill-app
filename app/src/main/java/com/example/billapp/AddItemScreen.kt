@@ -1,8 +1,9 @@
-// AddItemScreen.kt
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.billapp
 
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -11,20 +12,46 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
-
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.billapp.ui.theme.BillAppTheme
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
 fun AddItemScreen(
     navController: NavController,
-    onAddItem: (String) -> Unit
+    onAddItem: (String, Int?) -> Unit,
+    imageViewModel: ImageViewModel = viewModel()
 ) {
     var text by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+    var selectedImage by remember { mutableStateOf(R.drawable.image1) } // 預設圖片
+
+    // 獲取 LocalContext
+    val context = LocalContext.current
+
+    // 監聽返回的圖片資源 ID 或 URI
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val savedStateHandle = navBackStackEntry?.savedStateHandle
+
+    navBackStackEntry?.let {
+        val savedStateHandle = it.savedStateHandle
+        savedStateHandle.getLiveData<Int>("selectedImage")?.observe(it) { imageResId ->
+            selectedImage = imageResId
+            imageViewModel.selectedImageBitmap.value = null
+            imageViewModel.selectedImageUri.value = null
+        }
+        savedStateHandle.getLiveData<Uri>("selectedImageUri")?.observe(it) { uri ->
+            imageViewModel.setImageUri(uri, context)
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -46,6 +73,27 @@ fun AddItemScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (imageViewModel.selectedImageBitmap.value != null) {
+                Image(
+                    bitmap = imageViewModel.selectedImageBitmap.value!!,
+                    contentDescription = "Selected Image",
+                    modifier = Modifier.size(100.dp)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = selectedImage),
+                    contentDescription = "Selected Image",
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { navController.navigate("selectImageScreen") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Select Image")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = text,
                 onValueChange = {
@@ -69,7 +117,8 @@ fun AddItemScreen(
             Button(
                 onClick = {
                     if (text.isNotBlank()) {
-                        onAddItem(text)
+                        onAddItem(text, selectedImage)
+                        navController.navigateUp() // Navigate back after adding item
                     } else {
                         isError = true
                     }
@@ -81,4 +130,16 @@ fun AddItemScreen(
             }
         }
     }
+}
+
+
+@Preview
+@Composable
+fun AddItemScreenPreview(){
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+
+    AddItemScreen(navController = navController, onAddItem = { _, _ -> })
 }
