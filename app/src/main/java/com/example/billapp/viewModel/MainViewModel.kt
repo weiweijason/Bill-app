@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.Group
 import com.example.billapp.models.GroupMember
+import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.TransactionCategory
 import com.example.billapp.models.User
@@ -64,6 +65,18 @@ class MainViewModel : ViewModel() {
 
     private val _note = MutableStateFlow("")
     val note: StateFlow<String> = _note.asStateFlow()
+
+    private val _shareMethod = MutableStateFlow("")
+    val shareMethod: StateFlow<String> = _shareMethod
+
+    private val _dividers = MutableStateFlow<List<String>>(emptyList())
+    val dividers: StateFlow<List<String>> = _dividers
+
+    private val _payers = MutableStateFlow<List<String>>(emptyList())
+    val payers: StateFlow<List<String>> = _payers
+
+    private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
+    val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
 
     init {
@@ -356,6 +369,65 @@ class MainViewModel : ViewModel() {
     }
 
 
+    // 群組交易
+    fun setShareMethod(method: String) {
+        _shareMethod.value = method
+    }
+
+    fun toggleDivider(userId: String) {
+        _dividers.value = if (_dividers.value.contains(userId)) {
+            _dividers.value - userId
+        } else {
+            _dividers.value + userId
+        }
+    }
+
+    fun togglePayer(userId: String) {
+        _payers.value = if (_payers.value.contains(userId)) {
+            _payers.value - userId
+        } else {
+            _payers.value + userId
+        }
+    }
+
+    fun getGroupMembers(groupId: String) {
+        viewModelScope.launch {
+            try {
+                val members = FirebaseRepository.getGroupMembers(groupId)
+                _groupMembers.value = members
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
+        }
+    }
+
+    fun addGroupTransaction(groupId: String) {
+        viewModelScope.launch {
+            try {
+                FirebaseRepository.addGroupTransaction(
+                    groupId,
+                    GroupTransaction(
+                        id = "",
+                        payer = _payers.value,
+                        divider = _dividers.value,
+                        shareMethod = _shareMethod.value,
+                        type = _transactionType.value,
+                        amount = _amount.value,
+                        date = Timestamp.now(),
+                        createdAt = Timestamp.now(),
+                        updatedAt = Timestamp.now()
+                    )
+                )
+                // Reset fields
+                _amount.value = 0.0
+                _shareMethod.value = ""
+                _dividers.value = emptyList()
+                _payers.value = emptyList()
+            } catch (e: Exception) {
+                Log.e("GroupTransactionAdd", "Error adding group transaction: ${e.message}", e)
+            }
+        }
+    }
 }
 
 enum class GroupCreationStatus {

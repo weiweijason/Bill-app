@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.billapp.QRCodeScannerActivity
 import com.example.billapp.R
+import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +31,8 @@ fun AddInvitationScreen(
 ) {
     var groupLink by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+    val currentUser = viewModel.user.collectAsState().value
+
 
     val qrCodeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -96,7 +99,9 @@ fun AddInvitationScreen(
             Button(
                 onClick = {
                     if (groupLink.isNotBlank()) {
-                        /*TODO: 完成按鈕的邏輯*/
+                        // 根據 grouplink(groupid) 將當前的User新增到該群組的 assignedTo
+                        viewModel.assignUserToGroup(groupLink, currentUser?.id ?: "")
+                        navController.popBackStack()
                     } else {
                         isError = true
                     }
