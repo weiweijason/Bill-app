@@ -100,6 +100,15 @@ object FirebaseRepository {
             .toObject(Group::class.java) ?: throw IllegalStateException("Group not found")
     }
 
+    suspend fun getGroupTransactions(groupId: String): List<GroupTransaction> = withContext(Dispatchers.IO) {
+        return@withContext getFirestoreInstance()
+            .collection(Constants.GROUPS)
+            .document(groupId)
+            .collection("transactions")
+            .get()
+            .await()
+            .toObjects(GroupTransaction::class.java)
+    }
 
 
     // 新增一筆個人交易紀錄

@@ -1,10 +1,7 @@
 package com.example.billapp.group
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.dept_relation.DeptRelationsScreen
 import com.example.billapp.R
 import com.example.billapp.viewModel.MainViewModel
 
@@ -45,6 +43,7 @@ fun GroupSettingScreen(
     navController: NavController
 ) {
     val group by viewModel.getGroup(groupId).collectAsState(initial = null)
+    val deptRelations by viewModel.getDeptRelations(groupId).collectAsState(initial = emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -77,40 +76,44 @@ fun GroupSettingScreen(
                 border = BorderStroke(2.dp, Color.Gray),
                 backgroundColor = Color.White
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp), // Adds padding inside the Card
-                    verticalAlignment = Alignment.CenterVertically, // Centers content vertically
-                    horizontalArrangement = Arrangement.SpaceBetween // Ensures space between items
-                ) {
-                    Text(
-                        text = "債務關係",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 20.sp,
+                Column(modifier = Modifier.padding(16.dp))
+                {
+                    Row(
                         modifier = Modifier
-                            .weight(1f) // Makes the Text take available space
-                            .padding(end = 16.dp) // Adds space between Text and Button
-                    )
-
-                    Button(
-                        onClick = {
-                            navController.navigate("groupTest/$groupId")
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary // Use theme color for consistency
-                        ),
-                        shape = RoundedCornerShape(8.dp), // Rounded corners for the button
-                        modifier = Modifier
-                            .weight(1f) // Makes the Button take available space
-                            .padding(start = 16.dp) // Adds space between Button and Text
-                            .fillMaxWidth() // Ensures the button is as wide as the available space
+                            .fillMaxWidth()
+                            .padding(16.dp), // Adds padding inside the Card
+                        verticalAlignment = Alignment.CenterVertically, // Centers content vertically
+                        horizontalArrangement = Arrangement.SpaceBetween // Ensures space between items
                     ) {
                         Text(
-                            text = "新增一筆交易(在當前群組)",
-                            style = MaterialTheme.typography.bodyLarge
+                            text = "債務關係",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 20.sp,
+                            modifier = Modifier
+                                .weight(1f) // Makes the Text take available space
+                                .padding(end = 8.dp) // Adds space between Text and Button
                         )
+
+                        Button(
+                            onClick = {
+                                navController.navigate("groupTest/$groupId")
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary // Use theme color for consistency
+                            ),
+                            shape = RoundedCornerShape(8.dp), // Rounded corners for the button
+                            modifier = Modifier
+                                .weight(1f) // Makes the Button take available space
+                                .padding(start = 16.dp) // Adds space between Button and Text
+                                .fillMaxWidth() // Ensures the button is as wide as the available space
+                        ) {
+                            Text(
+                                text = "新增交易",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
+                    DeptRelationsScreen(viewModel = viewModel, groupId = groupId)
                 }
             }
 
