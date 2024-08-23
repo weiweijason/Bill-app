@@ -1,5 +1,6 @@
 package com.example.billapp.dept_relation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.billapp.R
 import com.example.billapp.models.DeptRelation
 import com.example.billapp.viewModel.MainViewModel
@@ -39,7 +41,7 @@ fun DeptRelationItem(deptRelation: DeptRelation) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),  // 使用 CardDefaults.cardElevation 設置陰影
+        elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -49,8 +51,11 @@ fun DeptRelationItem(deptRelation: DeptRelation) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // 從用戶
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // From User
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(0.5f)
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.image1),
                     contentDescription = null,
@@ -60,29 +65,35 @@ fun DeptRelationItem(deptRelation: DeptRelation) {
                 )
                 Text(
                     text = deptRelation.from,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1, // Limiting lines to prevent overflow
+                    modifier = Modifier.padding(top = 4.dp) // Padding to separate text from image
                 )
             }
 
-
-
-
-            // 欠債金額
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Arrow and Debt Amount
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(0.8f).padding(4.dp)
+            ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_right), // 使用自定義的箭頭圖標
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_right),
                     contentDescription = "Arrow",
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
+                    fontSize = 16.sp,
                     text = "$${String.format("%.2f", deptRelation.amount)}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            // 至用戶
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // To User
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(0.5f)
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.image2),
                     contentDescription = null,
@@ -92,12 +103,15 @@ fun DeptRelationItem(deptRelation: DeptRelation) {
                 )
                 Text(
                     text = deptRelation.to,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1, // Limiting lines to prevent overflow
+                    modifier = Modifier.padding(top = 4.dp) // Padding to separate text from image
                 )
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
