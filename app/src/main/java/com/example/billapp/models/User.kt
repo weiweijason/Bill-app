@@ -11,7 +11,7 @@ data class User(
     val transactions: List<PersonalTransaction> = emptyList(),
     val income: Double = 0.0,
     val expense: Double = 0.0,
-    val groupsID: List<String> = emptyList() // Ensure this is included
+    var groupsID: MutableList<String> = mutableListOf() // 包含 User 的群組列表
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",

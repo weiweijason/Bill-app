@@ -2,6 +2,7 @@ package com.example.billapp.firebase
 
 import android.util.Log
 import com.example.billapp.models.Group
+import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
@@ -46,6 +47,7 @@ object FirebaseRepository {
             ?: throw IllegalStateException("User data not found")
     }
 
+    // 目前新增群組後會自動更新 User 的 groupsID，不需要執行getUserGroups()，但為了避免出錯，這個先留著
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val userId = currentUser.uid
@@ -83,6 +85,8 @@ object FirebaseRepository {
     suspend fun assignUserToGroup(groupId: String, userId: String) = withContext(Dispatchers.IO) {
         val groupRef = getFirestoreInstance().collection("groups").document(groupId)
         val group = groupRef.get().await().toObject(Group::class.java)
+        val currentUser = getCurrentUser()
+        currentUser.groupsID.add(groupId)
         group?.assignedTo?.add(userId)
         groupRef.set(group!!).await()
     }
@@ -133,7 +137,7 @@ object FirebaseRepository {
         }
     }
 
-
+    // 取得個人交易紀錄
     suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
         return@withContext getFirestoreInstance()
             .collection(Constants.USERS)
@@ -143,4 +147,38 @@ object FirebaseRepository {
             .await()
             .toObjects(PersonalTransaction::class.java)
     }
+
+    // 新增一筆群組交易紀錄
+    suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction) = withContext(Dispatchers.IO) {
+        val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
+
+        val transactionId = getFirestoreInstance().collection(Constants.GROUPS)
+            .document(groupId)
+            .collection("transactions")
+            .document()
+            .id
+
+        val transactionWithId = transaction.copy(id = transactionId)
+
+        getFirestoreInstance().collection(Constants.GROUPS)
+            .document(groupId)
+            .collection("transactions")
+            .document(transactionId)
+            .set(transactionWithId)
+            .await()
+    }
+
+    // 取得群組成員
+    suspend fun getGroupMembers(groupId: String): List<User> = withContext(Dispatchers.IO) {
+        val group = getGroup(groupId)
+        val memberIds = group.assignedTo + group.createdBy
+        return@withContext memberIds.mapNotNull { userId ->
+            getFirestoreInstance().collection(Constants.USERS)
+                .document(userId)
+                .get()
+                .await()
+                .toObject(User::class.java)
+        }
+    }
+
 }
