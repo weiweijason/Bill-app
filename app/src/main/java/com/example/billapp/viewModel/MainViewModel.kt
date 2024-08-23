@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
+import com.example.billapp.models.DeptRelation
 import com.example.billapp.models.Group
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
@@ -46,6 +47,14 @@ class MainViewModel : ViewModel() {
     private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
     val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
 
+    // 當前群組交易紀錄(List)
+    private val _groupTransactions = MutableStateFlow<List<GroupTransaction>>(emptyList())
+    val groupTransactions: StateFlow<List<GroupTransaction>> = _groupTransactions.asStateFlow()
+
+    // Dept relations (List)
+    private val _deptRelations = MutableStateFlow<List<DeptRelation>>(emptyList())
+    val deptRelations: StateFlow<List<DeptRelation>> = _deptRelations.asStateFlow()
+
     // Transaction fields
     private val _transactionType = MutableStateFlow("支出")
     val transactionType: StateFlow<String> = _transactionType.asStateFlow()
@@ -73,6 +82,8 @@ class MainViewModel : ViewModel() {
 
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
+
+
 
 
     init {
@@ -169,6 +180,11 @@ class MainViewModel : ViewModel() {
 
     fun getUserExpense(): Float {
         return _user.value?.expense?.toFloat() ?: 0.0f
+    }
+
+    // Dept Functions //
+    fun getDeptRelations(groupId: String): MutableStateFlow<List<DeptRelation>> {
+        return _deptRelations
     }
 
     // Groups Function //
@@ -424,7 +440,47 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+    fun loadGroupTransactions(groupId: String) {
+        viewModelScope.launch {
+            try {
+                val transactions = FirebaseRepository.getGroupTransactions(groupId)
+                _groupTransactions.value = transactions
+                calculateDeptRelations(transactions)
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
+        }
+    }
+
+    // 這是均分以後要加上別的方法
+    private fun calculateDeptRelations(transactions: List<GroupTransaction>) {
+        val deptRelationMap = mutableMapOf<Pair<String, String>, Double>()
+
+        transactions.forEach { transaction ->
+            // Calculate the amount each payer should contribute
+            val amountPerPayer = transaction.amount / transaction.payer.size
+            // Calculate the amount each participant (divider) should pay
+            val amountPerPerson = amountPerPayer / transaction.divider.size
+
+            transaction.payer.forEach { payerId ->
+                transaction.divider.forEach { participantId ->
+                    if (participantId != payerId) {
+                        val key = payerId to participantId
+                        deptRelationMap[key] = deptRelationMap.getOrDefault(key, 0.0) + amountPerPerson
+                    }
+                }
+            }
+        }
+
+        // Convert the map into a list of DeptRelation objects
+        val deptRelations = deptRelationMap.map { (key, amount) ->
+            DeptRelation(from = key.first, to = key.second, amount = amount)
+        }
+
+        _deptRelations.value = deptRelations
+    }
 }
+
 
 enum class GroupCreationStatus {
     IDLE, LOADING, SUCCESS, ERROR

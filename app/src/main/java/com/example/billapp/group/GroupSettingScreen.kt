@@ -1,10 +1,7 @@
 package com.example.billapp.group
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.dept_relation.DeptRelationsScreen
 import com.example.billapp.R
 import com.example.billapp.viewModel.MainViewModel
 
@@ -45,6 +43,7 @@ fun GroupSettingScreen(
     navController: NavController
 ) {
     val group by viewModel.getGroup(groupId).collectAsState(initial = null)
+    val deptRelations by viewModel.getDeptRelations(groupId).collectAsState(initial = emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -67,90 +66,90 @@ fun GroupSettingScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 債務關係區塊 (Debt Relationship Section)
+            // Debt Relationship Section
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(horizontal = 8.dp, vertical = 8.dp), // Reduced padding here
                 elevation = 4.dp,
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(2.dp, Color.Gray),
                 backgroundColor = Color.White
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp), // Adds padding inside the Card
-                    verticalAlignment = Alignment.CenterVertically, // Centers content vertically
-                    horizontalArrangement = Arrangement.SpaceBetween // Ensures space between items
-                ) {
-                    Text(
-                        text = "債務關係",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 20.sp,
+                Column(modifier = Modifier.padding(8.dp)) // Reduced padding inside the Card
+                {
+                    Row(
                         modifier = Modifier
-                            .weight(1f) // Makes the Text take available space
-                            .padding(end = 16.dp) // Adds space between Text and Button
-                    )
-
-                    Button(
-                        onClick = {
-                            navController.navigate("groupTest/$groupId")
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary // Use theme color for consistency
-                        ),
-                        shape = RoundedCornerShape(8.dp), // Rounded corners for the button
-                        modifier = Modifier
-                            .weight(1f) // Makes the Button take available space
-                            .padding(start = 16.dp) // Adds space between Button and Text
-                            .fillMaxWidth() // Ensures the button is as wide as the available space
+                            .fillMaxWidth()
+                            .padding(8.dp), // Reduced padding inside the Row
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "新增一筆交易(在當前群組)",
-                            style = MaterialTheme.typography.bodyLarge
+                            text = "債務關係",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 20.sp,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 4.dp) // Reduced padding between Text and Button
                         )
+
+                        Button(
+                            onClick = {
+                                navController.navigate("groupTest/$groupId")
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 4.dp) // Reduced padding between Button and Text
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "新增交易",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
+                    DeptRelationsScreen(viewModel = viewModel, groupId = groupId)
                 }
             }
 
-            // 管理員區塊 (Administrator Section)
+            // Administrator Section
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 8.dp, vertical = 4.dp), // Reduced padding here
                 elevation = 4.dp,
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(2.dp, Color.Gray),
                 backgroundColor = Color.LightGray
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp) // Padding inside the Card
+                    modifier = Modifier.padding(8.dp) // Reduced padding inside the Card
                 ) {
                     Text(
                         text = "管理員",
                         style = MaterialTheme.typography.bodyLarge,
                         fontSize = 20.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 4.dp) // Reduced bottom padding
                     )
 
-                    // 成員按鈕 (Member Button)
                     Button(
                         onClick = {
-                            // Navigate to 成員 screen
                             navController.navigate("memberListScreen/$groupId")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 4.dp) // Reduced bottom padding
                     ) {
                         Text(text = "成員")
                     }
 
-                    // 群組邀請連結按鈕 (Group Invite Link Button)
                     Button(
                         onClick = {
-                            // Navigate to 群組邀請連結 screen
                             navController.navigate("groupInviteLinkScreen")
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -158,28 +157,27 @@ fun GroupSettingScreen(
                         Text(text = "群組邀請連結")
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // Reduced height
 
-                    // Delete Group Button
                     Button(
                         onClick = {
                             group?.let {
                                 viewModel.deleteGroup(it.id)
-                                navController.navigateUp() // Navigate back after deletion
+                                navController.navigateUp()
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red, // Background color
-                            contentColor = Color.White // Text and icon color
+                            containerColor = Color.Red,
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(8.dp) // Rounded corners for the button
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_delete), // Your delete icon resource
+                            painter = painterResource(id = R.drawable.ic_delete),
                             contentDescription = "Delete Group"
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(4.dp)) // Reduced space between icon and text
                         Text(text = "刪除群組")
                     }
                 }
@@ -187,6 +185,7 @@ fun GroupSettingScreen(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
