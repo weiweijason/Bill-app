@@ -113,6 +113,8 @@ dependencies {
     implementation("com.google.zxing:core:3.5.1")
     implementation ("androidx.compose.ui:ui-graphics:1.0.0")
     implementation ("androidx.core:core-ktx:1.6.0")
+    implementation ("androidx.activity:activity-compose:1.3.1")
+    implementation ("com.google.accompanist:accompanist-permissions:0.24.13-rc")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
