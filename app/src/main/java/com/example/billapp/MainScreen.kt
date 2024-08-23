@@ -174,6 +174,10 @@ fun MainScreen(
                     val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
                     GroupTest(navController, viewModel, groupId)
                 }
+                composable("memberListScreen/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    MemberListScreen(navController, viewModel, groupId)
+                }
             }
         }
     }

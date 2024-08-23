@@ -138,7 +138,7 @@ fun GroupSettingScreen(
                     Button(
                         onClick = {
                             // Navigate to 成員 screen
-                            navController.navigate("memberListScreen")
+                            navController.navigate("memberListScreen/$groupId")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
