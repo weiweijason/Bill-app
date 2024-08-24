@@ -144,14 +144,10 @@ fun HomeScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Group list
-            GroupList(
-                groupItems = groups,
-                onGroupClick = { groupId ->
-                    navController.navigate("groupDetail/$groupId")
-                },
-                navController
-            )
+            // 顯示時間最近的 4 個 Group，並利用 4 宮格顯示
+            // 要包含群組照片加名稱
+            // Do this
+
         }
     }
 }
@@ -168,131 +164,7 @@ fun HomeScreenPreview() {
 }
 
 
-@Composable
-fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
-    val incomeAngle = (income / total) * 360f
-    val expenseAngle = (expense / total) * 360f
-
-    Box(contentAlignment = Alignment.Center) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        ) {
-            Text(
-                text = "收入: $income",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 16.dp, end = 16.dp)
-            )
-            Text(
-                text = "支出: $expense",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 16.dp, start = 16.dp)
-            )
-            Canvas(modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.Center)
-            ) {
-                withTransform({
-                    rotate(270f)
-                }) {
-                    drawArc(
-                        color = Color.Green,
-                        startAngle = 0f,
-                        sweepAngle = incomeAngle,
-                        useCenter = false,
-                        style = Stroke(width = 20.dp.toPx())
-                    )
-                    drawArc(
-                        color = Color.Red,
-                        startAngle = incomeAngle,
-                        sweepAngle = expenseAngle,
-                        useCenter = false,
-                        style = Stroke(width = 20.dp.toPx())
-                    )
-                }
-            }
-            Text(
-                text = "結餘: $balance",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun PieChartPreview() {
-    PieChart(income = 100f, expense = 50f, balance = 50f, total = 150f)
-}
-
-@Composable
-fun TransactionItem(transaction: GroupTransaction) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f)
-        ) {
-
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = "${transaction.amount} 元",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "----->",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f)
-        ) {
-
-        }
-    }
-}
 
 
-@Composable
-fun UserAvatar(user: User) {
-    val avatarResource = if (user.id == "2") {
-        R.drawable.avatar_placeholder_2
-    } else {
-        R.drawable.avatar_placeholder
-    }
-
-    Image(
-        painter = painterResource(id = avatarResource),
-        contentDescription = user.name,
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape),
-        contentScale = ContentScale.Crop
-    )
-}
-@Preview(showBackground = true)
-@Composable
-fun UserAvatarPreview() {
-    UserAvatar(user = User(id = "1", name = "John Doe"))
-}
 
 

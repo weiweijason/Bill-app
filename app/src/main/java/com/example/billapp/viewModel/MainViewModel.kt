@@ -443,9 +443,11 @@ class MainViewModel : ViewModel() {
     fun loadGroupTransactions(groupId: String) {
         viewModelScope.launch {
             try {
-                val transactions = FirebaseRepository.getGroupTransactions(groupId)
-                _groupTransactions.value = transactions
-                calculateDeptRelations(transactions)
+                val group = FirebaseRepository.getGroup(groupId)
+                _groupTransactions.value = group.transactions
+                calculateDeptRelations(group)
+                // Update the group in Firestore
+                FirebaseRepository.updateGroup(groupId, group)
             } catch (e: Exception) {
                 _error.value = e.message
             }
@@ -453,10 +455,10 @@ class MainViewModel : ViewModel() {
     }
 
     // 這是均分以後要加上別的方法
-    private fun calculateDeptRelations(transactions: List<GroupTransaction>) {
+    private fun calculateDeptRelations(group: Group) {
         val deptRelationMap = mutableMapOf<Pair<String, String>, Double>()
 
-        transactions.forEach { transaction ->
+        group.transactions.forEach { transaction ->
             // Calculate the amount each payer should contribute
             val amountPerPayer = transaction.amount / transaction.payer.size
             // Calculate the amount each participant (divider) should pay
@@ -477,7 +479,14 @@ class MainViewModel : ViewModel() {
             DeptRelation(from = key.first, to = key.second, amount = amount)
         }
 
-        _deptRelations.value = deptRelations
+        // Update the group object
+        group.deptRelations.clear()
+        group.deptRelations.addAll(deptRelations)
+
+        // Update the group in Firestore
+        viewModelScope.launch {
+            FirebaseRepository.updateGroup(group.id, group)
+        }
     }
 }
 
