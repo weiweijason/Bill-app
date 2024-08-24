@@ -2,6 +2,7 @@ package com.example.billapp.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.google.firebase.Timestamp
 
 data class Group(
     val id: String = "",
@@ -11,6 +12,7 @@ data class Group(
     var assignedTo: MutableList<String> = mutableListOf(),  // List of user id
     val transactions: MutableList<GroupTransaction> = mutableListOf(),
     val deptRelations: MutableList<DeptRelation> = mutableListOf() // 個人之間的欠債關係，需要藉由計算每一筆群組交易獲得
+    val createdTime : Timestamp ?= null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
@@ -19,7 +21,8 @@ data class Group(
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
         parcel.createTypedArrayList(GroupTransaction.CREATOR)!!,
-        parcel.createTypedArrayList(DeptRelation.CREATOR)!!
+        parcel.createTypedArrayList(DeptRelation.CREATOR)!!,
+        parcel.readParcelable(Timestamp::class.java.classLoader)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -30,6 +33,7 @@ data class Group(
         parcel.writeStringList(assignedTo)
         parcel.writeTypedList(transactions)
         parcel.writeTypedList(deptRelations)
+        parcel.writeParcelable(createdTime, flags)
     }
 
     override fun describeContents(): Int {
