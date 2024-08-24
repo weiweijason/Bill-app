@@ -11,7 +11,7 @@ data class Group(
     val createdBy: String = "",
     var assignedTo: MutableList<String> = mutableListOf(),  // List of user id
     val transactions: MutableList<GroupTransaction> = mutableListOf(),
-    val deptRelations: MutableList<DeptRelation> = mutableListOf() // 個人之間的欠債關係，需要藉由計算每一筆群組交易獲得
+    val deptRelations: MutableList<DeptRelation> = mutableListOf(), // 個人之間的欠債關係，需要藉由計算每一筆群組交易獲得
     val createdTime : Timestamp ?= null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
