@@ -3,7 +3,7 @@ package com.example.billapp.viewModel
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,8 +12,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.DeptRelation
 import com.example.billapp.models.Group
-import com.example.billapp.models.GroupMember
-import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.TransactionCategory
@@ -71,6 +69,9 @@ class MainViewModel : ViewModel() {
     private val _amount = MutableStateFlow(0.0)
     val amount: StateFlow<Double> = _amount.asStateFlow()
 
+    private val _date = MutableStateFlow<String>("")
+    val date: StateFlow<String> = _date.asStateFlow()
+
     private val _category = MutableStateFlow<String>("") // Assuming _category is a String
     val category: StateFlow<String> get() = _category
 
@@ -92,8 +93,9 @@ class MainViewModel : ViewModel() {
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
-    private val _transaction = MutableLiveData<PersonalTransaction>()
-    val transaction: LiveData<PersonalTransaction> get() = _transaction
+    private val _transaction = MutableStateFlow<PersonalTransaction?>(null)
+    val transaction: StateFlow<PersonalTransaction?> = _transaction
+
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -342,6 +344,18 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getTransaction(transactionId: String) {
+        viewModelScope.launch {
+            try {
+                val transaction = FirebaseRepository.getTransaction(transactionId)
+                _transaction.value = transaction
+            } catch (e: Exception) {
+                // Handle the exception (e.g., log it or update a different state to indicate an error)
+                _transaction.value = null // Optionally set the state to null or handle the error state as needed
+            }
+        }
+    }
+
     // 新增一筆個人交易
     fun addPersonalTransaction() {
         viewModelScope.launch {
@@ -387,9 +401,9 @@ class MainViewModel : ViewModel() {
         _amount.value = amount
     }
 
-    fun updateTransaction(userId: String, updatedTransaction: PersonalTransaction) {
+    fun updateTransaction(transactionId: String, updatedTransaction: PersonalTransaction) {
         viewModelScope.launch {
-            val transactionId = updatedTransaction.transactionId ?: throw IllegalArgumentException("Transaction ID cannot be null or empty")
+            val userId = getCurrentUserID()
             FirebaseFirestore.getInstance().collection(Constants.USERS)
                 .document(userId)
                 .collection(Constants.TRANSACTIONS)
@@ -437,6 +451,9 @@ class MainViewModel : ViewModel() {
         _note.value = value
     }
 
+    fun setDate(value: String) {
+        _date.value = value
+    }
 
     // 群組交易
     fun setShareMethod(method: String) {
