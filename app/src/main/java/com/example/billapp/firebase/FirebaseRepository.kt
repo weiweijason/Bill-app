@@ -70,7 +70,13 @@ object FirebaseRepository {
             .distinctBy { it.id }
             .sortedByDescending { it.createdTime }
 
+        updateUserGroupsID(userId, allGroups.map { it.id })
+
         return@withContext allGroups
+    }
+
+    private fun updateUserGroupsID(userId: String, map: List<String>) {
+        getFirestoreInstance().collection("users").document(userId).update("groupsID", map)
     }
 
     suspend fun deleteGroup(groupId: String) = withContext(Dispatchers.IO) {
@@ -158,8 +164,6 @@ object FirebaseRepository {
 
     // 新增一筆群組交易紀錄
     suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction) = withContext(Dispatchers.IO) {
-        val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
-
         val transactionId = getFirestoreInstance().collection(Constants.GROUPS)
             .document(groupId)
             .collection("transactions")
@@ -168,12 +172,66 @@ object FirebaseRepository {
 
         val transactionWithId = transaction.copy(id = transactionId)
 
+        // 添加交易
         getFirestoreInstance().collection(Constants.GROUPS)
             .document(groupId)
             .collection("transactions")
             .document(transactionId)
             .set(transactionWithId)
             .await()
+
+        // 計算並添加債務關係
+        val deptRelations = calculateDeptRelations(transactionWithId)
+        for (deptRelation in deptRelations) {
+            getFirestoreInstance().collection(Constants.GROUPS)
+                .document(groupId)
+                .collection("deptRelations")
+                .document(deptRelation.id)
+                .set(deptRelation)
+                .await()
+        }
+    }
+
+    private fun calculateDeptRelations(transaction: GroupTransaction): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+
+        // 計算每個付款人應付的金額
+        val amountPerPayer = transaction.amount / transaction.payer.size
+
+        // 對於每個付款人
+        transaction.payer.forEach { payerId ->
+            // 計算每個分擔者應付給這個付款人的金額
+            val amountPerDivider = amountPerPayer / transaction.divider.size
+
+            // 對於每個分擔者
+            transaction.divider.forEach { dividerId ->
+                // 如果分擔者不是付款人，創建一個債務關係
+                if (dividerId != payerId) {
+                    deptRelations.add(
+                        DeptRelation(
+                            id = java.util.UUID.randomUUID().toString(),
+                            from = dividerId,
+                            to = payerId,
+                            amount = amountPerDivider,
+                            groupTransactionId = transaction.id
+                        )
+                    )
+                }
+            }
+        }
+
+        return deptRelations
+    }
+
+    suspend fun getGroupDeptRelations(groupId: String): Map<String, List<DeptRelation>> = withContext(Dispatchers.IO) {
+        val deptRelations = getFirestoreInstance().collection(Constants.GROUPS)
+            .document(groupId)
+            .collection("deptRelations")
+            .get()
+            .await()
+            .toObjects(DeptRelation::class.java)
+
+        return@withContext deptRelations.groupBy { it.groupTransactionId }
     }
 
     // 取得群組成員

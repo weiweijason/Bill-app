@@ -43,7 +43,6 @@ fun GroupSettingScreen(
     navController: NavController
 ) {
     val group by viewModel.getGroup(groupId).collectAsState(initial = null)
-    val deptRelations by viewModel.getDeptRelations(groupId).collectAsState(initial = emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

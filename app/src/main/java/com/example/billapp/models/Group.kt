@@ -10,7 +10,8 @@ data class Group(
     val image: String = "",
     val createdBy: String = "",
     var assignedTo: MutableList<String> = mutableListOf(),  // List of user id
-    val transactions: MutableList<GroupTransaction> = mutableListOf(),
+    val transactions: MutableList<GroupTransaction> = mutableListOf(),  // 未結清交易清單
+    val closedTransactions: MutableList<GroupTransaction> = mutableListOf(),  // 已結清交易清單
     val deptRelations: MutableList<DeptRelation> = mutableListOf(), // 個人之間的欠債關係，需要藉由計算每一筆群組交易獲得
     val createdTime : Timestamp ?= null
 ) : Parcelable {
@@ -20,6 +21,7 @@ data class Group(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
+        parcel.createTypedArrayList(GroupTransaction.CREATOR)!!,
         parcel.createTypedArrayList(GroupTransaction.CREATOR)!!,
         parcel.createTypedArrayList(DeptRelation.CREATOR)!!,
         parcel.readParcelable(Timestamp::class.java.classLoader)
@@ -32,6 +34,7 @@ data class Group(
         parcel.writeString(createdBy)
         parcel.writeStringList(assignedTo)
         parcel.writeTypedList(transactions)
+        parcel.writeTypedList(closedTransactions)
         parcel.writeTypedList(deptRelations)
         parcel.writeParcelable(createdTime, flags)
     }
