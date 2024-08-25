@@ -5,11 +5,15 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.DeptRelation
 import com.example.billapp.models.Group
+import com.example.billapp.models.GroupMember
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.TransactionCategory
@@ -88,8 +92,10 @@ class MainViewModel : ViewModel() {
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
+    private val _transaction = MutableLiveData<PersonalTransaction>()
+    val transaction: LiveData<PersonalTransaction> get() = _transaction
 
-
+    private val db = FirebaseFirestore.getInstance()
 
     init {
         loadUserData()
@@ -214,6 +220,20 @@ class MainViewModel : ViewModel() {
                 _user.value = _user.value?.copy(groupsID = groups.map { it.id }.toMutableList())
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading groups", e)
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadUserTransactions(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val transactions = FirebaseRepository.getUserTransactions(userId)
+                _userTransactions.value = transactions
+            } catch (e: Exception) {
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
@@ -365,6 +385,24 @@ class MainViewModel : ViewModel() {
 
     fun setAmount(amount: Double) {
         _amount.value = amount
+    }
+
+    fun updateTransaction(userId: String, updatedTransaction: PersonalTransaction) {
+        viewModelScope.launch {
+            val transactionId = updatedTransaction.transactionId ?: throw IllegalArgumentException("Transaction ID cannot be null or empty")
+            FirebaseFirestore.getInstance().collection(Constants.USERS)
+                .document(userId)
+                .collection(Constants.TRANSACTIONS)
+                .document(transactionId)
+                .set(updatedTransaction)
+                .addOnSuccessListener {
+                    _transaction.value = updatedTransaction
+                }
+                .addOnFailureListener { e ->
+                    Log.e("updateTransaction", "Error updating transaction", e)
+                }
+
+        }
     }
 
     // Convert String to TransactionCategory

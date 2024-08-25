@@ -42,7 +42,24 @@ object FirebaseRepository {
             ?: throw IllegalStateException("User data not found")
     }
 
-    // 目前新增群組後會自動更新 User 的 groupsID，不需要執行getUserGroups()，但為了避免出錯，這個先留著
+    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> {
+        val transactions = mutableListOf<PersonalTransaction>()
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection(Constants.USERS)
+            .document(userId)
+            .collection(Constants.TRANSACTIONS)
+            .get()
+            .await()
+
+        for (document in snapshot.documents) {
+            val transaction = document.toObject(PersonalTransaction::class.java)
+            if (transaction != null) {
+                transactions.add(transaction)
+            }
+        }
+        return transactions
+    }
+
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val userId = currentUser.uid
@@ -151,16 +168,16 @@ object FirebaseRepository {
         }
     }
 
-    // 取得個人交易紀錄
-    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
-        return@withContext getFirestoreInstance()
-            .collection(Constants.USERS)
-            .document(userId)
-            .collection("transactions")
-            .get()
-            .await()
-            .toObjects(PersonalTransaction::class.java)
-    }
+//    // 取得個人交易紀錄
+//    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
+//        return@withContext getFirestoreInstance()
+//            .collection(Constants.USERS)
+//            .document(userId)
+//            .collection("transactions")
+//            .get()
+//            .await()
+//            .toObjects(PersonalTransaction::class.java)
+//    }
 
     // 新增一筆群組交易紀錄
     suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction) = withContext(Dispatchers.IO) {

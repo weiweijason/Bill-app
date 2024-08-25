@@ -24,9 +24,13 @@ import com.example.billapp.group.CreateGroup
 import com.example.billapp.group.GroupInviteLinkScreen
 import com.example.billapp.group.GroupScreen
 import com.example.billapp.group.GroupSettingScreen
+import com.example.billapp.models.PersonalTransaction
+import com.example.billapp.models.TransactionCategory
 import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.sql.Timestamp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,7 +172,32 @@ fun MainScreen(
                         }
                     )
                 }
-
+                composable(
+                    route = "edit_detail_screen/{date}/{amount}/{note}",
+                    arguments = listOf(
+                        navArgument("date") { type = NavType.LongType },
+                        navArgument("amount") { type = NavType.FloatType },
+                        navArgument("note") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val dateMillis = backStackEntry.arguments?.getLong("date") ?: 0L
+                    val date = if (dateMillis != 0L) com.google.firebase.Timestamp(Date(dateMillis)) else null
+                    val amount = backStackEntry.arguments?.getFloat("amount") ?: 0f
+                    val note = backStackEntry.arguments?.getString("note") ?: ""
+                    val transaction = PersonalTransaction(
+                        transactionId = "", // 你需要提供 transactionId
+                        userId = "", // 你需要提供 userId
+                        type = "", // 你需要提供 type
+                        amount = amount.toDouble(),
+                        category = TransactionCategory.OTHER, // 你需要提供 category
+                        note = note,
+                        date = date,
+                        createdAt = null,
+                        updatedAt = null,
+                        name = "" // 你需要提供 name
+                    )
+                    EditDetailScreen(navController = navController, transaction = transaction, userId = transaction.userId)
+                }
                 composable("groupDetail/{groupId}") { backStackEntry ->
                     val groupId = backStackEntry.arguments?.getString("groupId")
                     groupId?.let {

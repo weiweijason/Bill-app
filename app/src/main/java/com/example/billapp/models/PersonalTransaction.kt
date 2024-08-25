@@ -14,7 +14,7 @@ data class PersonalTransaction(
     val name: String? = null,              // 交易名稱 (可選)
     val date: Timestamp? = null,           // 交易日期
     val createdAt: Timestamp? = null,      // 記錄創建的時間戳
-    val updatedAt: Timestamp? = null       // 記錄更新的時間戳
+    val updatedAt: Timestamp? = null,      // 記錄更新的時間戳
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
@@ -26,7 +26,8 @@ data class PersonalTransaction(
         parcel.readString(),
         parcel.readParcelable(Timestamp::class.java.classLoader),  // 讀取 Timestamp
         parcel.readParcelable(Timestamp::class.java.classLoader),
-        parcel.readParcelable(Timestamp::class.java.classLoader)
+        parcel.readParcelable(Timestamp::class.java.classLoader),
+
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -56,5 +57,3 @@ data class PersonalTransaction(
         }
     }
 }
-
-
