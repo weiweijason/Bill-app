@@ -2,6 +2,7 @@ package com.example.billapp.firebase
 
 import android.util.Log
 import com.example.billapp.models.Group
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -42,6 +43,24 @@ object FirebaseRepository {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         getFirestoreInstance().collection("users").document(currentUser.uid).get().await().toObject(User::class.java)
             ?: throw IllegalStateException("User data not found")
+    }
+
+    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> {
+        val transactions = mutableListOf<PersonalTransaction>()
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection(Constants.USERS)
+            .document(userId)
+            .collection(Constants.TRANSACTIONS)
+            .get()
+            .await()
+
+        for (document in snapshot.documents) {
+            val transaction = document.toObject(PersonalTransaction::class.java)
+            if (transaction != null) {
+                transactions.add(transaction)
+            }
+        }
+        return transactions
     }
 
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {

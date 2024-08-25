@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.Group
 import com.example.billapp.models.GroupMember
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.User
 import com.example.billapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -40,6 +41,9 @@ class MainViewModel : ViewModel() {
 
     private val _members = MutableStateFlow<List<GroupMember>>(emptyList())
     val members: StateFlow<List<GroupMember>> = _members
+
+    private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
+    val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
 
     init {
         loadUserData()
@@ -144,6 +148,20 @@ class MainViewModel : ViewModel() {
             try {
                 val groups = FirebaseRepository.getUserGroups()
                 _userGroups.value = groups
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadUserTransactions(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val transactions = FirebaseRepository.getUserTransactions(userId)
+                _userTransactions.value = transactions
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
