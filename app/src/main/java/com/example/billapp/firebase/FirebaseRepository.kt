@@ -168,16 +168,16 @@ object FirebaseRepository {
         }
     }
 
-    // 取得個人交易紀錄
-    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
-        return@withContext getFirestoreInstance()
-            .collection(Constants.USERS)
-            .document(userId)
-            .collection("transactions")
-            .get()
-            .await()
-            .toObjects(PersonalTransaction::class.java)
-    }
+//    // 取得個人交易紀錄
+//    suspend fun getUserTransactions(userId: String): List<PersonalTransaction> = withContext(Dispatchers.IO) {
+//        return@withContext getFirestoreInstance()
+//            .collection(Constants.USERS)
+//            .document(userId)
+//            .collection("transactions")
+//            .get()
+//            .await()
+//            .toObjects(PersonalTransaction::class.java)
+//    }
 
     // 新增一筆群組交易紀錄
     suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction) = withContext(Dispatchers.IO) {

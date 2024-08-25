@@ -90,12 +90,6 @@ class MainViewModel : ViewModel() {
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
-
-
-
-    private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
-    val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
-
     init {
         loadUserData()
         loadUserGroups()
