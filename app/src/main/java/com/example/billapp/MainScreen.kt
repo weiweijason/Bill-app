@@ -80,7 +80,7 @@ fun MainScreen(
                                 when (index) {
                                     0 -> navController.navigate("home")
                                     1 -> navController.navigate("personal")
-                                    2 -> navController.navigate("addItemScreen")
+                                    2 -> navController.navigate("add")
                                     3 -> navController.navigate("group")
                                     4 -> navController.navigate("settings")
                                 }
