@@ -88,9 +88,6 @@ class MainViewModel : ViewModel() {
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
-
-
-
     init {
         loadUserData()
         loadUserGroups()
@@ -214,6 +211,20 @@ class MainViewModel : ViewModel() {
                 _user.value = _user.value?.copy(groupsID = groups.map { it.id }.toMutableList())
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading groups", e)
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadUserTransactions(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val transactions = FirebaseRepository.getUserTransactions(userId)
+                _userTransactions.value = transactions
+            } catch (e: Exception) {
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
