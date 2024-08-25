@@ -40,6 +40,7 @@ fun AboutScreen(navController: NavController) {
         }
     }
 
+
     val versionName = packageInfo?.versionName ?: "Unknown"
 
     Scaffold(
