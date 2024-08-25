@@ -5,6 +5,8 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
@@ -87,6 +89,11 @@ class MainViewModel : ViewModel() {
 
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
+
+    private val _transaction = MutableLiveData<PersonalTransaction>()
+    val transaction: LiveData<PersonalTransaction> get() = _transaction
+
+    private val db = FirebaseFirestore.getInstance()
 
     init {
         loadUserData()
@@ -376,6 +383,24 @@ class MainViewModel : ViewModel() {
 
     fun setAmount(amount: Double) {
         _amount.value = amount
+    }
+
+    fun updateTransaction(userId: String, updatedTransaction: PersonalTransaction) {
+        viewModelScope.launch {
+            val transactionId = updatedTransaction.transactionId ?: throw IllegalArgumentException("Transaction ID cannot be null or empty")
+            FirebaseFirestore.getInstance().collection(Constants.USERS)
+                .document(userId)
+                .collection(Constants.TRANSACTIONS)
+                .document(transactionId)
+                .set(updatedTransaction)
+                .addOnSuccessListener {
+                    _transaction.value = updatedTransaction
+                }
+                .addOnFailureListener { e ->
+                    Log.e("updateTransaction", "Error updating transaction", e)
+                }
+
+        }
     }
 
     // Convert String to TransactionCategory

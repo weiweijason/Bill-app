@@ -74,7 +74,7 @@ fun PersonalUIScreen(
     }
 
     // 格式化日期
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     Column(
         modifier = Modifier
@@ -169,11 +169,7 @@ fun PersonalUIScreen(
                         .padding(8.dp)
                         .clickable {
                             navController.navigate(
-                                "edit_detail_screen/${transaction.date}/${transaction.amount}/${
-                                    Uri.encode(
-                                        transaction.note ?: ""
-                                    )
-                                }"
+                                "edit_detail_screen/${transaction.date?.toDate()?.time}/${transaction.amount.toFloat()}/${Uri.encode(if (transaction.note?.isEmpty() == true) "empty" else transaction.note)}"
                             )
                         },
                     horizontalArrangement = Arrangement.SpaceBetween
