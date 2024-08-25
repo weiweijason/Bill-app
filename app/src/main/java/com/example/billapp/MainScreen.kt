@@ -80,7 +80,7 @@ fun MainScreen(
                                 when (index) {
                                     0 -> navController.navigate("home")
                                     1 -> navController.navigate("personal")
-                                    2 -> navController.navigate("add")
+                                    2 -> navController.navigate("addItemScreen")
                                     3 -> navController.navigate("group")
                                     4 -> navController.navigate("settings")
                                 }
@@ -168,13 +168,13 @@ fun MainScreen(
                         }
                     )
                 }
-                composable("edit_detail_screen/{date}/{amount}/{note}") { backStackEntry ->
-                    val date = backStackEntry.arguments?.getString("date") ?: ""
-                    val amount = backStackEntry.arguments?.getString("amount")?.toFloatOrNull() ?: 0f
-                    val note = backStackEntry.arguments?.getString("note") ?: ""
-                    val record = FinanceRecord(date, amount, note)
-                    EditDetailScreen(navController = navController, record = record)
-                }
+//                composable("edit_detail_screen/{date}/{amount}/{note}") { backStackEntry ->
+//                    val date = backStackEntry.arguments?.getString("date") ?: ""
+//                    val amount = backStackEntry.arguments?.getString("amount")?.toFloatOrNull() ?: 0f
+//                    val note = backStackEntry.arguments?.getString("note") ?: ""
+//                    val record = FinanceRecord(date, amount, note)
+//                    EditDetailScreen(navController = navController, record = record)
+//                }
                 composable("groupDetail/{groupId}") { backStackEntry ->
                     val groupId = backStackEntry.arguments?.getString("groupId")
                     groupId?.let {
