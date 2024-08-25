@@ -149,7 +149,7 @@ fun GroupSettingScreen(
 
                     Button(
                         onClick = {
-                            navController.navigate("groupInviteLinkScreen")
+                            navController.navigate("Group_Invite/$groupId")
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
