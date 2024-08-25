@@ -13,6 +13,8 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ import com.example.billapp.models.User
 import com.example.billapp.ui.theme.BillAppTheme
 import com.example.billapp.viewModel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberListScreen(
     navController: NavController,
@@ -42,13 +45,13 @@ fun MemberListScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Text(
-                text = "組員",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                fontSize = 24.sp
+            TopAppBar(
+                title = { Text("My Profile") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -57,6 +60,14 @@ fun MemberListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            Text(
+                text = "組員",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                fontSize = 24.sp
+            )
             LazyColumn(
                 modifier = Modifier.weight(1f)
             ) {

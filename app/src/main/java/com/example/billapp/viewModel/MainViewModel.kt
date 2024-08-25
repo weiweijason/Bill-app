@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.DeptRelation
 import com.example.billapp.models.Group
+import com.example.billapp.models.GroupMember
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.TransactionCategory
@@ -90,6 +92,9 @@ class MainViewModel : ViewModel() {
 
 
 
+
+    private val _userTransactions = MutableStateFlow<List<PersonalTransaction>>(emptyList())
+    val userTransactions: StateFlow<List<PersonalTransaction>> = _userTransactions.asStateFlow()
 
     init {
         loadUserData()
@@ -214,6 +219,20 @@ class MainViewModel : ViewModel() {
                 _user.value = _user.value?.copy(groupsID = groups.map { it.id }.toMutableList())
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading groups", e)
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadUserTransactions(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val transactions = FirebaseRepository.getUserTransactions(userId)
+                _userTransactions.value = transactions
+            } catch (e: Exception) {
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
