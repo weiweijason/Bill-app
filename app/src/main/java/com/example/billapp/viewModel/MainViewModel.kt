@@ -3,6 +3,7 @@ package com.example.billapp.viewModel
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -54,6 +55,10 @@ class MainViewModel : ViewModel() {
     // Dept relations (List)
     private val _deptRelations = MutableStateFlow<List<DeptRelation>>(emptyList())
     val deptRelations: StateFlow<List<DeptRelation>> = _deptRelations.asStateFlow()
+
+    // Dept relations (Map) grouped by Transaction ID
+    private val _groupIdDeptRelations = MutableStateFlow<Map<String, List<DeptRelation>>>(emptyMap())
+    val groupIdDeptRelations: StateFlow<Map<String, List<DeptRelation>>> = _groupIdDeptRelations.asStateFlow()
 
     // Transaction fields
     private val _transactionType = MutableStateFlow("支出")
@@ -107,6 +112,17 @@ class MainViewModel : ViewModel() {
                         e
                     )
                 }
+        }
+    }
+
+    fun reloadUserData() {
+        viewModelScope.launch {
+            try {
+                val updatedUser = FirebaseRepository.getCurrentUser()
+                _user.value = updatedUser
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
         }
     }
 
@@ -193,8 +209,11 @@ class MainViewModel : ViewModel() {
             _isLoading.value = true
             try {
                 val groups = FirebaseRepository.getUserGroups()
+                Log.d("MainViewModel", "Loaded groups: ${groups.size}")
                 _userGroups.value = groups
+                _user.value = _user.value?.copy(groupsID = groups.map { it.id }.toMutableList())
             } catch (e: Exception) {
+                Log.e("MainViewModel", "Error loading groups", e)
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
@@ -440,47 +459,54 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-    fun loadGroupTransactions(groupId: String) {
+
+    fun getGroupDeptRelations(groupId: String) {
         viewModelScope.launch {
             try {
-                val transactions = FirebaseRepository.getGroupTransactions(groupId)
-                _groupTransactions.value = transactions
-                calculateDeptRelations(transactions)
+                val groupIdDeptRelations = FirebaseRepository.getGroupDeptRelations(groupId)
+                _groupIdDeptRelations.value = groupIdDeptRelations
+                _deptRelations.value = groupIdDeptRelations.values.flatten()
             } catch (e: Exception) {
                 _error.value = e.message
             }
         }
     }
 
-    // 這是均分以後要加上別的方法
-    private fun calculateDeptRelations(transactions: List<GroupTransaction>) {
-        val deptRelationMap = mutableMapOf<Pair<String, String>, Double>()
+    fun calculateTotalDebt(userId: String): Double {
+        return _deptRelations.value
+            .filter { it.from == userId }
+            .sumOf { it.amount }
+    }
 
-        transactions.forEach { transaction ->
-            // Calculate the amount each payer should contribute
-            val amountPerPayer = transaction.amount / transaction.payer.size
-            // Calculate the amount each participant (divider) should pay
-            val amountPerPerson = amountPerPayer / transaction.divider.size
+    fun getGroupIdDeptRelations(groupId: String): Map<String, List<DeptRelation>> {
+        return _groupIdDeptRelations.value
+    }
 
-            transaction.payer.forEach { payerId ->
-                transaction.divider.forEach { participantId ->
-                    if (participantId != payerId) {
-                        val key = payerId to participantId
-                        deptRelationMap[key] = deptRelationMap.getOrDefault(key, 0.0) + amountPerPerson
-                    }
-                }
+    fun loadGroupIdRelation(groupId: String){
+        viewModelScope.launch {
+            try {
+                val deptRelations = FirebaseRepository.getGroupDeptRelations(groupId)
+                _groupIdDeptRelations.value = deptRelations
+            } catch (e: Exception) {
+                _error.value = e.message
             }
         }
+    }
 
-        // Convert the map into a list of DeptRelation objects
-        val deptRelations = deptRelationMap.map { (key, amount) ->
-            DeptRelation(from = key.first, to = key.second, amount = amount)
+    fun loadGroupTransactions(groupId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val transactions = FirebaseRepository.getGroupTransactions(groupId)
+                _groupTransactions.value = transactions
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
         }
-
-        _deptRelations.value = deptRelations
     }
 }
-
 
 enum class GroupCreationStatus {
     IDLE, LOADING, SUCCESS, ERROR
