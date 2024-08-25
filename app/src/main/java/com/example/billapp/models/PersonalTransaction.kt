@@ -27,6 +27,7 @@ data class PersonalTransaction(
         parcel.readParcelable(Timestamp::class.java.classLoader),  // 讀取 Timestamp
         parcel.readParcelable(Timestamp::class.java.classLoader),
         parcel.readParcelable(Timestamp::class.java.classLoader),
+
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
