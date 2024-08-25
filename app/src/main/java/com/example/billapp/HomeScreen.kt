@@ -160,7 +160,7 @@ fun HomeScreen(
                 items(4) { index ->
                     if (index < groups.size) {
                         GroupItem(group = groups[index], onItemClick = {
-                            navController.navigate("group/${groups[index].id}")
+                            navController.navigate("groupDetail/${groups[index].id}")
                         })
                     } else {
                         EmptyGroupSlot()
