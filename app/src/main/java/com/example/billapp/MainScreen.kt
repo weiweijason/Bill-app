@@ -1,11 +1,8 @@
 package com.example.billapp
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,18 +11,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.billapp.group.AddInvitationScreen
+import com.example.billapp.group.CreateGroup
+import com.example.billapp.group.GroupInviteLinkScreen
+import com.example.billapp.group.GroupScreen
+import com.example.billapp.group.GroupSettingScreen
 import com.example.billapp.models.User
-import com.example.billapp.ui.theme.BillAppTheme
+import com.example.billapp.personal.EditTransactionDetailScreen
+import com.example.billapp.personal.PersonalUIScreen
+import com.example.billapp.setting.AboutScreen
+import com.example.billapp.setting.ContactUsScreen
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -101,7 +104,8 @@ fun MainScreen(
                         navController = navController,
                         onOpenDrawer = {
                             scope.launch { drawerState.open() }
-                        }
+                        },
+                        viewModel = viewModel,
                     )
                 }
                 composable("personal") {
@@ -111,7 +115,7 @@ fun MainScreen(
                     )
                 }
                 composable("add") {
-                    ItemAdd(
+                    PersonalTest(
                         navController = navController,
                         viewModel = viewModel,
                     )
@@ -135,8 +139,8 @@ fun MainScreen(
                         requestPermission = requestPermission
                     )
                 }
-                composable("addItemScreen") {
-                    AddItemScreen(navController = navController,onAddItem = {})
+                composable("CreateGroupScreen") {
+                    CreateGroup(navController = navController,viewModel = viewModel)
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
@@ -144,17 +148,66 @@ fun MainScreen(
                 composable("about"){
                     AboutScreen(navController = navController)
                 }
+                composable("Join_Group"){
+                    AddInvitationScreen(navController = navController, viewModel = viewModel)
+                }
+                composable(
+                    route = "Group_Invite/{groupId}",
+                    arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+                ) { navBackStackEntry ->
+                    val groupId = navBackStackEntry.arguments?.getString("groupId")
+                    groupId?.let {
+                        GroupInviteLinkScreen(groupId = it, navController = navController)
+                    }
+                }
+
+                composable("editTransaction/{transactionId}") { backStackEntry ->
+                    val transactionId = backStackEntry.arguments?.getString("transactionId")
+                    transactionId?.let {
+                        EditTransactionDetailScreen(
+                            navController = navController,
+                            transactionId = it
+                        )
+                    }
+                }
+
+                composable("qrCodeScanner") {
+                    QRCodeScannerScreen(
+                        onScanResult = { result ->
+                            navController.previousBackStackEntry?.savedStateHandle?.set("groupLink", result)
+                            navController.navigateUp()
+                        },
+                        onBack = {
+                            navController.navigateUp()
+                        }
+                    )
+                }
+
+                composable("groupDetail/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId")
+                    groupId?.let {
+                        GroupSettingScreen(
+                            groupId = it,
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+                }
+                composable(
+                    route = "groupTest/{groupId}",
+                    arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    GroupTest(navController, viewModel, groupId)
+                }
+                composable("memberListScreen/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    MemberListScreen(navController, viewModel, groupId)
+                }
             }
         }
     }
 }
-
-
-
-
-
-
-
 
 
 @Composable
@@ -215,7 +268,7 @@ fun DrawerContent(
 fun PersonalDetail(user: User) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
+            model = coil.request.ImageRequest.Builder(LocalContext.current)
                 .data(user.image)
                 .crossfade(true)
                 .build(),

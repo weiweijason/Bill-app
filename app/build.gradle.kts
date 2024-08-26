@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.volley)
 
     val compose_version = "1.5.1"
     implementation ("androidx.compose.material:material:$compose_version")
@@ -108,7 +109,13 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
     //////
-
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
+    implementation ("androidx.compose.ui:ui-graphics:1.0.0")
+    implementation ("androidx.core:core-ktx:1.6.0")
+    implementation ("androidx.activity:activity-compose:1.3.1")
+    implementation ("com.google.accompanist:accompanist-permissions:0.24.13-rc")
+    implementation ("androidx.compose.material3:material3:1.2.0-alpha02")
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
