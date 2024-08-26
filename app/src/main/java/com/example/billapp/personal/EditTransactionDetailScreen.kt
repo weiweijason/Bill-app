@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.personal
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,13 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -49,33 +47,29 @@ import java.util.Locale
 fun EditTransactionDetailScreen(
     navController: NavController,
     transactionId: String,
-    viewModel: MainViewModel = viewModel() // Use viewModel() to obtain the ViewModel
+    viewModel: MainViewModel = viewModel()
 ) {
+    // Observe the transaction data from the ViewModel
+    val transaction by viewModel.transaction.collectAsState()
+    val note by viewModel.note.collectAsState()
+    val amount by viewModel.amount.collectAsState()
+    var amountInput by remember { mutableStateOf(amount.toString()) }
+    val name by viewModel.name.collectAsState()
+    val date by viewModel.date.collectAsState()
+
     // Fetch transaction data when the screen is first composed
     LaunchedEffect(transactionId) {
         viewModel.getTransaction(transactionId)
     }
 
-    // State to hold the transaction data
-    val transaction by viewModel.transaction.collectAsState()
-
-    // UI states for editing
-    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-    val (date, setDate) = remember { mutableStateOf("") }
-    val (amount, setAmount) = remember { mutableStateOf("") }
-    val (note, setNote) = remember { mutableStateOf("") }
-    var showKeyboard by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    // Set initial values into the ViewModel
-    LaunchedEffect(transaction) {
-        transaction?.let {
-            setDate(dateFormat.format(it.date!!.toDate()))
-            setAmount(it.amount.toString())
-            setNote(it.note ?: "")
-        }
+    LaunchedEffect(amount) {
+        amountInput = amount.toString()
     }
+
+    // Date formatting
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
+    var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -99,7 +93,7 @@ fun EditTransactionDetailScreen(
         ) {
             // Date Field
             TextField(
-                value = date,
+                value = date.toDate().let { dateFormat.format(it) } ?: "",
                 onValueChange = { },
                 label = { Text("Date") },
                 modifier = Modifier.fillMaxWidth(),
@@ -115,60 +109,57 @@ fun EditTransactionDetailScreen(
 
             // Amount Field
             TextField(
-                value = amount,
-                onValueChange = { setAmount(it) },
+                value = amountInput,
+                onValueChange = {
+                    amountInput = it
+                    it.toDoubleOrNull()?.let { validAmount ->
+                        viewModel.setAmount(validAmount)
+                    }
+                },
                 label = { Text("Amount") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                singleLine = true
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.height(16.dp))
 
             // Note Field
             TextField(
                 value = note,
-                onValueChange = { setNote(it) },
+                onValueChange = { newNote ->
+                    viewModel.setNote(newNote)
+                },
                 label = { Text("Note") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Custom Keyboard
-            if (showKeyboard) {
-                CustomKeyboard(
-                    onKeyClick = { key ->
-                        setAmount(amount + key)
-                    },
-                    onDeleteClick = {
-                        if (amount.isNotEmpty()) {
-                            setAmount(amount.dropLast(1))
-                        }
-                    },
-                    onClearClick = {
-                        setAmount("")
-                    },
-                    onOkClick = {
-                        showKeyboard = false
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+            // Name Field
+            TextField(
+                value = name,
+                onValueChange = { newName ->
+                    viewModel.setName(newName)
+                },
+                label = { Text("Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Save Button
             Button(
                 onClick = {
                     transaction?.let {
-                        val updatedTransaction = it.copy(
-                            date = Timestamp(dateFormat.parse(date)), // Convert date to Timestamp
-                            amount = amount.toDoubleOrNull() ?: 0.0,
-                            note = note
-                        )
                         viewModel.updateTransaction(
                             transactionId = it.transactionId,
-                            updatedTransaction = updatedTransaction
+                            updatedTransaction = PersonalTransaction(
+                                name = viewModel.name.value,
+                                transactionId = it.transactionId,
+                                date = viewModel.date.value,
+                                amount = viewModel.amount.value,
+                                note = viewModel.note.value
+                            )
                         )
-                        navController.navigateUp() // Navigate back after saving
+                        viewModel.loadUserTransactions()
+                        navController.navigateUp()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -183,7 +174,7 @@ fun EditTransactionDetailScreen(
         DatePickerModal(
             onDateSelected = { selectedDateMillis ->
                 selectedDateMillis?.let {
-                    setDate(convertMillisToDate(it))
+                    viewModel.setDate(Timestamp(Date(it)))
                 }
                 showDatePicker = false
             },
@@ -193,6 +184,7 @@ fun EditTransactionDetailScreen(
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
