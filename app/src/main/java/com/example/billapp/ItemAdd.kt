@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.navigation.NavController
+import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
 
@@ -227,7 +229,10 @@ fun CustomKeyboard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemAdd() {
+fun ItemAdd(
+    navController: NavController,
+    viewModel: MainViewModel
+) {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf(TextFieldValue("")) }
