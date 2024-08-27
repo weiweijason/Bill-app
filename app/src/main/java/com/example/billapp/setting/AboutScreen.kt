@@ -63,7 +63,7 @@ fun AboutScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Bill APP",
+                text = "Ca Bill Ba Ra",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -79,7 +79,7 @@ fun AboutScreen(navController: NavController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             Text(
-                text = "聯絡我們: billapp@email.com",
+                text = "聯絡我們: cabillbara66@gmail.com",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
