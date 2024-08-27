@@ -76,13 +76,13 @@ fun ContactUsScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "billapp@email.com",
+                        text = "cabillbara66@gmail.com",
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clickable {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:billapp@email.com")
+                                    data = Uri.parse("mailto:cabillbara66@gmail.com")
                                 }
                                 context.startActivity(intent)
                             }
@@ -99,24 +99,12 @@ fun ContactUsScreen(
                 Column(){
                     Button(
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.office.com/r/xbfaNM01rW"))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/tf5imsLTd5bfp3tp8"))
                             context.startActivity(intent)
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text(text = "意見調查")
-                    }
-                    Button(
-                        onClick = {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://forms.office.com/r/xbfaNM01rW")
-                            )
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.fillMaxWidth(0.8f)
-                    ) {
-                        Text(text = "問題回報(還沒做)")
                     }
                 }
             }
