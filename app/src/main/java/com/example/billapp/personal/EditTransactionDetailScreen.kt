@@ -1,6 +1,8 @@
 package com.example.billapp.personal
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -92,21 +94,24 @@ fun EditTransactionDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Date Field
-            TextField(
-                value = date.toDate().let { dateFormat.format(it) } ?: "",
-                onValueChange = { },
-                label = { Text("Date") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-            Button(
-                onClick = { showDatePicker = true },
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Text(text = "Select Date")
+                TextField(
+                    value = date.toDate().let { dateFormat.format(it) } ?: "",
+                    onValueChange = { },
+                    label = { Text("Date") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { showDatePicker = true }
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
-
             // Amount Field
             TextField(
                 value = amountInput,
