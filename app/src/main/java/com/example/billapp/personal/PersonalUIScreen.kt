@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.PieChart
 import com.example.billapp.viewModel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -76,7 +77,7 @@ fun PersonalUIScreen(
 
     // 獲取顯示金額
     fun getDisplayAmount(): Float {
-        return filteredRecords.sumOf { it.amount.toDouble() }.toFloat()
+        return viewModel.getUserAmount()
     }
 
     // 格式化日期
@@ -150,7 +151,12 @@ fun PersonalUIScreen(
                 .wrapContentHeight()
                 .align(Alignment.CenterHorizontally)
         ) {
-            // PieChart 代碼省略
+            // PieChart
+            val income = viewModel.getUserIncome()
+            val expense = viewModel.getUserExpense()
+            val total = income + expense
+            val balance = income - expense
+            PieChart(income = income, expense = expense, balance = balance, total = total)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
