@@ -280,6 +280,22 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteTransaction(transactionId: String, transactionType: String, transactionAmount: Double) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.deletePersonalTransaction(transactionId, transactionType, transactionAmount)
+                loadUserTransactions()
+                // 你可以在這裡添加任何需要的額外操作，例如更新 UI 或顯示通知
+            } catch (e: Exception) {
+                // 處理異常，例如顯示錯誤訊息
+                Log.e("deleteTransaction", "Failed to delete transaction", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun assignUserToGroup(groupId: String, userId: String) {
         viewModelScope.launch {
             _isLoading.value = true

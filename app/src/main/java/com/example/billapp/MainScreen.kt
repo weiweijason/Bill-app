@@ -19,6 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import com.example.billapp.bonus.CurrencyConverterScreen
+import com.example.billapp.bonus.ExchangeRateTableScreen
 import com.example.billapp.group.AddInvitationScreen
 import com.example.billapp.group.CreateGroup
 import com.example.billapp.group.GroupInviteLinkScreen
@@ -150,6 +152,15 @@ fun MainScreen(
                 }
                 composable("Join_Group"){
                     AddInvitationScreen(navController = navController, viewModel = viewModel)
+                }
+                composable("currency"){
+                    CurrencyConverterScreen(navController = navController)
+                }
+                composable("exchangeRateTable") {
+                    ExchangeRateTableScreen(
+                        navController, "TWD",
+                        listOf("USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD")
+                    )
                 }
                 composable(
                     route = "Group_Invite/{groupId}",
