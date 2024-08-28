@@ -1,5 +1,6 @@
 package com.example.billapp
 
+import AvatarScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +30,7 @@ import com.example.billapp.personal.EditTransactionDetailScreen
 import com.example.billapp.personal.PersonalUIScreen
 import com.example.billapp.setting.AboutScreen
 import com.example.billapp.setting.ContactUsScreen
+import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -37,6 +39,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     onLogOut: () -> Unit,
     viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel,
     requestPermission: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -136,6 +139,7 @@ fun MainScreen(
                     ProfileScreen(
                         navController = navController,
                         viewModel = viewModel,
+                        avatarViewModel = avatarViewModel,
                         requestPermission = requestPermission
                     )
                 }
@@ -207,6 +211,9 @@ fun MainScreen(
 
                 composable("ItemAdd"){
                     ItemAdd(navController, viewModel)
+                }
+                composable("avatar"){
+                    AvatarScreen(viewModel = avatarViewModel)
                 }
             }
         }

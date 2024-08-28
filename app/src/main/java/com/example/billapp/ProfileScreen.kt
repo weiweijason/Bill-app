@@ -1,5 +1,6 @@
 package com.example.billapp
 
+import AvatarScreen
 import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -11,7 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +40,7 @@ import com.example.billapp.viewModel.MainViewModel
 fun ProfileScreen(
     navController: NavController,
     viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel,
     requestPermission: (String) -> Unit
 ) {
     val user by viewModel.user.collectAsState()
@@ -53,21 +58,6 @@ fun ProfileScreen(
             email = it.email
         }
     }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            imageUri = it
-            if (Build.VERSION.SDK_INT < 28) {
-                bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                bitmap.value = ImageDecoder.decodeBitmap(source)
-            }
-        }
-    }
-
 
     Scaffold(
         topBar = {
@@ -96,33 +86,17 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()), // Enable scrolling for overflow
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(contentAlignment = Alignment.BottomEnd) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(bitmap.value?.asImageBitmap() ?: user?.image)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Profile Picture",
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .clickable {
-                                    requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                    launcher.launch("image/*")
-                                },
-                            contentScale = ContentScale.Crop
-                        )
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit Image",
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape)
-                                .padding(4.dp)
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(150.dp) // Adjust the size as needed
+                            .padding(8.dp)
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        AvatarScreen(avatarViewModel)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
