@@ -7,7 +7,6 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AvatarViewModel(application: Application) : AndroidViewModel(application) {
-    // Using Application context
     @SuppressLint("StaticFieldLeak")
     private val context = getApplication<Application>().applicationContext
     private val repository = AvatarRepository(FirebaseStorage.getInstance(), context)
@@ -41,16 +39,29 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun usingDefaultAvatar(imageUri: String) {
-
+    fun usePresetAvatar(presetResourceId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            try {
+                val presetUrl = "android.resource://${context.packageName}/$presetResourceId"
+                currentUserId?.let { repository.updateUserImage(it, presetUrl) }
+                _avatarUrl.value = presetUrl
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
-    fun loadAvatar(url: String) {
+    fun loadAvatar() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val bitmap = repository.getAvatar(url)
-                _avatarUrl.value = url
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                val avatarUrl = currentUserId?.let { repository.getUserAvatarUrl(it) }
+                _avatarUrl.value = avatarUrl
             } catch (e: Exception) {
                 // Handle error
             } finally {

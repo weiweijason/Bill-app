@@ -4,7 +4,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import androidx.core.content.ContextCompat
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
@@ -13,14 +12,11 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
-import java.util.UUID
 
 open class AvatarRepository(
     private val storage: FirebaseStorage,
     private val context: Context
 ) {
-    private val imageLoader = ImageLoader(context)
     private val firestore = FirebaseFirestore.getInstance()
 
     suspend fun uploadAvatar(imageUri: Uri, userId: String): String? {
@@ -30,7 +26,6 @@ open class AvatarRepository(
                 val uploadTask = ref.putFile(imageUri).await()
                 val downloadUrl = ref.downloadUrl.await()
 
-                // Update the user's image URL in Firestore
                 updateUserImage(userId, downloadUrl.toString())
 
                 Log.i("Downloadable Image URL", downloadUrl.toString())
@@ -47,7 +42,6 @@ open class AvatarRepository(
             .getExtensionFromMimeType(context.contentResolver.getType(uri!!))
     }
 
-    // 更新 Firestore 中 User 的 image 字段
     suspend fun updateUserImage(userId: String, imageUrl: String) {
         try {
             firestore.collection("users").document(userId)
@@ -59,23 +53,15 @@ open class AvatarRepository(
         }
     }
 
-    suspend fun getAvatar(url: String): Bitmap? {
+    suspend fun getUserAvatarUrl(userId: String): String? {
         return withContext(Dispatchers.IO) {
-            val request = ImageRequest.Builder(context)
-                .data(url)
-                .allowHardware(false) // Disable hardware bitmaps for easy conversion
-                .build()
-
-            val result = imageLoader.execute(request)
-            if (result is SuccessResult) {
-                (result.drawable as BitmapDrawable).bitmap
-            } else {
+            try {
+                val document = firestore.collection("users").document(userId).get().await()
+                document.getString("image")
+            } catch (e: Exception) {
+                Log.e("Firestore Get", "Error getting user avatar URL", e)
                 null
             }
         }
-    }
-
-    fun getPresetAvatarDrawableId(presetName: String): Int {
-        return context.resources.getIdentifier(presetName, "drawable", context.packageName)
     }
 }

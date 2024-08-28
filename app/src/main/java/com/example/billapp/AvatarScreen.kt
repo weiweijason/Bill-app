@@ -2,6 +2,7 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,9 +43,14 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
         uri?.let { viewModel.uploadAvatar(it) }
     }
 
-    // 設置 BottomSheetState 並禁用部分展開模式
+    // 添加 LaunchedEffect 來加載初始頭像
+    // 註解：新增此部分以確保初始頭像能夠正確加載
+    LaunchedEffect(key1 = Unit) {
+        viewModel.loadAvatar()
+    }
+
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true // 設為 false 以允許部分展開
+        skipPartiallyExpanded = true
     )
 
     Scaffold { contentPadding ->
@@ -59,7 +65,7 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                 modifier = Modifier
                     .size(120.dp)
                     .clickable {
-                        showBottomSheet = true // Toggle bottom sheet visibility
+                        showBottomSheet = true
                     }
                     .align(Alignment.CenterHorizontally),
                 contentAlignment = Alignment.Center
@@ -69,18 +75,50 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                         modifier = Modifier.size(100.dp)
                     )
                 } else {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(avatarUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Avatar",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    )
+                    // 更新這裡以正確顯示預設頭像和上傳的頭像
+                    // 註解：修改此部分以區分預設頭像和上傳的頭像
+                    when {
+                        avatarUrl == null -> {
+                            // 顯示默認頭像或佔位符
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_user_place_holder),
+                                contentDescription = "Default Avatar",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            )
+                        }
+                        avatarUrl?.startsWith("android.resource://") == true -> {
+                            // 顯示預設頭像
+                            val resourceId = avatarUrl?.substringAfterLast("/")?.toIntOrNull() ?: R.drawable.ic_user_place_holder
+                            Image(
+                                painter = painterResource(id = resourceId),
+                                contentDescription = "Preset Avatar",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            )
+                        }
+                        else -> {
+                            // 顯示上傳的頭像
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(avatarUrl)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "Avatar",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -99,13 +137,11 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.8f) // 使彈出視窗占據屏幕的 80% 高度
+                        .fillMaxHeight(0.6f)
                 ) {
                     PresetAvatars(viewModel)
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // 其他內容可以添加在這裡...
 
                     Button(
                         onClick = {
@@ -122,8 +158,6 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
         }
     }
 }
-
-
 
 @Composable
 fun PresetAvatars(viewModel: AvatarViewModel) {
@@ -147,28 +181,25 @@ fun PresetAvatars(viewModel: AvatarViewModel) {
         item {
             Box(
                 modifier = Modifier
-                    .size(100.dp) // Consistent size with other items
+                    .size(100.dp)
                     .padding(8.dp)
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    .background(MaterialTheme.colorScheme.surface) // Matching background
-                    .clickable { launcher.launch("image/*") }, // Click action for choosing image
-                contentAlignment = Alignment.Center // Align icon to the center
+                    .background(MaterialTheme.colorScheme.surface)
+                    .clickable { launcher.launch("image/*") },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.add_photo), // Use add_photo.xml
+                    painter = painterResource(id = R.drawable.add_photo),
                     contentDescription = "Choose from gallery",
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(40.dp) // Adjust size if necessary
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }
         items(presets) { preset ->
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(preset)
-                    .crossfade(true)
-                    .build(),
+            Image(
+                painter = painterResource(id = preset),
                 contentDescription = "Preset Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -176,7 +207,7 @@ fun PresetAvatars(viewModel: AvatarViewModel) {
                     .padding(8.dp)
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    .clickable { viewModel.usingDefaultAvatar("image1") } // need default uri
+                    .clickable { viewModel.usePresetAvatar(preset) }
             )
         }
     }
