@@ -4,20 +4,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,11 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.billapp.models.PersonalTransaction
+import com.example.billapp.models.TransactionCategory
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -58,6 +68,11 @@ fun EditTransactionDetailScreen(
     var amountInput by remember { mutableStateOf(amount.toString()) }
     val name by viewModel.name.collectAsState()
     val date by viewModel.date.collectAsState()
+    var currentTimestamp by remember { mutableStateOf(Timestamp.now()) }
+    val type by viewModel.transactionType.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    val selectedCategory by viewModel.category.collectAsState()
+    val categories = TransactionCategory.entries.toTypedArray()
 
     // Fetch transaction data when the screen is first composed
     LaunchedEffect(transactionId) {
@@ -93,6 +108,37 @@ fun EditTransactionDetailScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Type Selection
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { viewModel.setTransactionType("收入") },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (type == "收入") Color.Gray else Color.LightGray
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "收入", color = Color.Black)
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = { viewModel.setTransactionType("支出") },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor =  if(type == "支出") Color.Gray else Color.LightGray
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "支出", color = Color.Black)
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Date Field
             Box(
                 modifier = Modifier
@@ -112,6 +158,7 @@ fun EditTransactionDetailScreen(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
+
             // Amount Field
             TextField(
                 value = amountInput,
@@ -127,6 +174,8 @@ fun EditTransactionDetailScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+//            Text(text = "type: $type")
+
             // Note Field
             TextField(
                 value = note,
@@ -136,7 +185,7 @@ fun EditTransactionDetailScreen(
                 label = { Text("Note") },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Name Field
             TextField(
@@ -147,11 +196,50 @@ fun EditTransactionDetailScreen(
                 label = { Text("Name") },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+//            Text(text = "當前時間戳記: $currentTimestamp")
 
+
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                TextField(
+                    value = selectedCategory,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("選擇類別") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    modifier = Modifier.exposedDropdownSize(matchTextFieldWidth = true),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    categories.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(category.name) },
+                            onClick = {
+                                viewModel.setCategory(category)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
             // Save Button
             Button(
                 onClick = {
+                    currentTimestamp = Timestamp.now()
+                    viewModel.setUpdatetime(currentTimestamp)
                     transaction?.let {
                         viewModel.updateTransaction(
                             transactionId = it.transactionId,
@@ -160,12 +248,17 @@ fun EditTransactionDetailScreen(
                                 transactionId = it.transactionId,
                                 date = viewModel.date.value,
                                 amount = viewModel.amount.value,
-                                note = viewModel.note.value
+                                note = viewModel.note.value,
+                                updatedAt = viewModel.updatetime.value,
+                                type = viewModel.transactionType.value,
+                                category = viewModel.stringToCategory(selectedCategory)
+
                             )
                         )
                         viewModel.loadUserTransactions()
                         navController.navigateUp()
                     }
+
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
