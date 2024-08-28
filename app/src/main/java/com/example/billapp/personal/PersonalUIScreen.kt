@@ -357,7 +357,8 @@ fun PersonalUIScreen(
 
                 PersonalTransactionList(
                     transactions = filteredRecords,
-                    navController = navController
+                    navController = navController,
+                    viewModel = viewModel
                 )
             }
         }
