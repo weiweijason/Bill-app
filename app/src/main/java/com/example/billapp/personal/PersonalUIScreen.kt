@@ -1,10 +1,16 @@
 package com.example.billapp.personal
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -15,17 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.billapp.MonthPickerDialog
+import com.example.billapp.MyDatePickerDialog
 import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
+import com.example.billapp.YearPickerDialog
 import com.example.billapp.viewModel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalUIScreen(
     navController: NavController,
@@ -48,11 +59,15 @@ fun PersonalUIScreen(
     // 根據選中的類型過濾記錄
     fun filterRecords() {
         val filtered = transactions.filter { transaction ->
-            val calendar = Calendar.getInstance().apply { timeInMillis = transaction.date!!.toDate().time }
+            val calendar =
+                Calendar.getInstance().apply { timeInMillis = transaction.date!!.toDate().time }
             when (dateType) {
                 "年" -> calendar.get(Calendar.YEAR) == year
                 "月" -> calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) + 1 == month
-                "日" -> calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) + 1 == month && calendar.get(Calendar.DAY_OF_MONTH) == day
+                "日" -> calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) + 1 == month && calendar.get(
+                    Calendar.DAY_OF_MONTH
+                ) == day
+
                 else -> true
             }
         }
@@ -112,171 +127,244 @@ fun PersonalUIScreen(
     // 格式化日期
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 顯示年、月、日的 Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .border(1.dp, Color.Gray)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { dateType = "年"; filterRecords() },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "年", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$year", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { dateType = "月"; filterRecords() },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "月", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$month", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { dateType = "日"; filterRecords() },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "日", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$day", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-
-        // 顯示年月的 Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = { updateDate(-1) }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "上一個"
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Text(
+                    text = "個人",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    color = Color.Black
                 )
+            },
+            actions = {
+                Button(
+                    onClick = {
+                        val currentDate = Calendar.getInstance()
+                        year = currentDate.get(Calendar.YEAR)
+                        month = currentDate.get(Calendar.MONTH) + 1
+                        day = currentDate.get(Calendar.DAY_OF_MONTH)
+                        filterRecords() // 呼叫篩選函數
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                ) {
+                    val buttonText = when (dateType) {
+                        "年" -> "本年"
+                        "月" -> "本月"
+                        "日" -> "本日"
+                        else -> "本月" // 預設為本月
+                    }
+                    Text(
+                        text = buttonText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
+        )
+    }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            // 顯示年、月、日的 Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    //                .border(1.dp, Color.Gray)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val selectedColor = Color.Gray
+                val defaultColor = Color.LightGray
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (dateType == "年") selectedColor else defaultColor)
+                        .clickable { dateType = "年"; filterRecords() }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "年", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (dateType == "月") selectedColor else defaultColor)
+                        .clickable { dateType = "月"; filterRecords() }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "月", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (dateType == "日") selectedColor else defaultColor)
+                        .clickable { dateType = "日"; filterRecords() }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "日", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            // 顯示年月的 Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = { updateDate(-1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "上一個"
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clickable { showDatePicker = true }
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = when (dateType) {
+                            "年" -> "$year"
+                            "月" -> "$year/$month"
+                            "日" -> "$year/$month/$day"
+                            else -> "$year/$month/"
+                        },
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                IconButton(onClick = { updateDate(1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "下一個"
+                    )
+                }
+            }
+
+
+            // 顯示已支出、結餘、收入的 Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    //                .border(1.dp, Color.Gray)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val selectedColor = Color.Gray
+                val defaultColor = Color.LightGray
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (Type == "expanse") selectedColor else defaultColor)
+                        .clickable { switchData("支出"); Type = "expanse" }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "支出", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "$filteredExpense",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (Type == "balance") selectedColor else defaultColor)
+                        .clickable { switchData("結餘"); Type = "balance" }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "結餘", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "$filteredBalance",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(if (Type == "income") selectedColor else defaultColor)
+                        .clickable { switchData("收入"); Type = "income" }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "收入", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "$filteredIncome", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
-                    .clickable { showDatePicker = true }
-                    .align(Alignment.CenterVertically)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                // PieChart
+                val income = filteredIncome
+                val expense = filteredExpense
+                val total = filteredIncome + filteredExpense
+                val balance = filteredBalance
+                PieChartWithCategory(
+                    income = income,
+                    expense = expense,
+                    balance = balance,
+                    total = total,
+                    selectedCategory = Type
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
                 Text(
-                    text = when (dateType) {
-                        "年" -> "$year"
-                        "月" -> "$year/$month"
-                        "日" -> "$year/$month/$day"
-                        else -> "$year/$month/"
-                    },
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "收入和支出詳情",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                PersonalTransactionList(
+                    transactions = filteredRecords,
+                    navController = navController
                 )
             }
-
-            IconButton(onClick = { updateDate(1) }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "下一個"
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 顯示已支出、結餘、收入的 Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .border(1.dp, Color.Gray)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { switchData("支出"); Type = "expanse" },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "支出", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$filteredExpense", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { switchData("結餘"); Type = "balance" },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "結餘", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$filteredBalance", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { switchData("收入"); Type = "income" },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "收入", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = "$filteredIncome", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .align(Alignment.CenterHorizontally)
-        ) {
-            // PieChart
-            val income = filteredIncome
-            val expense = filteredExpense
-            val total = filteredIncome + filteredExpense
-            val balance = filteredBalance
-            PieChartWithCategory(income = income, expense = expense, balance = balance, total = total, selectedCategory = Type)
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(
-                text = "收入和支出詳情",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            PersonalTransactionList(
-                transactions = filteredRecords,
-                navController = navController
-            )
         }
     }
     if (showDatePicker) {
-        PickerModal(
+        ShowPickerDialog(
+            dateType = dateType,
             onDateSelected = { selectedDate ->
                 // 根據 dateType 更新 year, month, day
                 val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate ?: 0L }
@@ -286,6 +374,7 @@ fun PersonalUIScreen(
                         year = calendar.get(Calendar.YEAR)
                         month = calendar.get(Calendar.MONTH) + 1
                     }
+
                     "日" -> {
                         year = calendar.get(Calendar.YEAR)
                         month = calendar.get(Calendar.MONTH) + 1
@@ -295,48 +384,35 @@ fun PersonalUIScreen(
                 filterRecords()
                 showDatePicker = false
             },
-            onDismiss = { showDatePicker = false },
-            dateType = dateType
+            onDismiss = { showDatePicker = false }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PickerModal(
+fun ShowPickerDialog(
     dateType: String,
     onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val datePickerState = rememberDatePickerState()
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
+    when (dateType) {
+        "年" -> YearPickerDialog(onYearSelected = { year ->
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            onDateSelected(calendar.timeInMillis)
+        }, onDismiss = onDismiss)
+        "月" -> MonthPickerDialog(onMonthSelected = { year, month ->
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
             }
-        }
-    ) {
-        DatePicker(
-            state = datePickerState,
-            mode = when (dateType) {
-                "年" -> DatePickerMode.YEAR
-                "月" -> DatePickerMode.YEAR_MONTH
-                "日" -> DatePickerMode.DEFAULT
-                else -> DatePickerMode.DEFAULT
-            }
-        )
+            onDateSelected(calendar.timeInMillis)
+        }, onDismiss = onDismiss)
+        "日" -> MyDatePickerDialog(onDateSelected = onDateSelected, onDismiss = onDismiss)
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -139,6 +143,12 @@ fun PieChartWithCategory(income: Float, expense: Float, balance: Float, total: F
         }
     }else if(selectedCategory == "income"){
         val incomeAngle = income *  360f
+        var noneAngle by remember { mutableStateOf(360f) }
+        if(income!=0f){
+            noneAngle = 0f
+        }else{
+            noneAngle = 360f
+        }
         Box(contentAlignment = Alignment.Center) {
             Box(
                 modifier = Modifier
@@ -159,6 +169,13 @@ fun PieChartWithCategory(income: Float, expense: Float, balance: Float, total: F
                             useCenter = false,
                             style = Stroke(width = 20.dp.toPx())
                         )
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = incomeAngle,
+                            sweepAngle = noneAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
                     }
                 }
                 Text(
@@ -171,6 +188,12 @@ fun PieChartWithCategory(income: Float, expense: Float, balance: Float, total: F
         }
     }else if(selectedCategory == "expanse"){
         val expenseAngle = expense * 360f
+        var noneAngle by remember { mutableStateOf(360f) }
+        if(expense!=0f){
+            noneAngle = 0f
+        }else{
+            noneAngle = 360f
+        }
         Box(contentAlignment = Alignment.Center) {
             Box(
                 modifier = Modifier
@@ -188,6 +211,13 @@ fun PieChartWithCategory(income: Float, expense: Float, balance: Float, total: F
                             color = Color.Red,
                             startAngle = 0f,
                             sweepAngle = expenseAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = expenseAngle,
+                            sweepAngle = noneAngle,
                             useCenter = false,
                             style = Stroke(width = 20.dp.toPx())
                         )
