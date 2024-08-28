@@ -82,21 +82,6 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     )
                 }
-
-//                IconButton(
-//                    onClick = { launcher.launch("image/*") },
-//                    modifier = Modifier
-//                        .size(40.dp)
-//                        .align(Alignment.TopStart)
-//                        .clip(CircleShape)
-//                        .background(MaterialTheme.colorScheme.primary)
-//                ) {
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.add_photo),
-//                        contentDescription = "Choose from gallery",
-//                        tint = MaterialTheme.colorScheme.onPrimary
-//                    )
-//                }
             }
         }
 
@@ -191,7 +176,7 @@ fun PresetAvatars(viewModel: AvatarViewModel) {
                     .padding(8.dp)
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    .clickable { viewModel.selectPresetAvatar(preset) }
+                    .clickable { viewModel.usingDefaultAvatar("image1") } // need default uri
             )
         }
     }

@@ -6,6 +6,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,8 +29,9 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
     fun uploadAvatar(imageUri: Uri) {
         viewModelScope.launch {
             _isLoading.value = true
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
             try {
-                val url = repository.uploadAvatar(imageUri)
+                val url = currentUserId?.let { repository.uploadAvatar(imageUri, it) }
                 _avatarUrl.value = url
             } catch (e: Exception) {
                 // Handle error
@@ -37,6 +39,10 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
                 _isLoading.value = false
             }
         }
+    }
+
+    fun usingDefaultAvatar(imageUri: String) {
+
     }
 
     fun loadAvatar(url: String) {
@@ -44,20 +50,6 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
             _isLoading.value = true
             try {
                 val bitmap = repository.getAvatar(url)
-                _avatarUrl.value = url
-            } catch (e: Exception) {
-                // Handle error
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun selectPresetAvatar(resourceId: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val url = repository.uploadPresetAvatar(resourceId)
                 _avatarUrl.value = url
             } catch (e: Exception) {
                 // Handle error

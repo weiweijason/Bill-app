@@ -135,7 +135,8 @@ fun ProfileScreen(
                                         name = name,
                                         email = email,
                                     )
-                                    viewModel.updateUserProfileWithImage(updatedUser, imageUri)
+                                    viewModel.updateUserProfile(updatedUser)
+                                    imageUri?.let { it1 -> avatarViewModel.uploadAvatar(it1) }
                                 }
                             }
                             isEditing = !isEditing
