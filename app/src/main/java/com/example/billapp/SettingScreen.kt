@@ -102,6 +102,22 @@ fun SettingScreen(
                 fontSize = 18.sp,
                 color = Color.Black)
         }
+
+        Button(onClick = {
+            navController.navigate("ItemAdd")
+        },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .size(height = 60.dp, width = 200.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(Color.LightGray)
+        ) {
+            Text(text = "ItemAdd 暫時按鈕",
+                fontSize = 18.sp,
+                color = Color.Black)
+        }
+
     }
 }
 
