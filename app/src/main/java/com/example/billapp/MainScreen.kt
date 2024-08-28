@@ -204,6 +204,10 @@ fun MainScreen(
                     val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
                     MemberListScreen(navController, viewModel, groupId)
                 }
+
+                composable("ItemAdd"){
+                    ItemAdd(navController, viewModel)
+                }
             }
         }
     }
