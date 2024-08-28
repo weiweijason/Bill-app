@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.billapp.PieChart
+import com.example.billapp.PieChartWithCategory
 import com.example.billapp.viewModel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,12 +36,13 @@ fun PersonalUIScreen(
     val transactions by viewModel.userTransactions.collectAsState()
     var selectedChart by remember { mutableStateOf("結餘") }
     var filteredRecords by remember { mutableStateOf(transactions) }
+    var Type by remember{ mutableStateOf("balance")}
 
     // 根據選中的類型過濾記錄
     fun filterRecords() {
         filteredRecords = when (selectedChart) {
-            "支出" -> transactions.filter { it.amount < 0 }
-            "收入" -> transactions.filter { it.amount > 0 }
+            "支出" -> transactions.filter { it.type == "支出"}
+            "收入" -> transactions.filter { it.type == "收入" }
             "結餘" -> transactions
             else -> transactions
         }
@@ -124,15 +126,24 @@ fun PersonalUIScreen(
                 .padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { switchData("支出") }) {
+            Button(onClick = {
+                switchData("支出")
+                Type = "expanse"
+            }) {
                 Text(text = "月支出")
             }
 
-            Button(onClick = { switchData("收入") }) {
+            Button(onClick = {
+                switchData("收入")
+                Type = "income"
+            }) {
                 Text(text = "月收入")
             }
 
-            Button(onClick = { switchData("結餘") }) {
+            Button(onClick = {
+                switchData("結餘")
+                Type = "balance"
+            }) {
                 Text(text = "月結餘")
             }
         }
@@ -156,7 +167,7 @@ fun PersonalUIScreen(
             val expense = viewModel.getUserExpense()
             val total = income + expense
             val balance = income - expense
-            PieChart(income = income, expense = expense, balance = balance, total = total)
+            PieChartWithCategory(income = income, expense = expense, balance = balance, total = total, selectedCategory = Type)
         }
 
         Spacer(modifier = Modifier.height(32.dp))

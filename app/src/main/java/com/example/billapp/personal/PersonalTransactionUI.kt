@@ -24,7 +24,7 @@ fun PersonalTransactionItem(
     onItemClick: () -> Unit
 ) {
     // Format the timestamp to a readable date format
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val date = transaction.date?.toDate() // Convert Firebase Timestamp to Java Date
     val formattedDate = dateFormat.format(date!!)
 
