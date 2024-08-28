@@ -82,6 +82,28 @@ object FirebaseRepository {
         getFirestoreInstance().collection("groups").document(groupId).delete().await()
     }
 
+    suspend fun deletePersonalTransaction(transactionId: String, transactionType: String, transactionAmount: Double) = withContext(Dispatchers.IO) {
+        val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
+        val userId = currentUser.uid
+
+        // Reference to the transaction document
+        val transactionRef = getFirestoreInstance().collection(Constants.USERS)
+            .document(userId)
+            .collection("transactions")
+            .document(transactionId)
+
+        // Delete the transaction document
+        transactionRef.delete().await()
+
+        // Update the user's total income or expense
+        val userRef = getFirestoreInstance().collection(Constants.USERS).document(userId)
+        when (transactionType) {
+            "收入" -> userRef.update("income", FieldValue.increment(-transactionAmount)).await()
+            "支出" -> userRef.update("expense", FieldValue.increment(-transactionAmount)).await()
+            else -> Log.e("deletePersonalTransaction", "Invalid transaction type: $transactionType")
+        }
+    }
+
     suspend fun updateGroup(groupId: String, group: Group) = withContext(Dispatchers.IO) {
         getFirestoreInstance().collection(Constants.GROUPS).document(groupId).set(group).await()
     }
