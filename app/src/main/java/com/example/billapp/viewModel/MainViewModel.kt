@@ -3,7 +3,7 @@ package com.example.billapp.viewModel
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,8 +12,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.DeptRelation
 import com.example.billapp.models.Group
-import com.example.billapp.models.GroupMember
-import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.GroupTransaction
 import com.example.billapp.models.PersonalTransaction
 import com.example.billapp.models.TransactionCategory
@@ -69,16 +67,19 @@ class MainViewModel : ViewModel() {
     val transactionType: StateFlow<String> = _transactionType.asStateFlow()
 
     private val _amount = MutableStateFlow(0.0)
-    val amount: StateFlow<Double> = _amount.asStateFlow()
+    val amount: StateFlow<Double> get() = _amount
+
+    private val _note = MutableStateFlow("")
+    val note: StateFlow<String> get() = _note
+
+    private val _date = MutableStateFlow(Timestamp.now())
+    val date: StateFlow<Timestamp> = _date.asStateFlow()
 
     private val _category = MutableStateFlow<String>("") // Assuming _category is a String
     val category: StateFlow<String> get() = _category
 
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name.asStateFlow()
-
-    private val _note = MutableStateFlow("")
-    val note: StateFlow<String> = _note.asStateFlow()
 
     private val _shareMethod = MutableStateFlow("")
     val shareMethod: StateFlow<String> = _shareMethod
@@ -92,14 +93,18 @@ class MainViewModel : ViewModel() {
     private val _groupMembers = MutableStateFlow<List<User>>(emptyList())
     val groupMembers: StateFlow<List<User>> = _groupMembers.asStateFlow()
 
-    private val _transaction = MutableLiveData<PersonalTransaction>()
-    val transaction: LiveData<PersonalTransaction> get() = _transaction
+    private val _transaction = MutableStateFlow<PersonalTransaction?>(null)
+    val transaction: StateFlow<PersonalTransaction?> = _transaction
 
-    private val db = FirebaseFirestore.getInstance()
+    private var _updatetime =MutableStateFlow(Timestamp.now())
+    val updatetime: StateFlow<Timestamp> = _updatetime.asStateFlow()
 
+
+    // 不要在這邊宣告firebase
     init {
         loadUserData()
         loadUserGroups()
+        loadUserTransactions()
     }
 
     private fun loadUserData() {
@@ -204,6 +209,10 @@ class MainViewModel : ViewModel() {
         return _user.value?.expense?.toFloat() ?: 0.0f
     }
 
+
+
+
+
     // Dept Functions //
     fun getDeptRelations(groupId: String): MutableStateFlow<List<DeptRelation>> {
         return _deptRelations
@@ -227,10 +236,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun loadUserTransactions(userId: String) {
+    // 取得個人交易紀錄
+    fun loadUserTransactions() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                val userId = getCurrentUserID()
                 val transactions = FirebaseRepository.getUserTransactions(userId)
                 _userTransactions.value = transactions
             } catch (e: Exception) {
@@ -330,14 +341,23 @@ class MainViewModel : ViewModel() {
 
     ///////////////// 個人資料 ///////////////////////
 
-    // 取得個人交易紀錄
-    fun getUserTransactions() {
+
+
+    // 單一筆交易
+    fun getTransaction(transactionId: String) {
         viewModelScope.launch {
             try {
-                val transactions = FirebaseRepository.getUserTransactions(getCurrentUserID())
-                _userTransactions.value = transactions
+                val transaction = FirebaseRepository.getTransaction(transactionId)
+                _transaction.value = transaction
+                setNote(transaction.note!!)
+                setAmount(transaction.amount)
+                setDate(transaction.date!!)
+                setName(transaction.name)
+                setTransactionType(transaction.type)
+                setCategory(transaction.category)
             } catch (e: Exception) {
-                _error.value = e.message
+                // Handle the exception (e.g., log it or update a different state to indicate an error)
+                _transaction.value = null // Optionally set the state to null or handle the error state as needed
             }
         }
     }
@@ -387,9 +407,9 @@ class MainViewModel : ViewModel() {
         _amount.value = amount
     }
 
-    fun updateTransaction(userId: String, updatedTransaction: PersonalTransaction) {
+    fun updateTransaction(transactionId: String, updatedTransaction: PersonalTransaction) {
         viewModelScope.launch {
-            val transactionId = updatedTransaction.transactionId ?: throw IllegalArgumentException("Transaction ID cannot be null or empty")
+            val userId = getCurrentUserID()
             FirebaseFirestore.getInstance().collection(Constants.USERS)
                 .document(userId)
                 .collection(Constants.TRANSACTIONS)
@@ -397,6 +417,15 @@ class MainViewModel : ViewModel() {
                 .set(updatedTransaction)
                 .addOnSuccessListener {
                     _transaction.value = updatedTransaction
+
+                    // 更新 _userTransactions
+                    val currentTransactions = _userTransactions.value.toMutableList()
+                    val index = currentTransactions.indexOfFirst { it.transactionId == transactionId }
+                    if (index != -1) {
+                        currentTransactions[index] = updatedTransaction
+                        _userTransactions.value = currentTransactions
+                    }
+
                 }
                 .addOnFailureListener { e ->
                     Log.e("updateTransaction", "Error updating transaction", e)
@@ -437,6 +466,13 @@ class MainViewModel : ViewModel() {
         _note.value = value
     }
 
+    fun setDate(value: Timestamp) {
+        _date.value = value
+    }
+
+    fun setUpdatetime(value: Timestamp){
+        _updatetime.value = value
+    }
 
     // 群組交易
     fun setShareMethod(method: String) {
