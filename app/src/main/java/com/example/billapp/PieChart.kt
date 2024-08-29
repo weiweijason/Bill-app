@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -77,6 +81,159 @@ fun PieChart(income: Float, expense: Float, balance: Float, total: Float) {
         }
     }
 }
+
+@Composable
+fun PieChartWithCategory(income: Float, expense: Float, balance: Float, total: Float, selectedCategory: String){
+    if(selectedCategory == "balance"){
+        val incomeAngle = (income / total) * 360f
+        val expenseAngle = (expense / total) * 360f
+
+        Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Text(
+                    text = "收入: $income",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 16.dp, end = 16.dp)
+                )
+                Text(
+                    text = "支出: $expense",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(top = 16.dp, start = 16.dp)
+                )
+                Canvas(modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+                ) {
+                    withTransform({
+                        rotate(270f)
+                    }) {
+                        drawArc(
+                            color = Color.Green,
+                            startAngle = 0f,
+                            sweepAngle = incomeAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                        drawArc(
+                            color = Color.Red,
+                            startAngle = incomeAngle,
+                            sweepAngle = expenseAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                    }
+                }
+                Text(
+                    text = "結餘: $balance",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }else if(selectedCategory == "income"){
+        val incomeAngle = income *  360f
+        var noneAngle by remember { mutableStateOf(360f) }
+        if(income!=0f){
+            noneAngle = 0f
+        }else{
+            noneAngle = 360f
+        }
+        Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Canvas(modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+                ) {
+                    withTransform({
+                        rotate(270f)
+                    }) {
+                        drawArc(
+                            color = Color.Green,
+                            startAngle = 0f,
+                            sweepAngle = incomeAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = incomeAngle,
+                            sweepAngle = noneAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                    }
+                }
+                Text(
+                    text = "收入: $income",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }else if(selectedCategory == "expanse"){
+        val expenseAngle = expense * 360f
+        var noneAngle by remember { mutableStateOf(360f) }
+        if(expense!=0f){
+            noneAngle = 0f
+        }else{
+            noneAngle = 360f
+        }
+        Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Canvas(modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+                ) {
+                    withTransform({
+                        rotate(270f)
+                    }) {
+                        drawArc(
+                            color = Color.Red,
+                            startAngle = 0f,
+                            sweepAngle = expenseAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = expenseAngle,
+                            sweepAngle = noneAngle,
+                            useCenter = false,
+                            style = Stroke(width = 20.dp.toPx())
+                        )
+                    }
+                }
+                Text(
+                    text = "支出: $expense",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PieChartPreview() {

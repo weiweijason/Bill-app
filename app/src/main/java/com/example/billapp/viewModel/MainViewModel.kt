@@ -66,7 +66,6 @@ class MainViewModel : ViewModel() {
     private val _transactionType = MutableStateFlow("支出")
     val transactionType: StateFlow<String> = _transactionType.asStateFlow()
 
-
     private val _amount = MutableStateFlow(0.0)
     val amount: StateFlow<Double> get() = _amount
 
@@ -97,8 +96,11 @@ class MainViewModel : ViewModel() {
     private val _transaction = MutableStateFlow<PersonalTransaction?>(null)
     val transaction: StateFlow<PersonalTransaction?> = _transaction
 
-    // 不要在這邊宣告firebase
+    private var _updatetime =MutableStateFlow(Timestamp.now())
+    val updatetime: StateFlow<Timestamp> = _updatetime.asStateFlow()
 
+
+    // 不要在這邊宣告firebase
     init {
         loadUserData()
         loadUserGroups()
@@ -234,6 +236,22 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteTransaction(transactionId: String, transactionType: String, transactionAmount: Double) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.deletePersonalTransaction(transactionId, transactionType, transactionAmount)
+                loadUserTransactions()
+                // 你可以在這裡添加任何需要的額外操作，例如更新 UI 或顯示通知
+            } catch (e: Exception) {
+                // 處理異常，例如顯示錯誤訊息
+                Log.e("deleteTransaction", "Failed to delete transaction", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun assignUserToGroup(groupId: String, userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -298,6 +316,8 @@ class MainViewModel : ViewModel() {
                 setAmount(transaction.amount)
                 setDate(transaction.date!!)
                 setName(transaction.name)
+                setTransactionType(transaction.type)
+                setCategory(transaction.category)
             } catch (e: Exception) {
                 // Handle the exception (e.g., log it or update a different state to indicate an error)
                 _transaction.value = null // Optionally set the state to null or handle the error state as needed
@@ -411,6 +431,10 @@ class MainViewModel : ViewModel() {
 
     fun setDate(value: Timestamp) {
         _date.value = value
+    }
+
+    fun setUpdatetime(value: Timestamp){
+        _updatetime.value = value
     }
 
     // 群組交易
