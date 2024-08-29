@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,8 +44,7 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
         uri?.let { viewModel.uploadAvatar(it) }
     }
 
-    // 添加 LaunchedEffect 來加載初始頭像
-    // 註解：新增此部分以確保初始頭像能夠正確加載
+    // 加载初始头像
     LaunchedEffect(key1 = Unit) {
         viewModel.loadAvatar()
     }
@@ -75,11 +75,8 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                         modifier = Modifier.size(100.dp)
                     )
                 } else {
-                    // 更新這裡以正確顯示預設頭像和上傳的頭像
-                    // 註解：修改此部分以區分預設頭像和上傳的頭像
                     when {
                         avatarUrl == null -> {
-                            // 顯示默認頭像或佔位符
                             Image(
                                 painter = painterResource(id = R.drawable.ic_user_place_holder),
                                 contentDescription = "Default Avatar",
@@ -91,7 +88,7 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                             )
                         }
                         avatarUrl?.startsWith("android.resource://") == true -> {
-                            // 顯示預設頭像
+                            // 显示预设头像
                             val resourceId = avatarUrl?.substringAfterLast("/")?.toIntOrNull() ?: R.drawable.ic_user_place_holder
                             Image(
                                 painter = painterResource(id = resourceId),
@@ -104,7 +101,7 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                             )
                         }
                         else -> {
-                            // 顯示上傳的頭像
+                            // 显示上传的头像
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(avatarUrl)
@@ -120,6 +117,19 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                         }
                     }
                 }
+
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Avatar",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.BottomEnd)
+                        .clickable {
+                            showBottomSheet = true
+                        }
+                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                        .padding(4.dp)
+                )
             }
         }
 
@@ -158,6 +168,7 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
         }
     }
 }
+
 
 @Composable
 fun PresetAvatars(viewModel: AvatarViewModel) {

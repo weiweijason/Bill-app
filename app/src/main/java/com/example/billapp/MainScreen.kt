@@ -65,7 +65,7 @@ fun MainScreen(
                         drawerState.close()
                     }
                 }
-                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel)
+                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel, avatarViewModel)
             }
         }
     ) {
@@ -226,9 +226,11 @@ fun DrawerContent(
     navController: NavController,
     onCloseDrawer: () -> Unit,
     onLogOut: () -> Unit,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel
 ) {
-    val user by viewModel.user.collectAsState()
+    val user = viewModel.user.collectAsState().value
+    val userImage = avatarViewModel.avatarUrl.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -242,10 +244,9 @@ fun DrawerContent(
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            val currentUser = user
-            when (user?.image) {
+            when (userImage) {
                 "" -> PersonalDetailNull(user!!)
-                else -> currentUser?.let { PersonalDetail(it) }
+                else -> user?.let { PersonalDetail(it, userImage) }
             }
         }
 
@@ -276,18 +277,25 @@ fun DrawerContent(
 
 
 @Composable
-fun PersonalDetail(user: User) {
+fun PersonalDetail(user: User, image: String? = null) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = coil.request.ImageRequest.Builder(LocalContext.current)
-                .data(user.image)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.ic_user_place_holder),
-            contentDescription = "User Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.clip(CircleShape)
-        )
+        Box(
+            modifier = Modifier
+                .size(150.dp) // Adjust the size as needed
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            AsyncImage(
+                model = coil.request.ImageRequest.Builder(LocalContext.current)
+                    .data(image)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.ic_user_place_holder),
+                contentDescription = "User Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.clip(CircleShape)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(user.name)
     }

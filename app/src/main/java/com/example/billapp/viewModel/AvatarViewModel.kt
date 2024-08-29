@@ -24,6 +24,10 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    init {
+        loadAvatar()
+    }
+
     fun uploadAvatar(imageUri: Uri) {
         viewModelScope.launch {
             _isLoading.value = true
