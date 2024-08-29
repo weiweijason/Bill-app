@@ -231,6 +231,7 @@ fun DrawerContent(
 ) {
     val user = viewModel.user.collectAsState().value
     val userImage = avatarViewModel.avatarUrl.collectAsState().value
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -269,11 +270,46 @@ fun DrawerContent(
             label = { Text("Sign Out") },
             selected = false,
             onClick = {
-                onLogOut()
+                showDialog = true
             }
         )
+
+        // Logout Confirmation Dialog
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDialog = false
+                },
+                title = {
+                    Text(text = "Confirm Logout")
+                },
+                text = {
+                    Text("Are you sure you want to log out?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                            onLogOut()
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                        }
+                    ) {
+                        Text("No")
+                    }
+                }
+            )
+        }
     }
 }
+
 
 
 @Composable
