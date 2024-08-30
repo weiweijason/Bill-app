@@ -132,6 +132,21 @@ fun SettingScreen(
                 color = Color.Black)
         }
 
+        Button(onClick = {
+            navController.navigate("avatar")
+        },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .size(height = 60.dp, width = 200.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(Color.LightGray)
+        ) {
+            Text(text = "AvatarScreen 暫時按鈕",
+                fontSize = 18.sp,
+                color = Color.Black)
+        }
+
     }
 }
 

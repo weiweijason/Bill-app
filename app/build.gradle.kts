@@ -124,9 +124,16 @@ dependencies {
 
     // image
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
 
-    implementation("androidx.compose.material:material:1.4.0")
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+
+    // Add the dependency for the Cloud Storage library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.firebase.storage)
+
+    implementation("androidx.compose.material:material:1.6.8")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
