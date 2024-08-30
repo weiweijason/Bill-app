@@ -146,7 +146,7 @@ fun MainScreen(
                     )
                 }
                 composable("CreateGroupScreen") {
-                    CreateGroup(navController = navController,viewModel = viewModel)
+                    CreateGroup(navController = navController,viewModel = viewModel, avatarViewModel = avatarViewModel)
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
