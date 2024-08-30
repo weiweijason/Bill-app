@@ -1,5 +1,6 @@
 package com.example.billapp
 
+import ExposedDropdown
 import AvatarScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -165,6 +166,9 @@ fun MainScreen(
                         navController, "TWD",
                         listOf("USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD")
                     )
+                }
+                composable("TEST"){
+                    ExposedDropdown(navController = navController, viewModel = viewModel)
                 }
                 composable(
                     route = "Group_Invite/{groupId}",
