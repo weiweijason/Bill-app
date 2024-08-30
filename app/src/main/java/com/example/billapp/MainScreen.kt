@@ -115,7 +115,7 @@ fun MainScreen(
                     )
                 }
                 composable("add") {
-                    PersonalTest(
+                    ItemAdd(
                         navController = navController,
                         viewModel = viewModel,
                     )
