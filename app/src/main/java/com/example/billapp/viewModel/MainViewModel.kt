@@ -1,5 +1,6 @@
 package com.example.billapp.viewModel
 
+import AvatarRepository
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -279,22 +280,34 @@ class MainViewModel : ViewModel() {
         return groupFlow.asStateFlow()
     }
 
-    fun createGroup(name: String, imageUri: Uri?, context: Context) {
+    fun createGroup(groupName: String, imageUri: Uri?, context: Context) {
         viewModelScope.launch {
             _groupCreationStatus.value = GroupCreationStatus.LOADING
             try {
-                // 群組照片更新(未完成)
-                val imageUrl = imageUri?.let { }
-                val group = Group(name = name, image = (imageUrl ?: "").toString())
-                FirebaseRepository.createGroup(group)
-                loadUserGroups() // 在成功創建Group後更新userGroups
+                val group = Group(name = groupName)
+                val groupId = FirebaseRepository.createGroup(group) // groupId is now returned
+
+                imageUri?.let { uri ->
+                    val avatarRepository = AvatarRepository(FirebaseStorage.getInstance(), context)
+
+                    if (uri.toString().startsWith("android.resource://")) {
+                        // Default image
+                        avatarRepository.updateGroupImage(groupId, uri.toString())
+                    } else {
+                        // Custom image
+                        val imageUrl = avatarRepository.uploadGroupAvatar(uri, groupId)
+                        imageUrl?.let { avatarRepository.updateGroupImage(groupId, it) }
+                    }
+                }
+
                 _groupCreationStatus.value = GroupCreationStatus.SUCCESS
             } catch (e: Exception) {
                 _groupCreationStatus.value = GroupCreationStatus.ERROR
-                _error.value = e.message
             }
         }
     }
+
+
 
     fun resetGroupCreationStatus() {
         _groupCreationStatus.value = GroupCreationStatus.IDLE

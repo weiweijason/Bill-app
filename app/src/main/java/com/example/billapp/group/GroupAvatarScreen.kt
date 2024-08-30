@@ -1,5 +1,6 @@
+package com.example.billapp.group
+
 import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -11,9 +12,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,17 +21,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.rememberAsyncImagePainter
 import com.example.billapp.R
 import com.example.billapp.viewModel.AvatarViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AvatarScreen(viewModel: AvatarViewModel) {
-    val avatarUrl by viewModel.avatarUrl.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+fun GroupAvatarScreen(
+    groupId: String,
+    avatarViewModel: AvatarViewModel
+) {
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -41,12 +40,18 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { viewModel.uploadAvatar(it) }
+        uri?.let {
+            imageUri = it
+            avatarViewModel.uploadGroupAvatar(it, groupId)
+        }
     }
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.loadAvatar()
+    LaunchedEffect(groupId) {
+        avatarViewModel.loadGroupAvatar(groupId)
     }
+
+    val groupAvatarUrl by avatarViewModel.groupAvatarUrl.collectAsState()
+    val isLoading by avatarViewModel.isLoading.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -60,12 +65,13 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text("Group Avatar", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
             Box(
                 modifier = Modifier
                     .size(120.dp)
-                    .clickable {
-                        showBottomSheet = true
-                    }
+                    .clickable { showBottomSheet = true }
                     .align(Alignment.CenterHorizontally),
                 contentAlignment = Alignment.Center
             ) {
@@ -74,68 +80,27 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                         modifier = Modifier.size(100.dp)
                     )
                 } else {
-                    when {
-                        avatarUrl == null -> {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_user_place_holder),
-                                contentDescription = "Default Avatar",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                            )
-                        }
-                        avatarUrl?.startsWith("android.resource://") == true -> {
-                            val resourceId = avatarUrl?.substringAfterLast("/")?.toIntOrNull() ?: R.drawable.ic_user_place_holder
-                            Image(
-                                painter = painterResource(id = resourceId),
-                                contentDescription = "Preset Avatar",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                            )
-                        }
-                        else -> {
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(avatarUrl)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = "Avatar",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                            )
-                        }
-                    }
+                    Image(
+                        painter = when {
+                            imageUri != null -> rememberAsyncImagePainter(imageUri)
+                            groupAvatarUrl != null -> rememberAsyncImagePainter(groupAvatarUrl)
+                            else -> painterResource(id = R.drawable.ic_board_place_holder)
+                        },
+                        contentDescription = "Group Avatar",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Avatar",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.BottomEnd)
-                        .clickable {
-                            showBottomSheet = true
-                        }
-                        .background(MaterialTheme.colorScheme.primary, CircleShape)
-                        .padding(4.dp)
-                )
             }
         }
 
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
-                    scope.launch {
-                        sheetState.hide()
-                    }.invokeOnCompletion {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
                         showBottomSheet = false
                     }
                 },
@@ -146,7 +111,9 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
                         .fillMaxWidth()
                         .fillMaxHeight(0.6f)
                 ) {
-                    PresetAvatars(viewModel)
+                    GroupPresetAvatars(avatarViewModel, groupId, onAvatarSelected = {
+                        showBottomSheet = false
+                    })
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -166,20 +133,26 @@ fun AvatarScreen(viewModel: AvatarViewModel) {
     }
 }
 
-
 @Composable
-fun PresetAvatars(viewModel: AvatarViewModel) {
+fun GroupPresetAvatars(
+    viewModel: AvatarViewModel,
+    groupId: String,
+    onAvatarSelected: () -> Unit
+) {
     val presets = listOf(
-        R.drawable.image1,
-        R.drawable.image2,
-        R.drawable.image3,
-        R.drawable.image4
+        R.drawable.image_group_travel,
+        R.drawable.image_group_house,
+        R.drawable.image_group_shopping,
+        R.drawable.image_group_shopping
     )
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { viewModel.uploadAvatar(it) }
+        uri?.let {
+            viewModel.uploadGroupAvatar(it, groupId)
+            onAvatarSelected()
+        }
     }
 
     LazyVerticalGrid(
@@ -194,7 +167,9 @@ fun PresetAvatars(viewModel: AvatarViewModel) {
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { launcher.launch("image/*") },
+                    .clickable {
+                        launcher.launch("image/*")
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -208,14 +183,17 @@ fun PresetAvatars(viewModel: AvatarViewModel) {
         items(presets) { preset ->
             Image(
                 painter = painterResource(id = preset),
-                contentDescription = "Preset Avatar",
+                contentDescription = "Preset Group Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(100.dp)
                     .padding(8.dp)
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    .clickable { viewModel.usePresetAvatar(preset) }
+                    .clickable {
+                        viewModel.usePresetGroupAvatar(preset, groupId)
+                        onAvatarSelected()
+                    }
             )
         }
     }

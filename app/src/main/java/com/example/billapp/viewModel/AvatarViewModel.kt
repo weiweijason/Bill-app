@@ -21,6 +21,9 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
     private val _avatarUrl = MutableStateFlow<String?>(null)
     val avatarUrl: StateFlow<String?> = _avatarUrl.asStateFlow()
 
+    private val _groupAvatarUrl = MutableStateFlow<String?>(null)
+    val groupAvatarUrl: StateFlow<String?> = _groupAvatarUrl.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -42,6 +45,21 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
+
+    fun uploadGroupAvatar(imageUri: Uri, groupId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val url = repository.uploadGroupAvatar(imageUri, groupId)
+                _groupAvatarUrl.value = url
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
 
     fun usePresetAvatar(presetResourceId: Int) {
         viewModelScope.launch {
@@ -66,6 +84,35 @@ class AvatarViewModel(application: Application) : AndroidViewModel(application) 
                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
                 val avatarUrl = currentUserId?.let { repository.getUserAvatarUrl(it) }
                 _avatarUrl.value = avatarUrl
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadGroupAvatar(groupId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val groupAvatarUrl = repository.getGroupAvatarUrl(groupId)
+                _groupAvatarUrl.value = groupAvatarUrl
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun usePresetGroupAvatar(presetResourceId: Int, groupId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val presetUrl = "android.resource://${context.packageName}/$presetResourceId"
+                repository.updateGroupImage(groupId, presetUrl)
+                _groupAvatarUrl.value = presetUrl
             } catch (e: Exception) {
                 // Handle error
             } finally {

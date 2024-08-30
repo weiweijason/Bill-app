@@ -22,7 +22,7 @@ object FirebaseRepository {
     private fun getFirestoreInstance() = FirebaseFirestore.getInstance()
     private fun getAuthInstance() = FirebaseAuth.getInstance()
 
-    suspend fun createGroup(group: Group) = withContext(Dispatchers.IO) {
+    suspend fun createGroup(group: Group): String = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val groupId = getFirestoreInstance().collection(Constants.GROUPS).document().id
         val groupData = group.copy(
@@ -34,7 +34,9 @@ object FirebaseRepository {
             .document(groupId)
             .set(groupData, SetOptions.merge())
             .await()
+        return@withContext groupId
     }
+
 
     suspend fun getCurrentUser(): User = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
