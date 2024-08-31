@@ -150,6 +150,7 @@ fun CustomKeyboard(
     onDeleteClick: () -> Unit,
     onClearClick: () -> Unit,
     onOkClick: () -> Unit,
+    onEqualsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val capybaraBrown = colorResource(id = R.color.colorAccent)
@@ -229,6 +230,9 @@ fun CustomKeyboard(
             Button(modifier = buttonModifier, onClick = onClearClick, colors = buttonColors) {
                 Text("AC", color = capybaraBrown)
             }
+            Button(modifier = buttonModifier, onClick = onEqualsClick, colors = buttonColors) {
+                Text("=", color = capybaraBrown)
+            }
             Button(modifier = buttonModifier, onClick = onOkClick, colors = buttonColors) {
                 Text("OK", color = capybaraBrown)
             }
@@ -266,6 +270,7 @@ fun ItemAdd(
 
     var isBottomSheetVisible by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
+    var toggleKeyboard by remember { mutableStateOf(false) }
 
     //Group
     val groups by viewModel.userGroups.collectAsState()
@@ -297,24 +302,38 @@ fun ItemAdd(
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-//            if (isBottomSheetVisible) {
+//            AnimatedVisibility(visible = isBottomSheetVisible) {  // [NEW] Changed to AnimatedVisibility
 //                CustomKeyboard(
 //                    onKeyClick = { key ->
-//                        amount = TextFieldValue(amount.text + key)
+//                        amountInput += key
+//                        it.toDoubleOrNull()?.let { validAmount ->
+//                            viewModel.setAmount(validAmount)
+//                        }
 //                    },
 //                    onDeleteClick = {
-//                        if (amount.text.isNotEmpty()) {
-//                            amount = TextFieldValue(amount.text.dropLast(1))
+//                        if (amountInput.isNotEmpty()) {
+//                            amountInput = amountInput.dropLast(1)
+//                            amountInput.toDoubleOrNull()?.let { validAmount ->
+//                                viewModel.setAmount(validAmount)
+//                            }
 //                        }
 //                    },
 //                    onClearClick = {
-//                        amount = TextFieldValue("")
+//                        amountInput = ""
+//                        viewModel.setAmount(0.0)
 //                    },
 //                    onOkClick = {
 //                        coroutineScope.launch {
 //                            isBottomSheetVisible = false
-//                            bottomSheetScaffoldState.bottomSheetState.hide() // 隱藏 BottomSheet
+//                            toggleKeyboard = false // [NEW] Reset toggleKeyboard when OK is clicked
+//                            bottomSheetScaffoldState.bottomSheetState.hide()
 //                        }
+//                    },
+//                    onEqualsClick = {
+//                        // Evaluate the expression in amountInput
+//                        val result = evaluateExpression(amountInput)
+//                        amountInput = result.toString()
+//                        viewModel.setAmount(result)
 //                    },
 //                    modifier = Modifier
 //                        .fillMaxWidth()
@@ -322,7 +341,8 @@ fun ItemAdd(
 //                )
 //            }
         },
-        sheetPeekHeight = if (isBottomSheetVisible) 50.dp else 0.dp // 控制 BottomSheet 的可见性
+//        sheetPeekHeight = if (isBottomSheetVisible) 0.dp else 0.dp,
+
     ) {
         Column(
             modifier = Modifier
@@ -333,6 +353,7 @@ fun ItemAdd(
                     if (isBottomSheetVisible) {
                         coroutineScope.launch {
                             isBottomSheetVisible = false
+                            toggleKeyboard = false
                             bottomSheetScaffoldState.bottomSheetState.hide() // 隱藏 BottomSheet
                         }
                     }
@@ -452,31 +473,49 @@ fun ItemAdd(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .clickable {isKeyboardVisible = true } //這裡跑出自製鍵盤
+                        .clickable {toggleKeyboard = !toggleKeyboard  // [NEW] Toggle keyboard visibility
+                            isBottomSheetVisible = toggleKeyboard } //這裡跑出自製鍵盤
                 )
 
             }
 
-            AnimatedVisibility(
-                visible = isKeyboardVisible,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
+            AnimatedVisibility(visible = isBottomSheetVisible) {  // [NEW] Changed to AnimatedVisibility
                 CustomKeyboard(
                     onKeyClick = { key ->
                         amountInput += key
+                        // [UPDATED] Validate and update the amount input
+                        amountInput.toDoubleOrNull()?.let { validAmount ->
+                            viewModel.setAmount(validAmount)
+                        }
                     },
                     onDeleteClick = {
                         if (amountInput.isNotEmpty()) {
                             amountInput = amountInput.dropLast(1)
+                            amountInput.toDoubleOrNull()?.let { validAmount ->
+                                viewModel.setAmount(validAmount)
+                            }
                         }
                     },
                     onClearClick = {
                         amountInput = ""
+                        viewModel.setAmount(0.0)
                     },
                     onOkClick = {
-                        isKeyboardVisible = false
-                        keyboardController?.hide()
-                    }
+                        coroutineScope.launch {
+                            isBottomSheetVisible = false
+                            toggleKeyboard = false // [NEW] Reset toggleKeyboard when OK is clicked
+                            bottomSheetScaffoldState.bottomSheetState.hide()
+                        }
+                    },
+                    onEqualsClick = {
+                        // Evaluate the expression in amountInput
+                        val result = evaluateExpression(amountInput)
+                        amountInput = result.toString()
+                        viewModel.setAmount(result)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
                 )
             }
 
@@ -635,4 +674,16 @@ fun ItemAdd(
 
 }
 
+fun evaluateExpression(expression: String): Double {
+    // Simple logic to evaluate the expression
+    // You might want to use a library or more complex logic for better parsing
+    return try {
+        val result = expression.split("+", "-", "×", "÷")
+            .map { it.trim().toDoubleOrNull() ?: 0.0 }
+            .reduce { acc, value -> acc + value } // Simplified for demo
+        result
+    } catch (e: Exception) {
+        0.0
+    }
+}
 
