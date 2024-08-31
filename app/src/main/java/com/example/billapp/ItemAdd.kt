@@ -52,6 +52,7 @@ import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedVisibility
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -264,6 +265,7 @@ fun ItemAdd(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+    var isKeyboardVisible by remember { mutableStateOf(false) }
 
     //Group
     val groups by viewModel.userGroups.collectAsState()
@@ -450,9 +452,32 @@ fun ItemAdd(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .clickable { } //這裡跑出自製鍵盤
+                        .clickable {isKeyboardVisible = true } //這裡跑出自製鍵盤
                 )
 
+            }
+
+            AnimatedVisibility(
+                visible = isKeyboardVisible,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                CustomKeyboard(
+                    onKeyClick = { key ->
+                        amountInput += key
+                    },
+                    onDeleteClick = {
+                        if (amountInput.isNotEmpty()) {
+                            amountInput = amountInput.dropLast(1)
+                        }
+                    },
+                    onClearClick = {
+                        amountInput = ""
+                    },
+                    onOkClick = {
+                        isKeyboardVisible = false
+                        keyboardController?.hide()
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(7.dp))
@@ -607,6 +632,7 @@ fun ItemAdd(
             }
         }
     }
+
 }
 
 
