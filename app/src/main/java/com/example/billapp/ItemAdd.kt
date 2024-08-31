@@ -60,7 +60,7 @@ fun StylishTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    readOnly: Boolean = true,
+    readOnly: Boolean,
     modifier: Modifier = Modifier
 ) {
     val capybaraBrown = colorResource(id = R.color.colorAccent)
@@ -69,6 +69,7 @@ fun StylishTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        readOnly = readOnly,
         textStyle = TextStyle(
             fontSize = 18.sp,
             fontFamily = FontFamily.Cursive,
@@ -240,8 +241,6 @@ fun ItemAdd(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-
-
     val transactionType by viewModel.transactionType.collectAsState()
     var personalOrGroup by remember { mutableStateOf("個人") }
     val type by viewModel.transactionType.collectAsState()
@@ -257,6 +256,8 @@ fun ItemAdd(
     var splitMethod by remember { mutableStateOf("平均分攤") } // default 平攤
     var expandedGroup by remember { mutableStateOf(false) }
     var expandedCategory by remember { mutableStateOf(false) }
+    var expandedPayers by remember { mutableStateOf(false) }
+
 
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -274,7 +275,6 @@ fun ItemAdd(
 
     var expandedShareMethod by remember { mutableStateOf(false) }
     var expandedDividers by remember { mutableStateOf(false) }
-    var expandedPayers by remember { mutableStateOf(false) }
 
 
     // Helper to get a user's name by ID
@@ -326,7 +326,7 @@ fun ItemAdd(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFD9C9BA))  // 背景顏色
-                .padding(top = 40.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .padding(top = 23.dp, start = 16.dp, end = 16.dp, bottom = 7.dp)
                 .clickable {
                     if (isBottomSheetVisible) {
                         coroutineScope.launch {
@@ -360,7 +360,7 @@ fun ItemAdd(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             // if群組
             if (personalOrGroup == "群組") {
@@ -413,7 +413,7 @@ fun ItemAdd(
                         Text(text = "支出")
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(7.dp))
 
                     Button(
                         onClick = { viewModel.setTransactionType("收入") },
@@ -443,6 +443,7 @@ fun ItemAdd(
                         }
                     },
                     label = "金額",
+                    readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -454,7 +455,7 @@ fun ItemAdd(
 
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             // 名稱
             StylishTextField(
@@ -465,7 +466,7 @@ fun ItemAdd(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
 
             //類別
@@ -477,6 +478,7 @@ fun ItemAdd(
                     value = selectedCategory,
                     onValueChange = {},
                     label = "選擇類別" ,
+                    readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor()
@@ -498,18 +500,37 @@ fun ItemAdd(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
 
             if (personalOrGroup == "群組") {
-//                Spacer(modifier = Modifier.height(16.dp))
-//                DropDownMenuField(
-//                    label = "付款人",
-//                    selectedItem = payer,
-//                    onItemSelected = { payer = it }
-//                )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                ExposedDropdownMenuBox(
+                    expanded = expandedPayers,
+                    onExpandedChange = { expandedPayers = !expandedPayers }
+                ) {
+                    StylishTextField(
+                        readOnly = true,
+                        value = payers.joinToString(", ") { getUserNameById(it) },
+                        onValueChange = { },
+                        label = "付款人",
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedPayers,
+                        onDismissRequest = { expandedPayers = false }
+                    ) {
+                        groupMembers.forEach { user ->
+                            DropdownMenuItem(
+                                text = { Text(user.name) },
+                                onClick = {
+                                    viewModel.togglePayer(user.id)
+                                    expandedPayers = false // Close dropdown after selection
+                                }
+                            )
+                        }
+                    }
+                }
 
                 // 分账方式的三个按钮
                 Row(
@@ -556,7 +577,7 @@ fun ItemAdd(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             //備註
             StylishTextField(
@@ -567,10 +588,13 @@ fun ItemAdd(
                 modifier = Modifier.fillMaxWidth()
             )
 
-
-
             Spacer(modifier = Modifier.weight(1f))
-
+//            if(personalOrGroup =="群組") {
+//                Spacer(modifier = Modifier.height(2.dp))
+//            }
+//            else{
+//                Spacer(modifier = Modifier.weight(1f))
+//            }
             // 完成按鈕
             Button(
                 onClick = {
