@@ -197,7 +197,7 @@ object FirebaseRepository {
             .await()
             .toObject(PersonalTransaction::class.java)!!
     }
-
+    //userAmounts: Map<String, Float>, payerId: String
     // 新增一筆群組交易紀錄
     suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction) = withContext(Dispatchers.IO) {
         val transactionId = getFirestoreInstance().collection(Constants.GROUPS)
@@ -227,7 +227,134 @@ object FirebaseRepository {
                 .await()
         }
     }
+    /*
+    //均分
+    private fun calculateEvenSplitRelations(transaction: GroupTransaction, payerId: String, userAmounts: Map<String, Float>): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+        val totalAmount = transaction.amount.toFloat()  // Ensure totalAmount is Float
+        val numberOfUsers = userAmounts.size
 
+        userAmounts.forEach { (userId, enteredAmount) ->
+            if (userId != payerId) {
+                val enteredAmountFloat = enteredAmount.toFloat()  // Ensure enteredAmount is Float
+                val evenSplitAmount = if (numberOfUsers > 0) totalAmount / numberOfUsers else 0f
+                val finalAmount = (enteredAmountFloat + evenSplitAmount).toDouble()  // Addition
+                deptRelations.add(
+                    DeptRelation(
+                        id = java.util.UUID.randomUUID().toString(),
+                        from = userId,
+                        to = payerId,
+                        amount = finalAmount,
+                        groupTransactionId = transaction.id
+                    )
+                )
+            }
+        }
+        return deptRelations
+    }
+
+    //按比例
+    private fun calculateProportionalRelations(transaction: GroupTransaction, payerId: String, userPercentages: Map<String, Float>): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+        val totalPercentage = userPercentages.values.sum()
+
+        if (totalPercentage != 100f) return deptRelations // Ensure percentages sum to 100%
+
+        userPercentages.forEach { (userId, percentage) ->
+            if (userId != payerId) {
+                val amountOwed = transaction.amount * (percentage / 100)
+                deptRelations.add(
+                    DeptRelation(
+                        id = java.util.UUID.randomUUID().toString(),
+                        from = userId,
+                        to = payerId,
+                        amount = amountOwed,
+                        groupTransactionId = transaction.id
+                    )
+                )
+            }
+        }
+
+        return deptRelations
+    }
+    //按調整
+    private fun calculateAdjustableRelations(transaction: GroupTransaction, payerId: String, userAmounts: Map<String, Float>): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+
+        // Ensure transaction.amount is Float
+        val totalEnteredAmount = userAmounts.values.sum() // Should already be Float
+        val remainingAmount = (transaction.amount.toFloat() - totalEnteredAmount) // Explicitly convert transaction.amount to Float
+        val numberOfUsers = userAmounts.size
+
+        userAmounts.forEach { (userId, enteredAmount) ->
+            if (userId != payerId) {
+                // Ensure evenSplitAmount and finalAmount are Float
+                val evenSplitAmount = if (numberOfUsers > 0) remainingAmount / numberOfUsers else 0f
+                val finalAmount = (enteredAmount + evenSplitAmount).toDouble() // Explicitly convert finalAmount to Float
+
+                deptRelations.add(
+                    DeptRelation(
+                        id = java.util.UUID.randomUUID().toString(),
+                        from = userId,
+                        to = payerId,
+                        amount = finalAmount, // Ensure amount is Float
+                        groupTransactionId = transaction.id
+                    )
+                )
+            }
+        }
+        return deptRelations
+    }
+
+
+    //按金額
+    private fun calculateExactAmountRelations(transaction: GroupTransaction, payerId: String, userAmounts: Map<String, Float>): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+
+        userAmounts.forEach { (userId, amount) ->
+            if (userId != payerId) {
+                val Amount = amount.toDouble()
+                deptRelations.add(
+                    DeptRelation(
+                        id = java.util.UUID.randomUUID().toString(),
+                        from = userId,
+                        to = payerId,
+                        amount = Amount,
+                        groupTransactionId = transaction.id
+                    )
+                )
+            }
+        }
+
+        return deptRelations
+    }
+    //按份數
+    private fun calculateSharesRelations(transaction: GroupTransaction, payerId: String, userShares: Map<String, Int>): List<DeptRelation> {
+        val deptRelations = mutableListOf<DeptRelation>()
+        val totalShares = userShares.values.sum()
+
+        if (totalShares == 0) return deptRelations // Avoid division by zero
+
+        userShares.forEach { (userId, shares) ->
+            if (userId != payerId) {
+                val amountOwed = transaction.amount * (shares / totalShares.toFloat())
+                deptRelations.add(
+                    DeptRelation(
+                        id = java.util.UUID.randomUUID().toString(),
+                        from = userId,
+                        to = payerId,
+                        amount = amountOwed,
+                        groupTransactionId = transaction.id
+                    )
+                )
+            }
+        }
+
+        return deptRelations
+    }
+    */
+
+    //原本的(子齊)
     private fun calculateDeptRelations(transaction: GroupTransaction): List<DeptRelation> {
         val deptRelations = mutableListOf<DeptRelation>()
 

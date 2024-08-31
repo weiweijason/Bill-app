@@ -487,7 +487,7 @@ class MainViewModel : ViewModel() {
             try {
                 FirebaseRepository.addGroupTransaction(
                     groupId,
-                    GroupTransaction(
+                     GroupTransaction(
                         id = "",
                         payer = _payers.value,
                         divider = _dividers.value,

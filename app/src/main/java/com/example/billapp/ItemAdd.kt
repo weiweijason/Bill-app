@@ -231,7 +231,8 @@ fun CustomKeyboard(
 @Composable
 fun ItemAdd(
     navController: NavController,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    groupId : String
 ) {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
@@ -384,39 +385,17 @@ fun ItemAdd(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(
-                        onClick = { splitMethod = "平均分攤" },
+                        onClick = {
+                            navController.navigate("Separate/$groupId/$amount") // Pass amount to Separate screen
+                        },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (splitMethod == "平均分攤") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
+                            containerColor = if (splitMethod == "分帳方式") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
                         ),
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 4.dp)
                     ) {
-                        Text("平均分攤")
-                    }
-
-                    Button(
-                        onClick = { splitMethod = "填入金額" },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (splitMethod == "填入金額") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
-                    ) {
-                        Text("填入金額")
-                    }
-
-                    Button(
-                        onClick = { splitMethod = "填入份額" },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (splitMethod == "填入份額") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
-                    ) {
-                        Text("填入份額")
+                        Text("分帳方式")
                     }
                 }
             }
@@ -426,6 +405,7 @@ fun ItemAdd(
             // 完成按钮
             Button(
                 onClick = {
+                    // 完成按钮点击事件
                 },
                 modifier = Modifier
                     .align(Alignment.End)
@@ -436,5 +416,6 @@ fun ItemAdd(
         }
     }
 }
+
 
 
