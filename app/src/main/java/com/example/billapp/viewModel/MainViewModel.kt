@@ -1,5 +1,6 @@
 package com.example.billapp.viewModel
 
+import AvatarRepository
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -137,7 +138,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun updateUserProfile(updatedUser: User) {
+    fun updateUserProfile(updatedUser: User) {
         viewModelScope.launch {
             FirebaseFirestore.getInstance().collection(Constants.USERS)
                 .document(getCurrentUserID())
@@ -148,46 +149,6 @@ class MainViewModel : ViewModel() {
                 .addOnFailureListener { e ->
                     Log.e("updateUserProfile", "Error updating user profile", e)
                 }
-        }
-    }
-
-    private fun uploadImage(imageUri: Uri, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("profile_images/${UUID.randomUUID()}")
-
-        imageRef.putFile(imageUri)
-            .continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    task.exception?.let { throw it }
-                }
-                imageRef.downloadUrl
-            }
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val downloadUri = task.result
-                    onSuccess(downloadUri.toString())
-                } else {
-                    onFailure(task.exception ?: Exception("Unknown error"))
-                }
-            }
-    }
-
-    fun updateUserProfileWithImage(updatedUser: User, imageUri: Uri?) {
-        viewModelScope.launch {
-            if (imageUri != null) {
-                uploadImage(
-                    imageUri,
-                    onSuccess = { imageUrl ->
-                        val userWithImage = updatedUser.copy(image = imageUrl)
-                        updateUserProfile(userWithImage)
-                    },
-                    onFailure = { e ->
-                        Log.e("updateUserProfileWithImage", "Error uploading image", e)
-                    }
-                )
-            } else {
-                updateUserProfile(updatedUser)
-            }
         }
     }
 
@@ -208,10 +169,6 @@ class MainViewModel : ViewModel() {
     fun getUserExpense(): Float {
         return _user.value?.expense?.toFloat() ?: 0.0f
     }
-
-
-
-
 
     // Dept Functions //
     fun getDeptRelations(groupId: String): MutableStateFlow<List<DeptRelation>> {
@@ -280,6 +237,22 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteTransaction(transactionId: String, transactionType: String, transactionAmount: Double) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                FirebaseRepository.deletePersonalTransaction(transactionId, transactionType, transactionAmount)
+                loadUserTransactions()
+                // 你可以在這裡添加任何需要的額外操作，例如更新 UI 或顯示通知
+            } catch (e: Exception) {
+                // 處理異常，例如顯示錯誤訊息
+                Log.e("deleteTransaction", "Failed to delete transaction", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun assignUserToGroup(groupId: String, userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -307,31 +280,34 @@ class MainViewModel : ViewModel() {
         return groupFlow.asStateFlow()
     }
 
-    fun createGroup(name: String, imageUri: Uri?, context: Context) {
+    fun createGroup(groupName: String, imageUri: Uri?, context: Context) {
         viewModelScope.launch {
             _groupCreationStatus.value = GroupCreationStatus.LOADING
             try {
-                val imageUrl = imageUri?.let { uploadImage(it, context) }
-                val group = Group(name = name, image = (imageUrl ?: "").toString())
-                FirebaseRepository.createGroup(group)
-                loadUserGroups() // 在成功創建Group後更新userGroups
+                val group = Group(name = groupName)
+                val groupId = FirebaseRepository.createGroup(group) // groupId is now returned
+
+                imageUri?.let { uri ->
+                    val avatarRepository = AvatarRepository(FirebaseStorage.getInstance(), context)
+
+                    if (uri.toString().startsWith("android.resource://")) {
+                        // Default image
+                        avatarRepository.updateGroupImage(groupId, uri.toString())
+                    } else {
+                        // Custom image
+                        val imageUrl = avatarRepository.uploadGroupAvatar(uri, groupId)
+                        imageUrl?.let { avatarRepository.updateGroupImage(groupId, it) }
+                    }
+                }
+
                 _groupCreationStatus.value = GroupCreationStatus.SUCCESS
             } catch (e: Exception) {
                 _groupCreationStatus.value = GroupCreationStatus.ERROR
-                _error.value = e.message
             }
         }
     }
 
-    private suspend fun uploadImage(imageUri: Uri, context: Context): String {
-        return withContext(Dispatchers.IO) {
-            val storageRef = FirebaseStorage.getInstance().reference
-            val imageRef = storageRef.child("group_images/${UUID.randomUUID()}")
 
-            val uploadTask = imageRef.putFile(imageUri).await()
-            return@withContext imageRef.downloadUrl.await().toString()
-        }
-    }
 
     fun resetGroupCreationStatus() {
         _groupCreationStatus.value = GroupCreationStatus.IDLE

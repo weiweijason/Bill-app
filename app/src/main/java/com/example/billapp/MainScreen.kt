@@ -1,5 +1,6 @@
 package com.example.billapp
 
+import AvatarScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import com.example.billapp.bonus.CurrencyConverterScreen
+import com.example.billapp.bonus.ExchangeRateTableScreen
 import com.example.billapp.group.AddInvitationScreen
 import com.example.billapp.group.CreateGroup
 import com.example.billapp.group.GroupInviteLinkScreen
@@ -29,6 +32,7 @@ import com.example.billapp.personal.EditTransactionDetailScreen
 import com.example.billapp.personal.PersonalUIScreen
 import com.example.billapp.setting.AboutScreen
 import com.example.billapp.setting.ContactUsScreen
+import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -37,6 +41,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     onLogOut: () -> Unit,
     viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel,
     requestPermission: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -62,7 +67,7 @@ fun MainScreen(
                         drawerState.close()
                     }
                 }
-                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel)
+                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel, avatarViewModel)
             }
         }
     ) {
@@ -136,6 +141,7 @@ fun MainScreen(
                     ProfileScreen(
                         navController = navController,
                         viewModel = viewModel,
+                        avatarViewModel = avatarViewModel,
                         requestPermission = requestPermission
                     )
                 }
@@ -153,7 +159,7 @@ fun MainScreen(
                 }
 
                 composable("CreateGroupScreen") {
-                    CreateGroup(navController = navController,viewModel = viewModel)
+                    CreateGroup(navController = navController,viewModel = viewModel, avatarViewModel = avatarViewModel)
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
@@ -163,6 +169,15 @@ fun MainScreen(
                 }
                 composable("Join_Group"){
                     AddInvitationScreen(navController = navController, viewModel = viewModel)
+                }
+                composable("currency"){
+                    CurrencyConverterScreen(navController = navController)
+                }
+                composable("exchangeRateTable") {
+                    ExchangeRateTableScreen(
+                        navController, "TWD",
+                        listOf("USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD")
+                    )
                 }
                 composable(
                     route = "Group_Invite/{groupId}",
@@ -227,6 +242,14 @@ fun MainScreen(
                     MemberListScreen(navController, viewModel, groupId)
                 }
 
+
+                composable("ItemAdd"){
+                    ItemAdd(navController, viewModel)
+                }
+                composable("avatar"){
+                    AvatarScreen(viewModel = avatarViewModel)
+                }
+
             }
         }
     }
@@ -238,9 +261,12 @@ fun DrawerContent(
     navController: NavController,
     onCloseDrawer: () -> Unit,
     onLogOut: () -> Unit,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel
 ) {
-    val user by viewModel.user.collectAsState()
+    val user = viewModel.user.collectAsState().value
+    val userImage = avatarViewModel.avatarUrl.collectAsState().value
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -254,10 +280,9 @@ fun DrawerContent(
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            val currentUser = user
-            when (user?.image) {
+            when (userImage) {
                 "" -> PersonalDetailNull(user!!)
-                else -> currentUser?.let { PersonalDetail(it) }
+                else -> user?.let { PersonalDetail(it, userImage) }
             }
         }
 
@@ -280,26 +305,68 @@ fun DrawerContent(
             label = { Text("Sign Out") },
             selected = false,
             onClick = {
-                onLogOut()
+                showDialog = true
             }
         )
+
+        // Logout Confirmation Dialog
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDialog = false
+                },
+                title = {
+                    Text(text = "Confirm Logout")
+                },
+                text = {
+                    Text("Are you sure you want to log out?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                            onLogOut()
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                        }
+                    ) {
+                        Text("No")
+                    }
+                }
+            )
+        }
     }
 }
 
 
+
 @Composable
-fun PersonalDetail(user: User) {
+fun PersonalDetail(user: User, image: String? = null) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = coil.request.ImageRequest.Builder(LocalContext.current)
-                .data(user.image)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.ic_user_place_holder),
-            contentDescription = "User Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.clip(CircleShape)
-        )
+        Box(
+            modifier = Modifier
+                .size(150.dp) // Adjust the size as needed
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            AsyncImage(
+                model = coil.request.ImageRequest.Builder(LocalContext.current)
+                    .data(image)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.ic_user_place_holder),
+                contentDescription = "User Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.clip(CircleShape)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(user.name)
     }
