@@ -139,6 +139,19 @@ fun MainScreen(
                         requestPermission = requestPermission
                     )
                 }
+
+                composable(
+                    route = "separate/{groupId}/{amount}",
+                    arguments = listOf(
+                        navArgument("groupId") { type = NavType.StringType },
+                        //navArgument("amount") { type = NavType.FloatType }
+                    )
+                ) { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    val amount = backStackEntry.arguments?.getString("amount")?.toFloatOrNull() ?: 900f
+                    SeparateScreen(navController = navController, viewModel = viewModel, groupId = groupId, amount = amount)
+                }
+
                 composable("CreateGroupScreen") {
                     CreateGroup(navController = navController,viewModel = viewModel)
                 }
@@ -200,14 +213,20 @@ fun MainScreen(
                     val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
                     GroupTest(navController, viewModel, groupId)
                 }
+
+                composable(
+                    route = "ItemAdd/{groupId}",
+                    arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+                ){  backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    ItemAdd(navController, viewModel, groupId)
+                }
+
                 composable("memberListScreen/{groupId}") { backStackEntry ->
                     val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
                     MemberListScreen(navController, viewModel, groupId)
                 }
 
-                composable("ItemAdd"){
-                    ItemAdd(navController, viewModel)
-                }
             }
         }
     }
