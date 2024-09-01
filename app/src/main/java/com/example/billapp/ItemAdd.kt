@@ -232,7 +232,6 @@ fun CustomKeyboard(
 fun ItemAdd(
     navController: NavController,
     viewModel: MainViewModel,
-    groupId : String
 ) {
     var selectedTab by remember { mutableStateOf("個人") }
     var groupName by remember { mutableStateOf("") }
@@ -386,7 +385,7 @@ fun ItemAdd(
                 ) {
                     Button(
                         onClick = {
-                            navController.navigate("Separate/$groupId/$amount") // Pass amount to Separate screen
+
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (splitMethod == "分帳方式") colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)

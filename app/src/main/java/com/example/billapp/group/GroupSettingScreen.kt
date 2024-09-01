@@ -95,8 +95,7 @@ fun GroupSettingScreen(
 
                         Button(
                             onClick = {
-                                navController.navigate("ItemAdd/$groupId")
-                                //navController.navigate("groupTest/$groupId")
+                                navController.navigate("groupTest/$groupId")
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary
