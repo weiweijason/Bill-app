@@ -51,7 +51,6 @@ import com.example.billapp.models.TransactionCategory
 import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.Timestamp
-import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import androidx.compose.animation.AnimatedVisibility
 
@@ -551,7 +550,7 @@ fun ItemAdd(
             //備註
             StylishTextField(
                 value = note,
-                onValueChange = { viewModel.setNote(it.toString()) },
+                onValueChange = { viewModel.setNote(it) },
                 label = "Note",
                 readOnly = false,
                 modifier = Modifier.fillMaxWidth()
@@ -560,14 +559,33 @@ fun ItemAdd(
             Spacer(modifier = Modifier.weight(1f))
 
             // 完成按鈕
-            Button(
-                onClick = {
-                },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp)
-            ) {
-                Text("完成")
+            if(personalOrGroup == "群組"){
+                Button(
+                    onClick = {
+                    },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(16.dp)
+                ) {
+                    Text("完成")
+                }
+            }else{
+                Button(
+                    onClick = {
+                        viewModel.addPersonalTransaction()
+                        amountInput=""
+                        viewModel.setAmount(0.0)
+                        viewModel.setCategory(TransactionCategory.OTHER)
+                        viewModel.setName("")
+                        viewModel.setNote("")
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(16.dp)
+                ) {
+                    Text("完成")
+                }
             }
         }
     }
