@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,13 +80,13 @@ fun ContactUsScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "billapp@email.com",
+                        text = "cabillbara66@gmail.com",
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clickable {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:billapp@email.com")
+                                    data = Uri.parse("mailto:cabillbara66@gmail.com")
                                 }
                                 context.startActivity(intent)
                             }
@@ -99,7 +103,7 @@ fun ContactUsScreen(
                 Column(){
                     Button(
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.office.com/r/xbfaNM01rW"))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/tf5imsLTd5bfp3tp8"))
                             context.startActivity(intent)
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
@@ -108,15 +112,11 @@ fun ContactUsScreen(
                     }
                     Button(
                         onClick = {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://forms.office.com/r/xbfaNM01rW")
-                            )
-                            context.startActivity(intent)
+                            navController.navigate("currency")
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
-                        Text(text = "問題回報(還沒做)")
+                        Text(text = "貨幣轉換器")
                     }
                 }
             }

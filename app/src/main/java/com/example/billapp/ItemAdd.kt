@@ -51,6 +51,7 @@ import com.example.billapp.models.TransactionCategory
 import com.example.billapp.models.User
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.Timestamp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import androidx.compose.animation.AnimatedVisibility
 
@@ -209,7 +210,6 @@ fun ItemAdd(
     var expandedGroup by remember { mutableStateOf(false) }
     var expandedCategory by remember { mutableStateOf(false) }
     var expandedPayers by remember { mutableStateOf(false) }
-
 
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
