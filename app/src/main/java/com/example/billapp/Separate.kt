@@ -147,8 +147,6 @@ fun SeparateScreen(
                 Text("取消")
             }
             Button(onClick = {
-                // Trigger viewModel action to complete the transaction
-                viewModel.addGroupTransaction(groupId)
                 onComplete()
                 navController.popBackStack()
             }) {

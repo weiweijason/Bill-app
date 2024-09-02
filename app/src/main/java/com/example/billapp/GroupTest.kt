@@ -138,8 +138,20 @@ fun GroupTest(
                     onDismissRequest = { expandedDividers = false }
                 ) {
                     groupMembers.forEach { user ->
+                        val isSelected = dividers.contains(user.id)
                         DropdownMenuItem(
-                            text = { Text(user.name) },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(
+                                        checked = isSelected,
+                                        onCheckedChange = {
+                                            viewModel.toggleDivider(user.id)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(user.name)
+                                }
+                            },
                             onClick = {
                                 viewModel.toggleDivider(user.id)
                             }
@@ -147,6 +159,7 @@ fun GroupTest(
                     }
                 }
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -168,16 +181,28 @@ fun GroupTest(
                     onDismissRequest = { expandedPayers = false }
                 ) {
                     groupMembers.forEach { user ->
+                        val isSelected = payers.contains(user.id)
                         DropdownMenuItem(
-                            text = { Text(user.name) },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(
+                                        checked = isSelected,
+                                        onCheckedChange = {
+                                            viewModel.togglePayer(user.id)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(user.name)
+                                }
+                            },
                             onClick = {
                                 viewModel.togglePayer(user.id)
-                                expandedPayers = false
                             }
                         )
                     }
                 }
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -195,6 +220,15 @@ fun GroupTest(
                     .padding(16.dp)
             ) {
                 Text("分帳")
+            }
+            Button(onClick = {
+                // Trigger viewModel action to complete the transaction
+                viewModel.addGroupTransaction(groupId)
+                viewModel.loadGroupTransactions(groupId)
+                viewModel.loadGroupDeptRelations(groupId)
+                navController.popBackStack()
+            }) {
+                Text("完成")
             }
         }
     }

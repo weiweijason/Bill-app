@@ -455,22 +455,6 @@ class MainViewModel : ViewModel() {
         _shareMethod.value = method
     }
 
-    fun toggleDivider(userId: String) {
-        _dividers.value = if (_dividers.value.contains(userId)) {
-            _dividers.value - userId
-        } else {
-            _dividers.value + userId
-        }
-    }
-
-    fun togglePayer(userId: String) {
-        _payers.value = if (_payers.value.contains(userId)) {
-            _payers.value - userId
-        } else {
-            _payers.value + userId
-        }
-    }
-
     fun getGroupMembers(groupId: String) {
         viewModelScope.launch {
             try {
@@ -720,6 +704,56 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadGroupDeptRelations(groupId: String) {
+        viewModelScope.launch {
+            try {
+                val deptRelationsMap = FirebaseRepository.getGroupDeptRelations(groupId)
+                _groupIdDeptRelations.value = deptRelationsMap
+            } catch (e: Exception) {
+                Log.e("LoadGroupDeptRelations", "Error loading dept relations: ${e.message}", e)
+            }
+        }
+    }
+
+    fun updateGroupDeptRelations(transactionId: String, newDeptRelations: List<DeptRelation>) {
+        viewModelScope.launch {
+            try {
+                val currentRelations = _groupIdDeptRelations.value.toMutableMap()
+
+                // 更新指定的交易ID的 DeptRelations
+                currentRelations[transactionId] = newDeptRelations
+
+                // 更新 StateFlow 的值
+                _groupIdDeptRelations.value = currentRelations
+            } catch (e: Exception) {
+                Log.e("UpdateGroupDeptRelations", "Error updating dept relations: ${e.message}", e)
+            }
+        }
+    }
+
+
+    fun toggleDivider(userId: String) {
+        val currentDividers = dividers.value.toMutableList()
+        if (currentDividers.contains(userId)) {
+            currentDividers.remove(userId)
+        } else {
+            currentDividers.add(userId)
+        }
+        _dividers.value = currentDividers
+    }
+
+    fun togglePayer(userId: String) {
+        val currentPayers = payers.value.toMutableList()
+        if (currentPayers.contains(userId)) {
+            currentPayers.remove(userId)
+        } else {
+            currentPayers.add(userId)
+        }
+        _payers.value = currentPayers
+    }
+
+
 }
 
 enum class GroupCreationStatus {

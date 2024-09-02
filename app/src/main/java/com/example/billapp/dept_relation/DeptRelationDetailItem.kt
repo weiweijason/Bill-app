@@ -36,7 +36,7 @@ fun DeptRelationDetailItem(deptRelation: DeptRelation, onClearDebt: () -> Unit) 
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun DeptRelationDetailItemPreview()
 {

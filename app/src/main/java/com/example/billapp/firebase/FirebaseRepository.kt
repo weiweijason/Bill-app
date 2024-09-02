@@ -197,7 +197,7 @@ object FirebaseRepository {
             .await()
             .toObject(PersonalTransaction::class.java)!!
     }
-    //userAmounts: Map<String, Float>, payerId: String
+
     // 新增一筆群組交易紀錄
     suspend fun addGroupTransaction(groupId: String, transaction: GroupTransaction, deptRelations: List<DeptRelation>) = withContext(Dispatchers.IO) {
         val transactionId = getFirestoreInstance().collection(Constants.GROUPS)
