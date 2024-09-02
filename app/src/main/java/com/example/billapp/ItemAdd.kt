@@ -85,64 +85,11 @@ fun StylishTextField(
             focusedIndicatorColor = capybaraBrown,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
 
     )
 }
 
-//之後改顏色(可能不用了)
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun DropDownMenuField(
-//    label: String,
-//    selectedItem: String,
-//    onItemSelected: (String) -> Unit,
-//    modifier: Modifier = Modifier
-//) {
-//    var expanded by remember { mutableStateOf(false) }
-//    val items = listOf("選項 1", "選項 2", "選項 3")
-//
-//    val capybaraBrown = colorResource(id = R.color.colorAccent)
-//
-//    ExposedDropdownMenuBox(
-//        expanded = expanded,
-//        onExpandedChange = { expanded = !expanded }
-//    ) {
-//        TextField(
-//            value = selectedItem,
-//            onValueChange = {},
-//            readOnly = true,
-//            label = { Text(label) },
-//            trailingIcon = {
-//                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-//            },
-//            colors = TextFieldDefaults.colors(
-//                focusedContainerColor = colorResource(id = R.color.colorLight), // 聚焦时的背景色
-//                unfocusedContainerColor = colorResource(id = R.color.colorLight), // 未聚焦時的背景色
-//                focusedIndicatorColor = capybaraBrown, // 聚焦時
-//                unfocusedIndicatorColor = Color.Transparent // 未聚焦時
-//            ),
-//            modifier = modifier
-//                .fillMaxWidth()
-//                .padding(8.dp)
-//                .border(2.dp, capybaraBrown, RoundedCornerShape(8.dp))  // 添加深色外框
-//        )
-//        ExposedDropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }
-//        ) {
-//            items.forEach { selectionOption ->
-//                DropdownMenuItem(
-//                    text = { Text(selectionOption) },
-//                    onClick = {
-//                        onItemSelected(selectionOption)
-//                        expanded = false
-//                    }
-//                )
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun CustomKeyboard(
@@ -301,47 +248,8 @@ fun ItemAdd(
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
-        sheetContent = {
-//            AnimatedVisibility(visible = isBottomSheetVisible) {  // [NEW] Changed to AnimatedVisibility
-//                CustomKeyboard(
-//                    onKeyClick = { key ->
-//                        amountInput += key
-//                        it.toDoubleOrNull()?.let { validAmount ->
-//                            viewModel.setAmount(validAmount)
-//                        }
-//                    },
-//                    onDeleteClick = {
-//                        if (amountInput.isNotEmpty()) {
-//                            amountInput = amountInput.dropLast(1)
-//                            amountInput.toDoubleOrNull()?.let { validAmount ->
-//                                viewModel.setAmount(validAmount)
-//                            }
-//                        }
-//                    },
-//                    onClearClick = {
-//                        amountInput = ""
-//                        viewModel.setAmount(0.0)
-//                    },
-//                    onOkClick = {
-//                        coroutineScope.launch {
-//                            isBottomSheetVisible = false
-//                            toggleKeyboard = false // [NEW] Reset toggleKeyboard when OK is clicked
-//                            bottomSheetScaffoldState.bottomSheetState.hide()
-//                        }
-//                    },
-//                    onEqualsClick = {
-//                        // Evaluate the expression in amountInput
-//                        val result = evaluateExpression(amountInput)
-//                        amountInput = result.toString()
-//                        viewModel.setAmount(result)
-//                    },
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(bottom = 16.dp)
-//                )
-//            }
-        },
-//        sheetPeekHeight = if (isBottomSheetVisible) 0.dp else 0.dp,
+        sheetContent = {},
+        sheetPeekHeight = 0.dp,
 
     ) {
         Column(
@@ -354,7 +262,6 @@ fun ItemAdd(
                         coroutineScope.launch {
                             isBottomSheetVisible = false
                             toggleKeyboard = false
-                            bottomSheetScaffoldState.bottomSheetState.hide() // 隱藏 BottomSheet
                         }
                     }
                 }
@@ -410,7 +317,6 @@ fun ItemAdd(
                                 onClick = {
                                     selectedGroup = group.name
                                     expandedGroup = false
-                                    // 可以在這裡添加額外的動作，如導航等
                                 }
                             )
                         }
@@ -453,7 +359,7 @@ fun ItemAdd(
             }
 
 
-            // 金额输入
+            // 金額輸入
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -473,17 +379,17 @@ fun ItemAdd(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .clickable {toggleKeyboard = !toggleKeyboard  // [NEW] Toggle keyboard visibility
-                            isBottomSheetVisible = toggleKeyboard } //這裡跑出自製鍵盤
+                        .clickable {toggleKeyboard = !toggleKeyboard
+                            isBottomSheetVisible = toggleKeyboard }
                 )
 
             }
 
-            AnimatedVisibility(visible = isBottomSheetVisible) {  // [NEW] Changed to AnimatedVisibility
+            AnimatedVisibility(visible = isBottomSheetVisible) {
                 CustomKeyboard(
                     onKeyClick = { key ->
                         amountInput += key
-                        // [UPDATED] Validate and update the amount input
+                        // 驗證並更新金額輸入
                         amountInput.toDoubleOrNull()?.let { validAmount ->
                             viewModel.setAmount(validAmount)
                         }
@@ -503,12 +409,11 @@ fun ItemAdd(
                     onOkClick = {
                         coroutineScope.launch {
                             isBottomSheetVisible = false
-                            toggleKeyboard = false // [NEW] Reset toggleKeyboard when OK is clicked
-                            bottomSheetScaffoldState.bottomSheetState.hide()
+                            toggleKeyboard = false
                         }
                     },
                     onEqualsClick = {
-                        // Evaluate the expression in amountInput
+                        // 計算 amountInput
                         val result = evaluateExpression(amountInput)
                         amountInput = result.toString()
                         viewModel.setAmount(result)
@@ -589,14 +494,14 @@ fun ItemAdd(
                                 text = { Text(user.name) },
                                 onClick = {
                                     viewModel.togglePayer(user.id)
-                                    expandedPayers = false // Close dropdown after selection
+                                    expandedPayers = false
                                 }
                             )
                         }
                     }
                 }
 
-                // 分账方式的三个按钮
+                // 分帳三個按鈕
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -653,12 +558,7 @@ fun ItemAdd(
             )
 
             Spacer(modifier = Modifier.weight(1f))
-//            if(personalOrGroup =="群組") {
-//                Spacer(modifier = Modifier.height(2.dp))
-//            }
-//            else{
-//                Spacer(modifier = Modifier.weight(1f))
-//            }
+
             // 完成按鈕
             Button(
                 onClick = {
@@ -674,13 +574,14 @@ fun ItemAdd(
 
 }
 
+
+// 計算函式
+// 簡單版
 fun evaluateExpression(expression: String): Double {
-    // Simple logic to evaluate the expression
-    // You might want to use a library or more complex logic for better parsing
     return try {
         val result = expression.split("+", "-", "×", "÷")
             .map { it.trim().toDoubleOrNull() ?: 0.0 }
-            .reduce { acc, value -> acc + value } // Simplified for demo
+            .reduce { acc, value -> acc + value }
         result
     } catch (e: Exception) {
         0.0
