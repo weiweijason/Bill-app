@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.setting
 
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +30,18 @@ fun AboutScreen(navController: NavController) {
     val context = LocalContext.current
     val packageManager = context.packageManager
     val packageName = context.packageName
+
+    // Using remember to cache the result and avoid recomputation
     val packageInfo = remember {
-        packageManager.getPackageInfo(packageName, 0)
+        try {
+            packageManager.getPackageInfo(packageName, 0)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
     }
-    val versionName = packageInfo.versionName
+
+
+    val versionName = packageInfo?.versionName ?: "Unknown"
 
     Scaffold(
         topBar = {
@@ -53,7 +63,7 @@ fun AboutScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Bill APP",
+                text = "Ca Bill Ba Ra",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -69,7 +79,7 @@ fun AboutScreen(navController: NavController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             Text(
-                text = "聯絡我們: billapp@email.com",
+                text = "聯絡我們: cabillbara66@gmail.com",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -80,4 +90,12 @@ fun AboutScreen(navController: NavController) {
             )
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun AboutScreenPreview() {
+    val navController = rememberNavController()
+    AboutScreen(navController = navController)
 }

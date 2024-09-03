@@ -1,4 +1,4 @@
-package com.example.billapp
+package com.example.billapp.setting
 
 import android.content.Intent
 import android.net.Uri
@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,11 +25,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,13 +80,13 @@ fun ContactUsScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "billapp@email.com",
+                        text = "cabillbara66@gmail.com",
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clickable {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:billapp@email.com")
+                                    data = Uri.parse("mailto:cabillbara66@gmail.com")
                                 }
                                 context.startActivity(intent)
                             }
@@ -94,16 +100,36 @@ fun ContactUsScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                Button(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.office.com/r/xbfaNM01rW"))
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.fillMaxWidth(0.8f)
-                ) {
-                    Text(text = "意見調查")
+                Column(){
+                    Button(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/tf5imsLTd5bfp3tp8"))
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "意見調查")
+                    }
+                    Button(
+                        onClick = {
+                            navController.navigate("currency")
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "貨幣轉換器")
+                    }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ContactUsScreenPreview() {
+    // Create a mock NavController
+    val navController = rememberNavController()
+    // Create a mock or default MainViewModel
+    val viewModel = MainViewModel() // You may need to provide required parameters or use a factory if necessary
+    ContactUsScreen(navController = navController, viewModel = viewModel)
 }

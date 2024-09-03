@@ -1,11 +1,10 @@
 package com.example.billapp
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import ExposedDropdown
+import AvatarScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,18 +13,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.billapp.bonus.CurrencyConverterScreen
+import com.example.billapp.bonus.ExchangeRateTableScreen
+import com.example.billapp.group.AddInvitationScreen
+import com.example.billapp.group.CreateGroup
+import com.example.billapp.group.GroupInviteLinkScreen
+import com.example.billapp.group.GroupScreen
+import com.example.billapp.group.GroupSettingScreen
 import com.example.billapp.models.User
-import com.example.billapp.ui.theme.BillAppTheme
+import com.example.billapp.personal.EditTransactionDetailScreen
+import com.example.billapp.personal.PersonalUIScreen
+import com.example.billapp.setting.AboutScreen
+import com.example.billapp.setting.ContactUsScreen
+import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -34,6 +42,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     onLogOut: () -> Unit,
     viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel,
     requestPermission: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -59,7 +68,7 @@ fun MainScreen(
                         drawerState.close()
                     }
                 }
-                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel)
+                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel, avatarViewModel)
             }
         }
     ) {
@@ -101,7 +110,8 @@ fun MainScreen(
                         navController = navController,
                         onOpenDrawer = {
                             scope.launch { drawerState.open() }
-                        }
+                        },
+                        viewModel = viewModel,
                     )
                 }
                 composable("personal") {
@@ -132,11 +142,12 @@ fun MainScreen(
                     ProfileScreen(
                         navController = navController,
                         viewModel = viewModel,
+                        avatarViewModel = avatarViewModel,
                         requestPermission = requestPermission
                     )
                 }
-                composable("addItemScreen") {
-                    AddItemScreen(navController = navController,onAddItem = {})
+                composable("CreateGroupScreen") {
+                    CreateGroup(navController = navController,viewModel = viewModel, avatarViewModel = avatarViewModel)
                 }
                 composable("contact_us"){
                     ContactUsScreen(navController = navController, viewModel = viewModel)
@@ -144,17 +155,85 @@ fun MainScreen(
                 composable("about"){
                     AboutScreen(navController = navController)
                 }
+                composable("Join_Group"){
+                    AddInvitationScreen(navController = navController, viewModel = viewModel)
+                }
+                composable("currency"){
+                    CurrencyConverterScreen(navController = navController)
+                }
+                composable("exchangeRateTable") {
+                    ExchangeRateTableScreen(
+                        navController, "TWD",
+                        listOf("USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD")
+                    )
+                }
+                composable("TEST"){
+                    ExposedDropdown(navController = navController, viewModel = viewModel)
+                }
+                composable(
+                    route = "Group_Invite/{groupId}",
+                    arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+                ) { navBackStackEntry ->
+                    val groupId = navBackStackEntry.arguments?.getString("groupId")
+                    groupId?.let {
+                        GroupInviteLinkScreen(groupId = it, navController = navController)
+                    }
+                }
+
+                composable("editTransaction/{transactionId}") { backStackEntry ->
+                    val transactionId = backStackEntry.arguments?.getString("transactionId")
+                    transactionId?.let {
+                        EditTransactionDetailScreen(
+                            navController = navController,
+                            transactionId = it
+                        )
+                    }
+                }
+
+                composable("qrCodeScanner") {
+                    QRCodeScannerScreen(
+                        onScanResult = { result ->
+                            navController.previousBackStackEntry?.savedStateHandle?.set("groupLink", result)
+                            navController.navigateUp()
+                        },
+                        onBack = {
+                            navController.navigateUp()
+                        }
+                    )
+                }
+
+                composable("groupDetail/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId")
+                    groupId?.let {
+                        GroupSettingScreen(
+                            groupId = it,
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+                }
+                composable(
+                    route = "groupTest/{groupId}",
+                    arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    GroupTest(navController, viewModel, groupId)
+                }
+                composable("memberListScreen/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    MemberListScreen(navController, viewModel, groupId)
+                }
+
+                composable("ItemAdd"){
+                    ItemAdd(navController, viewModel)
+                }
+                composable("avatar"){
+                    AvatarScreen(viewModel = avatarViewModel)
+                }
             }
         }
     }
 }
-
-
-
-
-
-
-
 
 
 @Composable
@@ -162,9 +241,12 @@ fun DrawerContent(
     navController: NavController,
     onCloseDrawer: () -> Unit,
     onLogOut: () -> Unit,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    avatarViewModel: AvatarViewModel
 ) {
-    val user by viewModel.user.collectAsState()
+    val user = viewModel.user.collectAsState().value
+    val userImage = avatarViewModel.avatarUrl.collectAsState().value
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -178,10 +260,9 @@ fun DrawerContent(
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            val currentUser = user
-            when (user?.image) {
+            when (userImage) {
                 "" -> PersonalDetailNull(user!!)
-                else -> currentUser?.let { PersonalDetail(it) }
+                else -> user?.let { PersonalDetail(it, userImage) }
             }
         }
 
@@ -204,26 +285,68 @@ fun DrawerContent(
             label = { Text("Sign Out") },
             selected = false,
             onClick = {
-                onLogOut()
+                showDialog = true
             }
         )
+
+        // Logout Confirmation Dialog
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDialog = false
+                },
+                title = {
+                    Text(text = "Confirm Logout")
+                },
+                text = {
+                    Text("Are you sure you want to log out?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                            onLogOut()
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                        }
+                    ) {
+                        Text("No")
+                    }
+                }
+            )
+        }
     }
 }
 
 
+
 @Composable
-fun PersonalDetail(user: User) {
+fun PersonalDetail(user: User, image: String? = null) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(user.image)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.ic_user_place_holder),
-            contentDescription = "User Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.clip(CircleShape)
-        )
+        Box(
+            modifier = Modifier
+                .size(150.dp) // Adjust the size as needed
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            AsyncImage(
+                model = coil.request.ImageRequest.Builder(LocalContext.current)
+                    .data(image)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.ic_user_place_holder),
+                contentDescription = "User Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.clip(CircleShape)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(user.name)
     }
