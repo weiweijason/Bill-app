@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,7 @@ fun GroupTest(
     // Initialize scaffoldState
     val snackbarHostState = remember { SnackbarHostState() }
     var showSnackbar by remember { mutableStateOf(false) }
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(groupId) {
         viewModel.getGroupMembers(groupId)
@@ -209,7 +211,7 @@ fun GroupTest(
             Button(
                 onClick = {
                     if (amountInput.isNotBlank() && shareMethod.isNotBlank() && dividers.isNotEmpty() && payers.isNotEmpty()) {
-                        showSeparateScreen = true
+                        showBottomSheet = true
                     } else {
                         showSnackbar = true
                     }
@@ -221,6 +223,7 @@ fun GroupTest(
             ) {
                 Text("分帳")
             }
+
             Button(onClick = {
                 // Trigger viewModel action to complete the transaction
                 viewModel.addGroupTransaction(groupId)
@@ -233,18 +236,32 @@ fun GroupTest(
         }
     }
 
-    if (showSeparateScreen) {
-        SeparateScreen(
-            navController = navController,
-            viewModel = viewModel,
-            groupId = groupId,
-            amount = amount.toFloat(),
-            onDismiss = { showSeparateScreen = false },
-            onComplete = {
-                viewModel.addGroupTransaction(groupId)
-                navController.popBackStack()
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = rememberModalBottomSheetState(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight(0.8f)
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    SeparateBottomSheetContent(
+                        viewModel = viewModel,
+                        groupId = groupId,
+                        amount = amount.toFloat(),
+                        onDismiss = { showBottomSheet = false },
+                        onComplete = {
+                            showBottomSheet = false
+                        }
+                    )
+                }
             }
-        )
+        }
     }
 
     if (showSnackbar) {

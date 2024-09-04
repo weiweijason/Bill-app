@@ -42,10 +42,83 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import com.example.billapp.models.User
+
+@Composable
+fun SeparateBottomSheetContent(
+    viewModel: MainViewModel,
+    groupId: String,
+    amount: Float,
+    onDismiss: () -> Unit,
+    onComplete: () -> Unit
+) {
+    val shareMethod by viewModel.shareMethod.collectAsState()
+    val groupMembers by viewModel.groupMembers.collectAsState()
+    val dividers by viewModel.dividers.collectAsState()
+    val payers by viewModel.payers.collectAsState()
+
+    LaunchedEffect(groupId) {
+        viewModel.getGroupMembers(groupId)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    )  {
+        Text("分帳選項", fontSize = 24.sp)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Share method selection
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            listOf("均分", "比例", "調整", "金額", "份數").forEach { method ->
+                Button(
+                    onClick = { viewModel.updateShareMethod(method) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (shareMethod == method) colorResource(id = R.color.colorAccent) else colorResource(id = R.color.primary_text_color)
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(method, fontSize = 12.sp)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Content based on selected share method
+        when (shareMethod) {
+            "均分" -> EvenSplitContent(viewModel, payers, dividers, groupMembers, amount)
+            "比例" -> ProportionalSplitContent(viewModel, payers, dividers, groupMembers, amount)
+            "調整" -> AdjustableSplitContent(viewModel, payers, dividers, groupMembers, amount)
+            "金額" -> ExactAmountSplitContent(viewModel, payers, dividers, groupMembers, amount)
+            "份數" -> SharesSplitContent(viewModel, payers, dividers, groupMembers, amount)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Action buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = onDismiss) {
+                Text("取消")
+            }
+            Button(onClick = onComplete) {
+                Text("完成")
+            }
+        }
+    }
+}
 
 @Composable
 fun SeparateScreen(
@@ -157,7 +230,13 @@ fun SeparateScreen(
 }
 
 @Composable
-fun EvenSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: List<String>, groupMembers: List<User>, amount: Float) {
+fun EvenSplitContent(
+    viewModel: MainViewModel,
+    payers: List<String>,
+    dividers: List<String>,
+    groupMembers: List<User>,
+    amount: Float
+) {
     Column {
         Text(
             text = "均分",
@@ -217,7 +296,13 @@ fun EvenSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: L
 
 
 @Composable
-fun ProportionalSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: List<String>, groupMembers: List<User>, amount: Float) {
+fun ProportionalSplitContent(
+    viewModel: MainViewModel,
+    payers: List<String>,
+    dividers: List<String>,
+    groupMembers: List<User>,
+    amount: Float
+) {
     val percentages = viewModel.userPercentages.collectAsState().value
 
     Column {
@@ -298,7 +383,13 @@ fun ProportionalSplitContent(viewModel: MainViewModel, payers: List<String>, div
 
 
 @Composable
-fun AdjustableSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: List<String>, groupMembers: List<User>, amount: Float) {
+fun AdjustableSplitContent(
+    viewModel: MainViewModel,
+    payers: List<String>,
+    dividers: List<String>,
+    groupMembers: List<User>,
+    amount: Float
+) {
     val userAdjustments = viewModel.userAdjustments.collectAsState().value
 
     Column {
@@ -382,7 +473,13 @@ fun AdjustableSplitContent(viewModel: MainViewModel, payers: List<String>, divid
 
 
 @Composable
-fun ExactAmountSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: List<String>, groupMembers: List<User>, amount: Float) {
+fun ExactAmountSplitContent(
+    viewModel: MainViewModel,
+    payers: List<String>,
+    dividers: List<String>,
+    groupMembers: List<User>,
+    amount: Float
+) {
     val userEnteredAmounts = viewModel.userExactAmounts.collectAsState().value
 
     Column {
@@ -464,7 +561,13 @@ fun ExactAmountSplitContent(viewModel: MainViewModel, payers: List<String>, divi
 
 
 @Composable
-fun SharesSplitContent(viewModel: MainViewModel, payers: List<String>, dividers: List<String>, groupMembers: List<User>, amount: Float) {
+fun SharesSplitContent(
+    viewModel: MainViewModel,
+    payers: List<String>,
+    dividers: List<String>,
+    groupMembers: List<User>,
+    amount: Float
+) {
     val userShares = viewModel.userShares.collectAsState().value
 
     Column {
