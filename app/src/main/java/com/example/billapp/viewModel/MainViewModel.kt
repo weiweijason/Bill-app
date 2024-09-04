@@ -97,9 +97,11 @@ class MainViewModel : ViewModel() {
     private val _transaction = MutableStateFlow<PersonalTransaction?>(null)
     val transaction: StateFlow<PersonalTransaction?> = _transaction
 
-    private var _updatetime =MutableStateFlow(Timestamp.now())
+    private var _updatetime = MutableStateFlow(Timestamp.now())
     val updatetime: StateFlow<Timestamp> = _updatetime.asStateFlow()
 
+    private var currentGroup = MutableStateFlow<Group?>(null)
+    val group: StateFlow<Group?> = currentGroup.asStateFlow()
 
     // 不要在這邊宣告firebase
     init {
@@ -173,6 +175,10 @@ class MainViewModel : ViewModel() {
     // Dept Functions //
     fun getDeptRelations(groupId: String): MutableStateFlow<List<DeptRelation>> {
         return _deptRelations
+    }
+
+    suspend fun getUserName(userId: String): String {
+        return FirebaseRepository.getUserName(userId)
     }
 
     // Groups Function //
@@ -732,6 +738,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteDeptRelation(groupId: String, deptRelationId: String) {
+        viewModelScope.launch {
+            FirebaseRepository.deleteDeptRelation(groupId, deptRelationId)
+        }
+    }
 
     fun toggleDivider(userId: String) {
         val currentDividers = dividers.value.toMutableList()

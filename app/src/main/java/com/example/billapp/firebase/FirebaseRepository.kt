@@ -37,6 +37,15 @@ object FirebaseRepository {
         return@withContext groupId
     }
 
+    suspend fun getUserName(userId: String): String = withContext(Dispatchers.IO) {
+        val user = getFirestoreInstance().collection(Constants.USERS)
+            .document(userId)
+            .get()
+            .await()
+            .toObject(User::class.java)
+        return@withContext user?.name ?: "Unknown User"
+    }
+
 
     suspend fun getCurrentUser(): User = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
@@ -256,6 +265,14 @@ object FirebaseRepository {
             .document(groupId)
             .update("deptRelations", deptRelations)
             .await()
+    }
+
+    suspend fun deleteDeptRelation(groupId: String, deptRelationId: String) = withContext(Dispatchers.IO) {
+        getFirestoreInstance().collection(Constants.GROUPS)
+            .document(groupId)
+            .collection("deptRelations")
+            .document(deptRelationId)
+            .delete()
     }
 
 }

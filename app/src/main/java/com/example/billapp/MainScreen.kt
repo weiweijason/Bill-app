@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.billapp.bonus.CurrencyConverterScreen
 import com.example.billapp.bonus.ExchangeRateTableScreen
+import com.example.billapp.dept_relation.DeptRelationsScreen
 import com.example.billapp.group.AddInvitationScreen
 import com.example.billapp.group.CreateGroup
 import com.example.billapp.group.GroupInviteLinkScreen
@@ -230,6 +231,10 @@ fun MainScreen(
                     AvatarScreen(viewModel = avatarViewModel)
                 }
 
+                composable("deptRelationsScreen/{groupId}") { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                    DeptRelationsScreen(viewModel, groupId)
+                }
             }
         }
     }

@@ -9,9 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.billapp.models.DeptRelation
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
-fun DeptRelationList(deptRelations: Map<String, List<DeptRelation>>) {
+fun DeptRelationList(
+    deptRelations: Map<String, List<DeptRelation>>,
+    groupId : String
+) {
+    // 優化後
     val groupedDeptRelations = deptRelations.values.flatten().groupBy { Pair(it.from, it.to) }
 
     LazyColumn(
@@ -22,28 +27,14 @@ fun DeptRelationList(deptRelations: Map<String, List<DeptRelation>>) {
         groupedDeptRelations.forEach { (pair, relations) ->
             item {
                 GroupedDeptRelationItem(
+                    viewModel = MainViewModel(),
                     from = pair.first,
                     to = pair.second,
                     totalAmount = relations.sumOf { it.amount },
-                    deptRelations = relations
+                    deptRelations = relations,
+                    groupId = groupId
                 )
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun DeptRelationListPreview() {
-    val deptRelations = mapOf(
-        "id1" to listOf(
-            DeptRelation(from = "John Doe", to = "Jane Smith", amount = 100.0),
-            DeptRelation(from = "John Doe", to = "Jane Smith", amount = 50.0),
-        ),
-        "id2" to listOf(
-            DeptRelation(from = "Alice Johnson", to = "Bob Brown", amount = 75.0),
-            DeptRelation(from = "Alice Johnson", to = "Bob Brown", amount = 25.0),
-        )
-    )
-    DeptRelationList(deptRelations = deptRelations)
 }

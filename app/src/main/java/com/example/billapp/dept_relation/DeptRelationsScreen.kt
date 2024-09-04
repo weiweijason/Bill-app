@@ -15,5 +15,5 @@ fun DeptRelationsScreen(viewModel: MainViewModel, groupId: String) {
     LaunchedEffect(groupId) {
         viewModel.loadGroupDeptRelations(groupId)
     }
-    DeptRelationList(deptRelations = GroupIdDeptRelations)
+    DeptRelationList(deptRelations = GroupIdDeptRelations, groupId = groupId)
 }
