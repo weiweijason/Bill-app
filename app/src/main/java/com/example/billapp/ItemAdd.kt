@@ -658,7 +658,7 @@ fun ItemAdd(
             if (showErrorDialog) {
                 AlertDialog(
                     onDismissRequest = { showErrorDialog = false },
-                    title = { Text(text = "錯誤") },
+                    title = { Text(text = "警告") },
                     text = { Text(text = errorMessage) },
                     confirmButton = {
                         Button(
