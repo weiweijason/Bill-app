@@ -234,6 +234,9 @@ fun ItemAdd(
     var expandedShareMethod by remember { mutableStateOf(false) }
     var expandedDividers by remember { mutableStateOf(false) }
 
+    //by weiweihsu
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     // Helper to get a user's name by ID
     val getUserNameById: (String) -> String = { userId ->
@@ -249,6 +252,15 @@ fun ItemAdd(
     }
     LaunchedEffect(Unit) {
         viewModel.setCategory(TransactionCategory.OTHER)
+    }
+
+    // 初始化時根據amount是否為整數決定顯示的內容
+    LaunchedEffect(amount) {
+        amountInput = if (amount % 1.0 == 0.0) {
+            amount.toInt().toString()
+        } else {
+            amount.toString()
+        }
     }
 
 
@@ -377,6 +389,12 @@ fun ItemAdd(
                         amountInput = it
                         it.toDoubleOrNull()?.let { validAmount ->
                             viewModel.setAmount(validAmount)
+                            // 根據是否為整數來決定顯示的內容
+                            amountInput = if (validAmount % 1.0 == 0.0) {
+                                validAmount.toInt().toString()
+                            } else {
+                                validAmount.toString()
+                            }
                         }
                     },
                     label = "金額",
@@ -387,10 +405,11 @@ fun ItemAdd(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .clickable {toggleKeyboard = !toggleKeyboard
-                            isBottomSheetVisible = toggleKeyboard }
+                        .clickable {
+                            toggleKeyboard = !toggleKeyboard
+                            isBottomSheetVisible = toggleKeyboard
+                        }
                 )
-
             }
 
             AnimatedVisibility(visible = isBottomSheetVisible) {
@@ -569,32 +588,108 @@ fun ItemAdd(
 
             // 完成按鈕
             if(personalOrGroup == "群組"){
-                Button(
-                    onClick = {
-                    },
+                Row(
                     modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text("完成")
+                    Button(
+                        onClick = {
+                            errorMessage = "確定要清空"
+                            showErrorDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(end = 8.dp) // 與完成按鈕間距
+                    ) {
+                        Text("清空")
+                    }
+
+                    Button(
+                        onClick = {
+                        },
+                        enabled = amountInput.isNotBlank() && name.isNotBlank() && amountInput.toDoubleOrNull() != 0.0,
+                        modifier = Modifier
+                    ) {
+                        Text("完成")
+                    }
                 }
             }else{
-                Button(
-                    onClick = {
-                        viewModel.addPersonalTransaction()
-                        amountInput=""
-                        viewModel.setAmount(0.0)
-                        viewModel.setCategory(TransactionCategory.OTHER)
-                        viewModel.setName("")
-                        viewModel.setNote("")
-                        navController.popBackStack()
-                    },
+                Row(
                     modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text("完成")
+                    Button(
+                        onClick = {
+                            // move to alertdialog
+                            errorMessage = "確定要清空"
+                            showErrorDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(end = 8.dp) // 與完成按鈕間距
+                    ) {
+                        Text("清空")
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.addPersonalTransaction()
+                            amountInput = ""
+                            viewModel.setAmount(0.0)
+                            viewModel.setCategory(TransactionCategory.OTHER)
+                            viewModel.setName("")
+                            viewModel.setNote("")
+                            navController.popBackStack()
+                        },
+                        enabled = amountInput.isNotBlank() && name.isNotBlank() && amountInput.toDoubleOrNull() != 0.0,
+                        modifier = Modifier
+                    ) {
+                        Text("完成")
+                    }
                 }
+            }
+            if (showErrorDialog) {
+                AlertDialog(
+                    onDismissRequest = { showErrorDialog = false },
+                    title = { Text(text = "錯誤") },
+                    text = { Text(text = errorMessage) },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showErrorDialog = false
+                                if(personalOrGroup == "群組"){
+                                    amountInput = ""
+                                    viewModel.setAmount(0.0)
+                                    viewModel.setCategory(TransactionCategory.OTHER)
+                                    viewModel.setName("")
+                                    viewModel.setNote("")
+                                }else{
+                                    amountInput = ""
+                                    viewModel.setAmount(0.0)
+                                    viewModel.setCategory(TransactionCategory.OTHER)
+                                    viewModel.setName("")
+                                    viewModel.setNote("")
+                                }
+                            }
+                        ) {
+                            Text("確定")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showErrorDialog = false }
+                        ) {
+                            Text("取消")
+                        }
+                    }
+                )
             }
         }
     }
