@@ -280,4 +280,5 @@ fun GroupTestPreview() {
     val navController = rememberNavController()
     val viewModel = MainViewModel()
     GroupTest(navController, viewModel, "test")
+
 }
