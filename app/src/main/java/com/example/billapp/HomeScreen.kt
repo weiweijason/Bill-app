@@ -14,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +43,9 @@ import com.example.billapp.group.GroupList
 import com.example.billapp.models.Group
 import com.example.billapp.models.User
 import com.example.billapp.models.GroupTransaction
+import com.example.billapp.personal.PersonalTransactionList
 import com.example.billapp.viewModel.MainViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +67,40 @@ fun HomeScreen(
     var showAddItemScreen by remember { mutableStateOf(false) }
 
     val groups by viewModel.userGroups.collectAsState()
+    // 获取最近两笔交易记录
+    val transactions by viewModel.userTransactions.collectAsState()
+    var filteredRecords by remember { mutableStateOf(transactions) }
+
+    var selectedChart by remember { mutableStateOf("結餘") }
+    val user by viewModel.user.collectAsState()
+    fun filtered(){
+        val filtered = transactions.filter {
+            it.updatedAt != null
+
+        }
+            .sortedByDescending { it.updatedAt }
+            .take(2)
+
+        filteredRecords = filtered.filter { transaction ->
+            when (selectedChart) {
+                "支出" -> transaction.type == "支出"
+                "收入" -> transaction.type == "收入"
+                "結餘" -> true
+                else -> true
+            }
+        }
+
+    }
+
+    LaunchedEffect(user) {
+        user?.let {
+            viewModel.loadUserTransactions()
+            filtered()
+        }
+    }
+    LaunchedEffect(transactions) {
+        filtered()
+    }
 
     Scaffold(
         topBar = {
@@ -135,6 +173,29 @@ fun HomeScreen(
                         PieChart(income = income, expense = expense, balance = balance, total = total)
                     }
                 }
+            }
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+
+            ) {
+                Text(
+                    text = "近期交易紀錄",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                PersonalTransactionList(
+                    transactions = filteredRecords,
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
