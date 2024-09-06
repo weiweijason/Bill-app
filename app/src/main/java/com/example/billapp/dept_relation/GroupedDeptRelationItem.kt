@@ -44,25 +44,13 @@ import com.example.billapp.viewModel.MainViewModel
 @Composable
 fun GroupedDeptRelationItem(
     viewModel: MainViewModel,
-    from: String,
-    to: String,
+    fromName: String,
+    toName: String,
     totalAmount: Double,
     deptRelations: List<DeptRelation>,
     groupId: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
-
-    // Mutable states to hold the fetched user names
-    var fromName by remember { mutableStateOf("") }
-    var toName by remember { mutableStateOf("") }
-
-    // Coroutine to fetch the user names
-    LaunchedEffect(from, to) {
-        fromName = viewModel.getUserName(from)
-        toName = viewModel.getUserName(to)
-    }
 
     Card(
         modifier = Modifier
@@ -130,4 +118,5 @@ fun GroupedDeptRelationItem(
         }
     }
 }
+
 

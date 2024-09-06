@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.billapp.dept_relation.DeptRelationsScreen
 import com.example.billapp.R
+import com.example.billapp.dept_relation.GroupedDeptRelationItem
 import com.example.billapp.viewModel.MainViewModel
 
 @Composable
@@ -123,7 +124,6 @@ fun GroupSettingScreen(
                         }
                     }
 
-                    // Display first two debt relations related to the current user
                     val relevantDeptRelations = deptRelations.values.flatten()
                         .filter { it.from == currentUserId || it.to == currentUserId }
                         .take(2)
@@ -132,18 +132,18 @@ fun GroupSettingScreen(
                         var fromName by remember { mutableStateOf("") }
                         var toName by remember { mutableStateOf("") }
 
-                        LaunchedEffect(relation.from) {
+                        LaunchedEffect(relation.from, relation.to) {
                             fromName = viewModel.getUserName(relation.from)
-                        }
-                        LaunchedEffect(relation.to) {
                             toName = viewModel.getUserName(relation.to)
                         }
 
-
-                        // 這裡UI要改
-                        Text(
-                            text = "$fromName -> $toName: $${relation.amount}",
-                            style = MaterialTheme.typography.bodyMedium
+                        GroupedDeptRelationItem(
+                            viewModel = viewModel,
+                            fromName = fromName,
+                            toName = toName,
+                            totalAmount = relation.amount,
+                            deptRelations = listOf(relation),
+                            groupId = groupId
                         )
                     }
 
