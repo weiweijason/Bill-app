@@ -8,11 +8,12 @@ import com.example.billapp.viewModel.MainViewModel
 
 @Composable
 fun DeptRelationsScreen(viewModel: MainViewModel, groupId: String) {
+    val deptRelation by viewModel.deptRelations.collectAsState()
     val GroupIdDeptRelations by viewModel.groupIdDeptRelations.collectAsState()
 
     // Load transactions and calculate dept relations when the screen is opened
     LaunchedEffect(groupId) {
-        viewModel.loadGroupTransactions(groupId)
+        viewModel.loadGroupDeptRelations(groupId)
     }
-    DeptRelationList(deptRelations = GroupIdDeptRelations)
+    DeptRelationList(viewModel = viewModel, deptRelations = GroupIdDeptRelations, groupId = groupId)
 }

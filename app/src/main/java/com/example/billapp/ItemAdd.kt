@@ -746,5 +746,3 @@ fun applyOp(op: Char, b: Double, a: Double): Double {
         else -> throw IllegalArgumentException("Invalid operator")
     }
 }
-
-

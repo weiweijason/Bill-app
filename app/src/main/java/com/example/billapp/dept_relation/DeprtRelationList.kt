@@ -3,15 +3,23 @@ package com.example.billapp.dept_relation
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.billapp.models.DeptRelation
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
-fun DeptRelationList(deptRelations: Map<String, List<DeptRelation>>) {
+fun DeptRelationList(
+    viewModel: MainViewModel,
+    deptRelations: Map<String, List<DeptRelation>>,
+    groupId: String
+) {
     val groupedDeptRelations = deptRelations.values.flatten().groupBy { Pair(it.from, it.to) }
 
     LazyColumn(
@@ -21,29 +29,23 @@ fun DeptRelationList(deptRelations: Map<String, List<DeptRelation>>) {
     ) {
         groupedDeptRelations.forEach { (pair, relations) ->
             item {
+                var fromName by remember { mutableStateOf("") }
+                var toName by remember { mutableStateOf("") }
+
+                LaunchedEffect(pair.first, pair.second) {
+                    fromName = viewModel.getUserName(pair.first)
+                    toName = viewModel.getUserName(pair.second)
+                }
+
                 GroupedDeptRelationItem(
-                    from = pair.first,
-                    to = pair.second,
+                    viewModel = viewModel,
+                    fromName = fromName,
+                    toName = toName,
                     totalAmount = relations.sumOf { it.amount },
-                    deptRelations = relations
+                    deptRelations = relations,
+                    groupId = groupId
                 )
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun DeptRelationListPreview() {
-    val deptRelations = mapOf(
-        "id1" to listOf(
-            DeptRelation(from = "John Doe", to = "Jane Smith", amount = 100.0),
-            DeptRelation(from = "John Doe", to = "Jane Smith", amount = 50.0),
-        ),
-        "id2" to listOf(
-            DeptRelation(from = "Alice Johnson", to = "Bob Brown", amount = 75.0),
-            DeptRelation(from = "Alice Johnson", to = "Bob Brown", amount = 25.0),
-        )
-    )
-    DeptRelationList(deptRelations = deptRelations)
 }
