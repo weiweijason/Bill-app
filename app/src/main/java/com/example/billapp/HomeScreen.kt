@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,7 @@ import com.example.billapp.group.GroupList
 import com.example.billapp.models.Group
 import com.example.billapp.models.User
 import com.example.billapp.models.GroupTransaction
+import com.example.billapp.personal.PersonalTransactionList
 import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -61,8 +63,38 @@ fun HomeScreen(
     )
 
     var showAddItemScreen by remember { mutableStateOf(false) }
-
+    val transactions by viewModel.userTransactions.collectAsState()
+    var filteredRecords by remember { mutableStateOf(transactions) }
+    var selectedChart by remember { mutableStateOf("結餘") }
     val groups by viewModel.userGroups.collectAsState()
+    val user by viewModel.user.collectAsState()
+    fun filterRecords() {
+        // 篩選出近期修改的兩筆交易紀錄
+        val recentTransactions = transactions
+            .filter { it.updatedAt != null }
+            .sortedByDescending { it.updatedAt }
+            .take(2)
+
+        // 根據選中的圖表類型進行篩選
+        filteredRecords = recentTransactions.filter { transaction ->
+            when (selectedChart) {
+                "支出" -> transaction.type == "支出"
+                "收入" -> transaction.type == "收入"
+                "結餘" -> true
+                else -> true
+            }
+        }
+    }
+
+    LaunchedEffect(user) {
+        user?.let {
+            viewModel.loadUserTransactions()
+            filterRecords()
+        }
+    }
+    LaunchedEffect(transactions) {
+        filterRecords()
+    }
 
     Scaffold(
         topBar = {
@@ -135,6 +167,28 @@ fun HomeScreen(
                         PieChart(income = income, expense = expense, balance = balance, total = total)
                     }
                 }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "近期交易紀錄",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    textAlign = TextAlign.Left,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                PersonalTransactionList(
+                    transactions = filteredRecords,
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
