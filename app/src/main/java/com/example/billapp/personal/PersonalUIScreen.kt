@@ -32,6 +32,7 @@ import com.example.billapp.MyDatePickerDialog
 import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
 import com.example.billapp.YearPickerDialog
+import com.example.billapp.models.TransactionCategory
 import com.example.billapp.viewModel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,6 +55,16 @@ fun PersonalUIScreen(
     var filteredIncome by remember { mutableStateOf(0f) }
     var filteredExpense by remember { mutableStateOf(0f) }
     var filteredBalance by remember { mutableStateOf(0f) }
+    var filteredShopping by remember { mutableStateOf(0f) }
+    var filteredEntertainment by remember { mutableStateOf(0f) }
+    var filteredTransportation by remember { mutableStateOf(0f) }
+    var filteredEducation by remember { mutableStateOf(0f) }
+    var filteredLiving by remember { mutableStateOf(0f)}
+    var filteredMedical by remember { mutableStateOf(0f)}
+    var filteredInvestment by remember{ mutableStateOf(0f)}
+    var filteredFood by remember { mutableStateOf(0f)}
+    var filteredTravel by remember { mutableStateOf(0f)}
+    var filteredOther by remember { mutableStateOf(0f)}
     var showDatePicker by remember { mutableStateOf(false) }
 
     // 根據選中的類型過濾記錄
@@ -84,6 +95,34 @@ fun PersonalUIScreen(
         filteredIncome = filtered.filter { it.type == "收入" }.sumOf { it.amount }.toFloat()
         filteredExpense = filtered.filter { it.type == "支出" }.sumOf { it.amount }.toFloat()
         filteredBalance = filteredIncome - filteredExpense
+
+        /// 計算篩選後的各類別金額
+        val categoryValues = listOf(
+            TransactionCategory.SHOPPING,
+            TransactionCategory.ENTERTAINMENT,
+            TransactionCategory.TRANSPORTATION,
+            TransactionCategory.EDUCATION,
+            TransactionCategory.LIVING,
+            TransactionCategory.MEDICAL,
+            TransactionCategory.INVESTMENT,
+            TransactionCategory.FOOD,
+            TransactionCategory.TRAVEL,
+            TransactionCategory.OTHER
+        ).map { category ->
+            filtered.filter { it.category == category  && it.type == "支出"}.sumOf { it.amount }.toFloat()
+        }
+
+        // 將 categoryValues 賦值給相應的變數
+        filteredShopping = categoryValues[0]
+        filteredEntertainment = categoryValues[1]
+        filteredTransportation = categoryValues[2]
+        filteredEducation = categoryValues[3]
+        filteredLiving = categoryValues[4]
+        filteredMedical = categoryValues[5]
+        filteredInvestment = categoryValues[6]
+        filteredFood = categoryValues[7]
+        filteredTravel = categoryValues[8]
+        filteredOther = categoryValues[9]
     }
 
     LaunchedEffect(user) {
@@ -332,12 +371,19 @@ fun PersonalUIScreen(
                 val expense = filteredExpense
                 val total = filteredIncome + filteredExpense
                 val balance = filteredBalance
+                val categorylist = listOf(
+                    filteredShopping, filteredEntertainment,
+                    filteredTransportation, filteredEducation,
+                    filteredLiving, filteredMedical,
+                    filteredInvestment, filteredFood,
+                    filteredTravel, filteredOther)
                 PieChartWithCategory(
                     income = income,
                     expense = expense,
                     balance = balance,
                     total = total,
-                    selectedCategory = Type
+                    selectedCategory = Type,
+                    categoryValues = categorylist
                 )
             }
 

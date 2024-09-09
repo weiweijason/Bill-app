@@ -120,5 +120,3 @@ fun GroupedDeptRelationItem(
         }
     }
 }
-
-
