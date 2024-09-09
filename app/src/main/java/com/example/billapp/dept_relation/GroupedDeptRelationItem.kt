@@ -110,6 +110,8 @@ fun GroupedDeptRelationItem(
                 deptRelations.forEach { relation ->
                     DeptRelationDetailItem(
                         viewModel = viewModel,
+                        fromName = fromName,
+                        toName = toName,
                         deptRelation = relation,
                         groupId = groupId,
                     )

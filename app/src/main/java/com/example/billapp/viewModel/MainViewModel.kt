@@ -460,6 +460,10 @@ class MainViewModel : ViewModel() {
     fun setShareMethod(method: String) {
         _shareMethod.value = method
     }
+    // 設定群組交易名稱
+    fun setGroupTransactionName(groupName: String){
+        _groupName.value = groupName
+    }
 
     fun getGroupMembers(groupId: String) {
         viewModelScope.launch {
@@ -483,11 +487,15 @@ class MainViewModel : ViewModel() {
     val userExactAmounts: StateFlow<Map<String, Float>> = _userExactAmounts.asStateFlow()
     val userShares: StateFlow<Map<String, Int>> = _userShares.asStateFlow()
 
+    private val _groupName = MutableStateFlow("")
+    val groupName: StateFlow<String> get() = _groupName
+
     fun addGroupTransaction(groupId: String) {
         viewModelScope.launch {
             try {
                 val transaction = GroupTransaction(
                     id = "",
+                    name = _groupName.value,
                     payer = _payers.value,
                     divider = _dividers.value,
                     shareMethod = _shareMethod.value,
@@ -524,6 +532,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateGroupName(newName: String) {
+        _groupName.value = newName
+    }
+
     private fun calculateEvenSplitRelations(transaction: GroupTransaction): List<DeptRelation> {
         val deptRelations = mutableListOf<DeptRelation>()
         val amountPerDivider = transaction.amount / transaction.divider.size
@@ -534,6 +546,7 @@ class MainViewModel : ViewModel() {
                     deptRelations.add(
                         DeptRelation(
                             id = UUID.randomUUID().toString(),
+                            name = transaction.name,
                             groupTransactionId = transaction.id,
                             from = dividerId,
                             to = payerId,

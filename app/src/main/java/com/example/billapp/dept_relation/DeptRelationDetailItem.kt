@@ -33,12 +33,13 @@ import com.example.billapp.viewModel.MainViewModel
 @Composable
 fun DeptRelationDetailItem(
     viewModel: MainViewModel,
+    fromName: String,
+    toName: String,
     deptRelation: DeptRelation,
     groupId: String,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     Row(
         modifier = Modifier
@@ -48,7 +49,9 @@ fun DeptRelationDetailItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(text = "Transaction ID: ${deptRelation.groupTransactionId}")
+            //Text(text = "Transaction ID: ${deptRelation.groupTransactionId}")
+            Text(text = "Transaction Name: ${deptRelation.name}")
+            Text(text = "from:${fromName} -> to:${toName}")
             Text(text = "$${String.format("%.2f", deptRelation.amount)}")
         }
         IconButton(onClick = {
@@ -56,7 +59,6 @@ fun DeptRelationDetailItem(
         }) {
             Icon(Icons.Default.Clear, contentDescription = "Clear Debt")
         }
-
     }
 
     if (showBottomSheet) {
@@ -64,7 +66,6 @@ fun DeptRelationDetailItem(
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState
         ) {
-            // Bottom sheet content for clearing debt
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,4 +94,3 @@ fun DeptRelationDetailItem(
         }
     }
 }
-
