@@ -21,6 +21,7 @@ val ButtonGreenColor = Color(0xFF90A171)
 val ButtonGrayColor = Color(0xFFBCBCBC)
 val BottomBackgroundColor = Color(0xFF8EB7D2)
 val PrimaryFontColor = Color(0xFF404040)
+val SecondFontColor = Color(0xFF737373)
 val PieRedColor = Color(0xFFA95A63)
 val PieGreenColor = Color(0xFF90A171)
 
