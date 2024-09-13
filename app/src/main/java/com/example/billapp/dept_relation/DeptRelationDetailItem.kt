@@ -18,6 +18,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,13 +34,19 @@ import com.example.billapp.viewModel.MainViewModel
 @Composable
 fun DeptRelationDetailItem(
     viewModel: MainViewModel,
-    fromName: String,
-    toName: String,
     deptRelation: DeptRelation,
     groupId: String,
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+
+    var fromName by remember { mutableStateOf("") }
+    var toName by remember { mutableStateOf("") }
+
+    LaunchedEffect(deptRelation) {
+        fromName = viewModel.getUserName(deptRelation.from)
+        toName = viewModel.getUserName(deptRelation.to)
+    }
 
     Row(
         modifier = Modifier
@@ -93,8 +100,5 @@ fun DeptRelationDetailItem(
             }
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 38cc098ed81dd1a70186793888f3a89bc3c548ac
+

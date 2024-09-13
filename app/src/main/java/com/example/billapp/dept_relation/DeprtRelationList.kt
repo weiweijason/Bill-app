@@ -13,14 +13,15 @@ import com.example.billapp.viewModel.MainViewModel
 fun DeptRelationList(
     viewModel: MainViewModel,
     deptRelations: Map<String, List<DeptRelation>>,
-    groupId: String
+    groupId: String,
+    modifier: Modifier
 ) {
     val optimizedDeptRelations = remember(deptRelations) {
         optimizeDebtRelations(deptRelations.values.flatten())
     }
 
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
