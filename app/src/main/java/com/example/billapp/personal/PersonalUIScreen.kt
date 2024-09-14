@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +67,13 @@ fun PersonalUIScreen(
     var filteredTravel by remember { mutableStateOf(0f)}
     var filteredOther by remember { mutableStateOf(0f)}
     var showDatePicker by remember { mutableStateOf(false) }
+    //__________________________________________
+    var startDate by remember { mutableStateOf<Long?>(null) }
+    var endDate by remember { mutableStateOf<Long?>(null) }
+
+    // 添加选单状态
+    var expanded by remember { mutableStateOf(false) }
+    var selectedType by remember { mutableStateOf("結餘") }
 
     // 根據選中的類型過濾記錄
     fun filterRecords() {
@@ -78,6 +86,7 @@ fun PersonalUIScreen(
                 "日" -> calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) + 1 == month && calendar.get(
                     Calendar.DAY_OF_MONTH
                 ) == day
+                "自訂" -> startDate?.let { calendar.timeInMillis >= it } == true && endDate?.let { calendar.timeInMillis <= it } == true
 
                 else -> true
             }
@@ -173,37 +182,48 @@ fun PersonalUIScreen(
                     text = "個人",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
                     color = Color.Black
                 )
             },
             actions = {
-                Button(
-                    onClick = {
-                        val currentDate = Calendar.getInstance()
-                        year = currentDate.get(Calendar.YEAR)
-                        month = currentDate.get(Calendar.MONTH) + 1
-                        day = currentDate.get(Calendar.DAY_OF_MONTH)
-                        filterRecords() // 呼叫篩選函數
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                ) {
-                    val buttonText = when (dateType) {
-                        "年" -> "本年"
-                        "月" -> "本月"
-                        "日" -> "本日"
-                        else -> "本月" // 預設為本月
+                Box {
+                    Button(onClick = { expanded = true }) {
+                    Text("收支分析")
+                }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("支出") }, // 使用 Composable 函數來顯示文字
+                            onClick = {
+                                selectedType = "支出"
+                                selectedChart = "支出"
+                                Type = "expanse"
+                                filterRecords()
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("結餘") }, // 使用 Composable 函數來顯示文字
+                            onClick = {
+                                selectedType = "結餘"
+                                selectedChart = "結餘"
+                                Type = "balance"
+                                filterRecords()
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("收入") }, // 使用 Composable 函數來顯示文字
+                            onClick = {
+                                selectedType = "收入"
+                                selectedChart = "收入"
+                                Type = "income"
+                                filterRecords()
+                                expanded = false
+                            })
                     }
-                    Text(
-                        text = buttonText,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
                 }
             }
         )
@@ -258,49 +278,18 @@ fun PersonalUIScreen(
                 ) {
                     Text(text = "日", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
-            }
-
-            // 顯示年月的 Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { updateDate(-1) }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "上一個"
-                    )
-                }
-
-                Box(
+                Column(
                     modifier = Modifier
-                        .clickable { showDatePicker = true }
-                        .align(Alignment.CenterVertically)
+                        .weight(1f)
+                        .background(if (dateType == "自訂") selectedColor else defaultColor)
+                        .clickable { dateType = "自訂"; filterRecords() }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = when (dateType) {
-                            "年" -> "$year"
-                            "月" -> "$year/$month"
-                            "日" -> "$year/$month/$day"
-                            else -> "$year/$month/"
-                        },
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                IconButton(onClick = { updateDate(1) }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "下一個"
-                    )
+                    Text(text = "自訂", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             }
-
-
+/*
             // 顯示已支出、結餘、收入的 Row
             Row(
                 modifier = Modifier
@@ -358,6 +347,47 @@ fun PersonalUIScreen(
                 }
             }
 
+ */
+            // 顯示年月的 Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = { updateDate(-1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "上一個"
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clickable { showDatePicker = true }
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = when (dateType) {
+                            "年" -> "$year"
+                            "月" -> "$year/$month"
+                            "日" -> "$year/$month/$day"
+                            else -> "$year/$month/"
+                        },
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                IconButton(onClick = { updateDate(1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "下一個"
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
@@ -410,29 +440,48 @@ fun PersonalUIScreen(
         }
     }
     if (showDatePicker) {
-        ShowPickerDialog(
-            dateType = dateType,
-            onDateSelected = { selectedDate ->
-                // 根據 dateType 更新 year, month, day
-                val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate ?: 0L }
-                when (dateType) {
-                    "年" -> year = calendar.get(Calendar.YEAR)
-                    "月" -> {
-                        year = calendar.get(Calendar.YEAR)
-                        month = calendar.get(Calendar.MONTH) + 1
-                    }
 
-                    "日" -> {
-                        year = calendar.get(Calendar.YEAR)
-                        month = calendar.get(Calendar.MONTH) + 1
-                        day = calendar.get(Calendar.DAY_OF_MONTH)
+        if (dateType == "自訂") {
+            /*
+            MyDatePickerDialog(
+                onDateSelected = { selectedDate ->
+                    startDate = selectedDate
+                    MyDatePickerDialog(
+                        onDateSelected = { endDateSelected ->
+                            endDate = endDateSelected
+                            filterRecords()
+                            showDatePicker = false
+                        },
+                        onDismiss = { showDatePicker = false }
+                    )
+                },
+                onDismiss = { showDatePicker = false }
+            )*/
+        } else {
+            ShowPickerDialog(
+                dateType = dateType,
+                onDateSelected = { selectedDate ->
+                    // 根據 dateType 更新 year, month, day
+                    val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate ?: 0L }
+                    when (dateType) {
+                        "年" -> year = calendar.get(Calendar.YEAR)
+                        "月" -> {
+                            year = calendar.get(Calendar.YEAR)
+                            month = calendar.get(Calendar.MONTH) + 1
+                        }
+
+                        "日" -> {
+                            year = calendar.get(Calendar.YEAR)
+                            month = calendar.get(Calendar.MONTH) + 1
+                            day = calendar.get(Calendar.DAY_OF_MONTH)
+                        }
                     }
-                }
-                filterRecords()
-                showDatePicker = false
-            },
-            onDismiss = { showDatePicker = false }
-        )
+                    filterRecords()
+                    showDatePicker = false
+                },
+                onDismiss = { showDatePicker = false }
+            )
+        }
     }
 }
 
