@@ -237,7 +237,11 @@ fun MainScreen(
 
                 composable("deptRelationsScreen/{groupId}") { backStackEntry ->
                     val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
-                    DeptRelationsScreen(viewModel, groupId)
+                    DeptRelationsScreen(
+                        viewModel = viewModel,
+                        groupId = groupId,
+                        onBackPress = { navController.popBackStack() }
+                    )
                 }
             }
         }
