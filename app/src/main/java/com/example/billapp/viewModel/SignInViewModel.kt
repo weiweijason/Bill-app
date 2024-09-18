@@ -23,6 +23,10 @@ class SignInViewModel : ViewModel() {
             }
         }
     }
+
+    fun logOut() {
+        _uiState.value = SignInUiState.Initial
+    }
 }
 
 sealed class SignInUiState {

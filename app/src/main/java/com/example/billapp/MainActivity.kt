@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import com.example.billapp.activity.IntroActivity
 import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
 import com.example.billapp.viewModel.SignInViewModel
@@ -39,7 +38,6 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             MainScreen(
-                onLogOut = { logOut() },
                 viewModel = viewModel,
                 avatarViewModel = avatarViewModel,
                 signInViewModel = signInViewModel,
@@ -50,14 +48,5 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
-    private fun logOut() {
-        FirebaseAuth.getInstance().signOut()
-        val intent = Intent(this, IntroActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        finish()
-    }
-
 }
 

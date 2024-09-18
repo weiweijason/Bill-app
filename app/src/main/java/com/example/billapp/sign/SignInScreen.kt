@@ -1,4 +1,4 @@
-package com.example.billapp.activity
+package com.example.billapp.sign
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -46,7 +46,6 @@ import androidx.navigation.NavController
 import com.example.billapp.R
 import com.example.billapp.ui.theme.Brown2
 import com.example.billapp.ui.theme.Brown3
-import com.example.billapp.ui.theme.Brown5
 import com.example.billapp.viewModel.SignInUiState
 import com.example.billapp.viewModel.SignInViewModel
 

@@ -44,6 +44,11 @@ object FirebaseRepository {
                 }
             }
     }
+
+    fun signOut() {
+        getAuthInstance().signOut()
+    }
+
     suspend fun signUp(name: String, email: String, password: String): User = suspendCoroutine { continuation ->
         getAuthInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->

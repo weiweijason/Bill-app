@@ -1,4 +1,4 @@
-package com.example.billapp.activity
+package com.example.billapp.sign
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.billapp.R
-import com.example.billapp.ui.theme.Brown1
-import com.example.billapp.ui.theme.Brown3
 import com.example.billapp.ui.theme.Brown5
 import com.example.billapp.ui.theme.Brown6
 

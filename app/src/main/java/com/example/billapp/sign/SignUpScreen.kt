@@ -1,4 +1,4 @@
-package com.example.billapp.activity
+package com.example.billapp.sign
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,14 +23,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.billapp.R
-import com.example.billapp.firebase.FirestoreClass
-import com.example.billapp.firebase.UserRepository
-import com.example.billapp.models.User
 import com.example.billapp.ui.theme.Brown2
 import com.example.billapp.ui.theme.Brown3
 import com.example.billapp.viewModel.SignUpUiState
 import com.example.billapp.viewModel.SignUpViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

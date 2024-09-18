@@ -21,10 +21,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import com.example.billapp.activity.IntroScreen
-import com.example.billapp.activity.SignInScreen
-import com.example.billapp.activity.SignUpScreen
-import com.example.billapp.activity.SplashScreen
+import com.example.billapp.sign.IntroScreen
+import com.example.billapp.sign.SignInScreen
+import com.example.billapp.sign.SignUpScreen
+import com.example.billapp.sign.SplashScreen
 import com.example.billapp.bonus.CurrencyConverterScreen
 import com.example.billapp.bonus.ExchangeRateTableScreen
 import com.example.billapp.dept_relation.DeptRelationsScreen
@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    onLogOut: () -> Unit,
     viewModel: MainViewModel,
     avatarViewModel: AvatarViewModel,
     signInViewModel: SignInViewModel,
@@ -77,7 +76,12 @@ fun MainScreen(
                         drawerState.close()
                     }
                 }
-                DrawerContent(navController, onCloseDrawer, onLogOut, viewModel, avatarViewModel)
+                DrawerContent(navController, onCloseDrawer, {
+                    viewModel.logOut()
+                    signInViewModel.logOut()
+                    signUpViewModel.logOut()
+                    navController.navigate("intro")
+                }, viewModel, avatarViewModel)
             }
         }
     ) {
@@ -318,6 +322,7 @@ fun DrawerContent(
                     TextButton(
                         onClick = {
                             showDialog = false
+                            onCloseDrawer()
                             onLogOut()
                         }
                     ) {
