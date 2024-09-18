@@ -21,6 +21,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import com.example.billapp.activity.IntroScreen
+import com.example.billapp.activity.SignInScreen
+import com.example.billapp.activity.SignUpScreen
+import com.example.billapp.activity.SplashScreen
 import com.example.billapp.bonus.CurrencyConverterScreen
 import com.example.billapp.bonus.ExchangeRateTableScreen
 import com.example.billapp.dept_relation.DeptRelationsScreen
@@ -36,6 +40,8 @@ import com.example.billapp.setting.AboutScreen
 import com.example.billapp.setting.ContactUsScreen
 import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
+import com.example.billapp.viewModel.SignInViewModel
+import com.example.billapp.viewModel.SignUpViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +50,8 @@ fun MainScreen(
     onLogOut: () -> Unit,
     viewModel: MainViewModel,
     avatarViewModel: AvatarViewModel,
+    signInViewModel: SignInViewModel,
+    signUpViewModel: SignUpViewModel,
     requestPermission: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -74,39 +82,14 @@ fun MainScreen(
         }
     ) {
         Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = icons[index]),
-                                    contentDescription = item
-                                )
-                            },
-                            label = { Text(item) },
-                            selected = selectedItem == index,
-                            onClick = {
-                                selectedItem = index
-                                when (index) {
-                                    0 -> navController.navigate("home")
-                                    1 -> navController.navigate("personal")
-                                    2 -> navController.navigate("add")
-                                    3 -> navController.navigate("group")
-                                    4 -> navController.navigate("settings")
-                                }
-                            }
-                        )
-                    }
-                }
-            }
+
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = "home",
+                startDestination = "splash",
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable("home") {
+                composable("main") {
                     HomeScreen(
                         navController = navController,
                         onOpenDrawer = {
@@ -115,6 +98,20 @@ fun MainScreen(
                         viewModel = viewModel,
                     )
                 }
+
+                composable("intro") { IntroScreen(navController) }
+                // help me do this
+                composable("signin") {
+                    SignInScreen(viewModel = signInViewModel, navController = navController)
+                }
+
+                composable("signup") {
+                    SignUpScreen(viewModel = signUpViewModel, navController = navController)
+                }
+                composable("splash") {
+                    SplashScreen(navController = navController, viewModel = viewModel)
+                }
+
                 composable("personal") {
                     PersonalUIScreen(
                         navController = navController,
@@ -243,10 +240,13 @@ fun MainScreen(
                         onBackPress = { navController.popBackStack() }
                     )
                 }
+
+
             }
         }
     }
 }
+
 
 
 @Composable

@@ -103,7 +103,6 @@ class MainViewModel : ViewModel() {
     private var currentGroup = MutableStateFlow<Group?>(null)
     val group: StateFlow<Group?> = currentGroup.asStateFlow()
 
-    // 不要在這邊宣告firebase
     init {
         loadUserData()
         loadUserGroups()

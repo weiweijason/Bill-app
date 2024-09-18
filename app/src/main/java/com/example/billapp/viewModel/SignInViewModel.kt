@@ -2,13 +2,13 @@ package com.example.billapp.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.billapp.firebase.UserRepository
+import com.example.billapp.firebase.FirebaseRepository
 import com.example.billapp.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SignInViewModel(private val repository: UserRepository) : ViewModel() {
+class SignInViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SignInUiState>(SignInUiState.Initial)
     val uiState: StateFlow<SignInUiState> = _uiState
 
@@ -16,7 +16,7 @@ class SignInViewModel(private val repository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             _uiState.value = SignInUiState.Loading
             try {
-                val user = repository.signIn(email, password)
+                val user = FirebaseRepository.signIn(email, password)
                 _uiState.value = SignInUiState.Success(user)
             } catch (e: Exception) {
                 _uiState.value = SignInUiState.Error(e.message ?: "Unknown error occurred")

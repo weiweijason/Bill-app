@@ -11,6 +11,8 @@ import androidx.activity.viewModels
 import com.example.billapp.activity.IntroActivity
 import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
+import com.example.billapp.viewModel.SignInViewModel
+import com.example.billapp.viewModel.SignUpViewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -18,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val avatarViewModel: AvatarViewModel by viewModels()
+    private val signInViewModel: SignInViewModel by viewModels()
+    private val signUpViewModel: SignUpViewModel by viewModels()
+
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -37,6 +42,8 @@ class MainActivity : ComponentActivity() {
                 onLogOut = { logOut() },
                 viewModel = viewModel,
                 avatarViewModel = avatarViewModel,
+                signInViewModel = signInViewModel,
+                signUpViewModel = signUpViewModel,
                 requestPermission = { permission ->
                     requestPermissionLauncher.launch(permission)
                 }

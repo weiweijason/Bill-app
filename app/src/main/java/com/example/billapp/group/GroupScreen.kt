@@ -28,6 +28,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +69,15 @@ fun GroupScreen(
         viewModel.reloadUserData()
     }
     val groups by viewModel.userGroups.collectAsState()
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("首頁", "個人", "新增", "群組", "設定")
+    val icons = listOf(
+        R.drawable.baseline_home_24,
+        R.drawable.baseline_person_24,
+        R.drawable.baseline_add_24,
+        R.drawable.baseline_groups_24,
+        R.drawable.baseline_settings_24
+    )
 
     Scaffold(
         topBar = {
@@ -95,6 +109,32 @@ fun GroupScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = icons[index]),
+                                contentDescription = item
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            when (index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("personal")
+                                2 -> navController.navigate("add")
+                                3 -> navController.navigate("group")
+                                4 -> navController.navigate("settings")
+                            }
+                        }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(

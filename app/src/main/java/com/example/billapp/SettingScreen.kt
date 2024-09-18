@@ -9,12 +9,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,126 +36,165 @@ fun SettingScreen(
     viewModel: MainViewModel,
 ) {
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "設定",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            color = Color.Black
-        )
-        Button(onClick = {
-            navController.navigate("profile")
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "帳號",
-                fontSize = 18.sp,
-                color = Color.Black)
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("首頁", "個人", "新增", "群組", "設定")
+    val icons = listOf(
+        R.drawable.baseline_home_24,
+        R.drawable.baseline_person_24,
+        R.drawable.baseline_add_24,
+        R.drawable.baseline_groups_24,
+        R.drawable.baseline_settings_24
+    )
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = icons[index]),
+                                contentDescription = item
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            when (index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("personal")
+                                2 -> navController.navigate("add")
+                                3 -> navController.navigate("group")
+                                4 -> navController.navigate("settings")
+                            }
+                        }
+                    )
+                }
+            }
         }
-        Button(onClick = {
-            navController.navigate("contact_us")
-        },
+    ) { innerpadding ->
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "聯絡我們",
-                fontSize = 18.sp,
-                color = Color.Black)
-        }
-        Button(
-            onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/gi6Fyew6qfFyVAn29"))
-                context.startActivity(intent)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
+                .padding(innerpadding),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "問題回報",
-                fontSize = 18.sp,
-                color = Color.Black,
+                text = "設定",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                color = Color.Black
             )
-        }
-        Button(onClick = {
-            navController.navigate("about")
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "關於",
-                fontSize = 18.sp,
-                color = Color.Black)
-        }
+            Button(onClick = {
+                navController.navigate("profile")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "帳號",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
+            Button(onClick = {
+                navController.navigate("contact_us")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "聯絡我們",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
+            Button(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/gi6Fyew6qfFyVAn29"))
+                    context.startActivity(intent)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(
+                    text = "問題回報",
+                    fontSize = 18.sp,
+                    color = Color.Black,
+                )
+            }
+            Button(onClick = {
+                navController.navigate("about")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "關於",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
 
-        Button(onClick = {
-            navController.navigate("ItemAdd")
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "ItemAdd 暫時按鈕",
-                fontSize = 18.sp,
-                color = Color.Black)
-        }
-        Button(onClick = {
-            navController.navigate("TEST")
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "TEST",
-                fontSize = 18.sp,
-                color = Color.Black)
-        }
+            Button(onClick = {
+                navController.navigate("ItemAdd")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "ItemAdd 暫時按鈕",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
+            Button(onClick = {
+                navController.navigate("TEST")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "TEST",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
 
-        Button(onClick = {
-            navController.navigate("avatar")
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .size(height = 60.dp, width = 200.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(Color.LightGray)
-        ) {
-            Text(text = "AvatarScreen 暫時按鈕",
-                fontSize = 18.sp,
-                color = Color.Black)
-        }
+            Button(onClick = {
+                navController.navigate("avatar")
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .size(height = 60.dp, width = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(Color.LightGray)
+            ) {
+                Text(text = "AvatarScreen 暫時按鈕",
+                    fontSize = 18.sp,
+                    color = Color.Black)
+            }
 
+        }
     }
 }
 

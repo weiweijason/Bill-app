@@ -74,6 +74,32 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = icons[index]),
+                                contentDescription = item
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            when (index) {
+                                0 -> navController.navigate("home")
+                                1 -> navController.navigate("personal")
+                                2 -> navController.navigate("add")
+                                3 -> navController.navigate("group")
+                                4 -> navController.navigate("settings")
+                            }
+                        }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(
