@@ -103,6 +103,25 @@ object FirebaseRepository {
             ?: throw IllegalStateException("User data not found")
     }
 
+    suspend fun getUserData(userId: String): User = withContext(Dispatchers.IO) {
+        try {
+            val userDocument = getFirestoreInstance().collection(Constants.USERS)
+                .document(userId)
+                .get()
+                .await()
+
+            if (userDocument.exists()) {
+                return@withContext userDocument.toObject(User::class.java)
+                    ?: throw Exception("Failed to convert document to User object")
+            } else {
+                throw Exception("User not found")
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepository", "Error getting user data", e)
+            throw e
+        }
+    }
+
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         val userId = currentUser.uid

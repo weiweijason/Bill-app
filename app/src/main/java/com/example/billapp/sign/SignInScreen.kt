@@ -46,19 +46,20 @@ import androidx.navigation.NavController
 import com.example.billapp.R
 import com.example.billapp.ui.theme.Brown2
 import com.example.billapp.ui.theme.Brown3
-import com.example.billapp.viewModel.SignInUiState
-import com.example.billapp.viewModel.SignInViewModel
+import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    viewModel: SignInViewModel,
+    viewModel: MainViewModel,
     navController: NavController
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val uiState by viewModel.uiState.collectAsState()
+    val authState by viewModel.authState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -140,7 +141,8 @@ fun SignInScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Brown2)
+                        colors = ButtonDefaults.buttonColors(containerColor = Brown2),
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = stringResource(id = R.string.sign_in),
@@ -151,24 +153,24 @@ fun SignInScreen(
                 }
             }
 
-            when (val state = uiState) {
-                is SignInUiState.Loading -> {
+            when (authState) {
+                is MainViewModel.AuthState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(top = 16.dp)
                     )
                 }
-                is SignInUiState.Success -> {
-                    LaunchedEffect(state) {
+                is MainViewModel.AuthState.Authenticated -> {
+                    LaunchedEffect(authState) {
                         navController.navigate("main") {
                             popUpTo("signIn") { inclusive = true }
                         }
                     }
                 }
-                is SignInUiState.Error -> {
+                is MainViewModel.AuthState.Error -> {
                     Text(
-                        text = state.message,
+                        text = error ?: "Unknown error occurred",
                         color = Color.Red,
                         modifier = Modifier.padding(top = 16.dp)
                     )
@@ -182,10 +184,4 @@ fun SignInScreen(
 
 private fun validateForm(email: String, password: String): Boolean {
     return email.isNotBlank() && password.isNotBlank()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignInScreenPreview() {
-    SignInScreen(viewModel = SignInViewModel(), navController = NavController(LocalContext.current))
 }

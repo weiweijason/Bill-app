@@ -1,5 +1,6 @@
-package com .example.billapp.sign
+package com.example.billapp.sign
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,8 +32,9 @@ fun SplashScreen(
         )
     }
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(user) {
         delay(2500) // 2.5 seconds delay
+        Log.d("SplashScreen", "User ID: ${user?.id}")
 
         if ((user?.id ?: "") == "") {
             navController.navigate("main") {

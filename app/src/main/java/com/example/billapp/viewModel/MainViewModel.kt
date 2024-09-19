@@ -103,30 +103,90 @@ class MainViewModel : ViewModel() {
     private var currentGroup = MutableStateFlow<Group?>(null)
     val group: StateFlow<Group?> = currentGroup.asStateFlow()
 
+    // 用於登入和註冊的狀態流
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
+    val authState: StateFlow<AuthState> = _authState.asStateFlow()
+
     init {
-        loadUserData()
-        loadUserGroups()
-        loadUserTransactions()
+        checkCurrentUser()
     }
 
-    private fun loadUserData() {
+    sealed class AuthState {
+        object Initial : AuthState()
+        object Loading : AuthState()
+        data class Authenticated(val user: User) : AuthState()
+        data class Error(val message: String) : AuthState()
+    }
+
+    private fun checkCurrentUser() {
         viewModelScope.launch {
-            FirebaseFirestore.getInstance().collection(Constants.USERS)
-                .document(getCurrentUserID())
-                .get()
-                .addOnSuccessListener { document ->
-                    val loggedInUser = document.toObject(User::class.java)
-                    _user.value = loggedInUser
-                }
-                .addOnFailureListener { e ->
-                    Log.e(
-                        "loadUserData",
-                        "Error while getting loggedIn user details",
-                        e
-                    )
-                }
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            if (currentUser != null) {
+                loadUserData(currentUser.uid)
+                loadUserGroups()
+                loadUserTransactions()
+            }
         }
     }
+
+    private fun loadUserData(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val userData = FirebaseRepository.getUserData(userId)
+                _user.value = userData
+                loadUserGroups()
+                loadUserTransactions()
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun logOut() {
+        FirebaseRepository.signOut()
+        clearData()
+        _authState.value = AuthState.Initial
+    }
+
+    fun signIn(email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authState.value = AuthState.Loading
+            try {
+                val user = FirebaseRepository.signIn(email, password)
+                _user.value = user
+                _authState.value = AuthState.Authenticated(user)
+                loadUserData(user.id)
+            } catch (e: Exception) {
+                _error.value = e.message
+                _authState.value = AuthState.Error(e.message ?: "Unknown error occurred")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun signUp(name: String, email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authState.value = AuthState.Loading
+            try {
+                val user = FirebaseRepository.signUp(name, email, password)
+                _user.value = user
+                _authState.value = AuthState.Authenticated(user)
+                loadUserData(user.id)
+            } catch (e: Exception) {
+                _error.value = e.message
+                _authState.value = AuthState.Error(e.message ?: "Unknown error occurred")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
 
     fun clearData() {
         _groupCreationStatus.value = GroupCreationStatus.IDLE
@@ -157,12 +217,6 @@ class MainViewModel : ViewModel() {
         _userShares.value = emptyMap()
         _groupName.value = ""
     }
-
-    fun logOut() {
-        clearData()
-        FirebaseRepository.signOut()
-    }
-
 
     fun reloadUserData() {
         viewModelScope.launch {

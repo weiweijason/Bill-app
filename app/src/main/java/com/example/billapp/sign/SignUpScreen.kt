@@ -25,23 +25,23 @@ import androidx.navigation.NavController
 import com.example.billapp.R
 import com.example.billapp.ui.theme.Brown2
 import com.example.billapp.ui.theme.Brown3
-import com.example.billapp.viewModel.SignUpUiState
-import com.example.billapp.viewModel.SignUpViewModel
+import com.example.billapp.viewModel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    viewModel: SignUpViewModel
+    viewModel: MainViewModel
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val uiState by viewModel.uiState.collectAsState()
+    val authState by viewModel.authState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // 背景圖片
         Image(
             painter = painterResource(id = R.drawable.ic_background),
             contentDescription = null,
@@ -52,16 +52,15 @@ fun SignUpScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp) // 頂層 padding
+                .padding(16.dp)
         ) {
-            // Toolbar 標題
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(id = R.string.sign_up),
-                        fontSize = 20.sp, // 設置標題字體大小
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF404040), // 主字體顏色
+                        color = Color(0xFF404040),
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
@@ -74,9 +73,8 @@ fun SignUpScreen(
                 colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.Transparent)
             )
 
-            Spacer(modifier = Modifier.height(32.dp)) // 間距
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // 說明文字
             Text(
                 text = stringResource(id = R.string.sign_up_description_text),
                 fontSize = 16.sp,
@@ -84,24 +82,22 @@ fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp),
-                textAlign = TextAlign.Center // 文字居中
+                textAlign = TextAlign.Center
             )
 
-            // Card 內部內容
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp), // 外部 padding
-                elevation = CardDefaults.cardElevation(8.dp), // 卡片陰影
-                shape = RoundedCornerShape(16.dp), // 圓角
-                colors = CardDefaults.cardColors(containerColor = Brown3) // 卡片背景色
+                    .padding(horizontal = 16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Brown3)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp) // 卡片內部 padding
+                        .padding(16.dp)
                 ) {
-                    // 姓名輸入框
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -112,7 +108,6 @@ fun SignUpScreen(
                         textStyle = TextStyle(fontSize = 16.sp)
                     )
 
-                    // 郵箱輸入框
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -123,7 +118,6 @@ fun SignUpScreen(
                         textStyle = TextStyle(fontSize = 16.sp)
                     )
 
-                    // 密碼輸入框
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -132,10 +126,9 @@ fun SignUpScreen(
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
                         textStyle = TextStyle(fontSize = 16.sp),
-                        visualTransformation = PasswordVisualTransformation() // 密碼遮罩
+                        visualTransformation = PasswordVisualTransformation()
                     )
 
-                    // 註冊按鈕
                     Button(
                         onClick = {
                             if (validateForm(name, email, password)) {
@@ -145,7 +138,8 @@ fun SignUpScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Brown2) // 按鈕背景色
+                        colors = ButtonDefaults.buttonColors(containerColor = Brown2),
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = stringResource(id = R.string.sign_up),
@@ -156,25 +150,24 @@ fun SignUpScreen(
                 }
             }
 
-            // 處理不同的狀態
-            when (val state = uiState) {
-                is SignUpUiState.Loading -> {
+            when (authState) {
+                is MainViewModel.AuthState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(top = 16.dp)
                     )
                 }
-                is SignUpUiState.Success -> {
-                    LaunchedEffect(state) {
+                is MainViewModel.AuthState.Authenticated -> {
+                    LaunchedEffect(authState) {
                         navController.navigate("intro") {
                             popUpTo("signUp") { inclusive = true }
                         }
                     }
                 }
-                is SignUpUiState.Error -> {
+                is MainViewModel.AuthState.Error -> {
                     Text(
-                        text = state.message,
+                        text = error ?: "Unknown error occurred",
                         color = Color.Red,
                         modifier = Modifier.padding(top = 16.dp)
                     )
@@ -185,7 +178,6 @@ fun SignUpScreen(
     }
 }
 
-// 簡單驗證表單
 private fun validateForm(name: String, email: String, password: String): Boolean {
     return name.isNotBlank() && email.isNotBlank() && password.isNotBlank()
 }
@@ -193,6 +185,6 @@ private fun validateForm(name: String, email: String, password: String): Boolean
 @Preview(showBackground = true)
 @Composable
 fun SignUpScreenPreview() {
-    val viewModel: SignUpViewModel = viewModel()
+    val viewModel: MainViewModel = viewModel()
     SignUpScreen(navController = NavController(LocalContext.current), viewModel = viewModel)
 }
