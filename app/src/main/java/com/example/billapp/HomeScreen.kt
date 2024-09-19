@@ -3,6 +3,8 @@ package com.example.billapp
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,7 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
@@ -54,18 +59,6 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     viewModel: MainViewModel
 ) {
-    var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("首頁", "個人", "新增", "群組", "設定")
-    val icons = listOf(
-        R.drawable.baseline_home_24,
-        R.drawable.baseline_person_24,
-        R.drawable.baseline_add_24,
-        R.drawable.baseline_groups_24,
-        R.drawable.baseline_settings_24
-    )
-
-    var showAddItemScreen by remember { mutableStateOf(false) }
-
     val groups by viewModel.userGroups.collectAsState()
     // 获取最近两笔交易记录
     val transactions by viewModel.userTransactions.collectAsState()
@@ -102,134 +95,194 @@ fun HomeScreen(
         filtered()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("My App") },
-                navigationIcon = {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "個人",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            textAlign = TextAlign.Left,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .background(Color(0xFFD9C2A7))
         ) {
-            Text(
-                text = "個人",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                textAlign = TextAlign.Left,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            val userName = "getUserName()"
+            val income = viewModel.getUserIncome()
+            val expense = viewModel.getUserExpense()
+            val total = income + expense
+            val balance = income - expense
 
-            val pagerState = rememberPagerState(pageCount = { 2 })
-            val coroutineScope = rememberCoroutineScope()
-
-            HorizontalPager(
-                state = pagerState,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
                     .padding(horizontal = 16.dp)
-            ) { page ->
-                when (page) {
-                    0 -> Box(
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val pathLeft = Path().apply {
+                        moveTo(0f, 0f)
+                        lineTo(size.width * 0.6f, 0f)
+                        lineTo(size.width * 0.4f, size.height)
+                        lineTo(0f, size.height)
+                        close()
+                    }
+                    val pathRight = Path().apply {
+                        moveTo(size.width * 0.6f, 0f)
+                        lineTo(size.width, 0f)
+                        lineTo(size.width, size.height)
+                        lineTo(size.width * 0.4f, size.height)
+                        close()
+                    }
+                    drawPath(pathLeft, color = Color(0xFFD9C2A7))
+                    drawPath(pathRight, color = Color(0xFFEAC75E))
+                    drawLine(
+                        color = Color.Gray,
+                        start = Offset(size.width * 0.6f, 0f),
+                        end = Offset(size.width * 0.4f, size.height),
+                        strokeWidth = 4f
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = userName,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                // 跳轉至個人頁面邏輯
-                                navController.navigate("personal")
-                            },
-                        contentAlignment = Alignment.Center
+                            .weight(1f)
+                            .padding(end = 16.dp)
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(1f) // 確保 Box 是正方形
+                            .padding(8.dp)
                     ) {
-                        val amount = viewModel.getUserAmount()
-                        Text(
-                            text = "餘額: $amount",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
+                        PieChart(
+                            income = income,
+                            expense = expense,
+                            balance = balance,
+                            total = total,
+                            modifier = Modifier.size(60.dp) // 調整圓餅圖大小
                         )
-                    }
-                    1 -> Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                // 跳轉至圓餅圖頁面邏輯
-                                navController.navigate("personal")
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val income = viewModel.getUserIncome()
-                        val expense = viewModel.getUserExpense()
-                        val total = income + expense
-                        val balance = income - expense
-                        PieChart(income = income, expense = expense, balance = balance, total = total)
-                    }
-                }
-            }
 
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-
-            ) {
-                Text(
-                    text = "近期交易紀錄",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                PersonalTransactionList(
-                    transactions = filteredRecords,
-                    navController = navController,
-                    viewModel = viewModel
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = "近期群組",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                textAlign = TextAlign.Left,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 顯示時間最近的 4 個 Group，並利用 4 宮格顯示
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.height(320.dp)  // Adjust the height as needed
-            ) {
-                items(4) { index ->
-                    if (index < groups.size) {
-                        GroupItem(group = groups[index], onItemClick = {
-                            navController.navigate("groupDetail/${groups[index].id}")
-                        })
-                    } else {
-                        EmptyGroupSlot()
+                        // 顯示支出、收入和結餘
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(start = 4.dp, top = 4.dp) // 調整位置
+                                .background(Color.White)
+                                .border(1.dp, Color.Gray)
+                                .padding(4.dp)
+                        ) {
+                            Text(
+                                text = "支出: $expense",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(end = 4.dp, top = 4.dp) // 調整位置
+                                .background(Color.White)
+                                .border(1.dp, Color.Gray)
+                                .padding(4.dp)
+                        ) {
+                            Text(
+                                text = "收入: $income",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 4.dp, bottom = 4.dp) // 調整位置
+                                .background(Color.White)
+                                .border(1.dp, Color.Gray)
+                                .padding(4.dp)
+                        ) {
+                            Text(
+                                text = "結餘: $balance",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
-
         }
+
+        /*
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+
+        ) {
+            Text(
+                text = "近期交易紀錄",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            PersonalTransactionList(
+                transactions = filteredRecords,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = "近期群組",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            textAlign = TextAlign.Left,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 顯示時間最近的 4 個 Group，並利用 4 宮格顯示
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.height(320.dp)  // Adjust the height as needed
+        ) {
+            items(4) { index ->
+                if (index < groups.size) {
+                    GroupItem(group = groups[index], onItemClick = {
+                        navController.navigate("groupDetail/${groups[index].id}")
+                    })
+                } else {
+                    EmptyGroupSlot()
+                }
+            }
+        }
+
+ */
     }
 }
 
