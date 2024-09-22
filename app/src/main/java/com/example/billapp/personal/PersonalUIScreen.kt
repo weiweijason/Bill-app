@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import com.example.billapp.MonthPickerDialog
 import com.example.billapp.MyDatePickerDialog
 import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
+import com.example.billapp.R
 import com.example.billapp.YearPickerDialog
 import com.example.billapp.models.TransactionCategory
 import com.example.billapp.viewModel.MainViewModel
@@ -66,6 +68,17 @@ fun PersonalUIScreen(
     var filteredTravel by remember { mutableStateOf(0f)}
     var filteredOther by remember { mutableStateOf(0f)}
     var showDatePicker by remember { mutableStateOf(false) }
+
+
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("首頁", "個人", "新增", "群組", "設定")
+    val icons = listOf(
+        R.drawable.baseline_home_24,
+        R.drawable.baseline_person_24,
+        R.drawable.baseline_add_24,
+        R.drawable.baseline_groups_24,
+        R.drawable.baseline_settings_24
+    )
 
     // 根據選中的類型過濾記錄
     fun filterRecords() {
@@ -166,48 +179,50 @@ fun PersonalUIScreen(
     // 格式化日期
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    Scaffold(topBar = {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "個人",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    color = Color.Black
-                )
-            },
-            actions = {
-                Button(
-                    onClick = {
-                        val currentDate = Calendar.getInstance()
-                        year = currentDate.get(Calendar.YEAR)
-                        month = currentDate.get(Calendar.MONTH) + 1
-                        day = currentDate.get(Calendar.DAY_OF_MONTH)
-                        filterRecords() // 呼叫篩選函數
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                ) {
-                    val buttonText = when (dateType) {
-                        "年" -> "本年"
-                        "月" -> "本月"
-                        "日" -> "本日"
-                        else -> "本月" // 預設為本月
-                    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
                     Text(
-                        text = buttonText,
-                        fontSize = 20.sp,
+                        text = "個人",
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        color = Color.Black
                     )
+                },
+                actions = {
+                    Button(
+                        onClick = {
+                            val currentDate = Calendar.getInstance()
+                            year = currentDate.get(Calendar.YEAR)
+                            month = currentDate.get(Calendar.MONTH) + 1
+                            day = currentDate.get(Calendar.DAY_OF_MONTH)
+                            filterRecords() // 呼叫篩選函數
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                    ) {
+                        val buttonText = when (dateType) {
+                            "年" -> "本年"
+                            "月" -> "本月"
+                            "日" -> "本日"
+                            else -> "本月" // 預設為本月
+                        }
+                        Text(
+                            text = buttonText,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
-            }
-        )
-    }) { innerPadding ->
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
