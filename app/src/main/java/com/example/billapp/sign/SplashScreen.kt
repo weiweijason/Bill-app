@@ -21,25 +21,22 @@ fun SplashScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    val user by viewModel.user.collectAsState()
+    val isUserLoggedIn by viewModel.isUserLoggedIn.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.splashscreen),
+            painter = painterResource(id = R.drawable.ic_background),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds
         )
     }
 
-    LaunchedEffect(user) {
-        delay(2500) // 2.5 seconds delay
-        Log.d("SplashScreen", "User ID: ${user?.id}")
+    LaunchedEffect(isUserLoggedIn) {
+        delay(500) // 0.5 seconds delay
 
-        if ((user?.id ?: "") == "") {
-            navController.navigate("main") {
-                popUpTo("splash") { inclusive = true }
-            }
+        if (isUserLoggedIn) {
+            navController.navigate("home")
         } else {
             navController.navigate("intro") {
                 popUpTo("splash") { inclusive = true }

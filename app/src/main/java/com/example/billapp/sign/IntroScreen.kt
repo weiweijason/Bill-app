@@ -8,6 +8,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,9 +28,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.billapp.R
 import com.example.billapp.ui.theme.Brown5
 import com.example.billapp.ui.theme.Brown6
+import com.example.billapp.viewModel.MainViewModel
 
 @Composable
-fun IntroScreen(navController: NavController) {
+fun IntroScreen(
+    navController: NavController,
+) {
     val montserratBold = FontFamily(Font(R.font.montserrat_bold))
 
     // Box to layer the background image

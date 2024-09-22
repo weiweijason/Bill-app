@@ -19,6 +19,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,6 +44,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
@@ -76,6 +79,7 @@ fun MainScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("首頁", "個人", "新增", "群組", "設定")
@@ -104,7 +108,34 @@ fun MainScreen(
         }
     ) {
         Scaffold(
-
+            bottomBar = {
+                if (currentRoute != "intro" && currentRoute != "signin" && currentRoute != "signup" && currentRoute != "splash") { // 確認當前路由不是 IntroScreen
+                    NavigationBar {
+                        items.forEachIndexed { index, item ->
+                            NavigationBarItem(
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = icons[index]),
+                                        contentDescription = item
+                                    )
+                                },
+                                label = { Text(item) },
+                                selected = selectedItem == index,
+                                onClick = {
+                                    selectedItem = index
+                                    when (index) {
+                                        0 -> navController.navigate("home")
+                                        1 -> navController.navigate("personal")
+                                        2 -> navController.navigate("add")
+                                        3 -> navController.navigate("group")
+                                        4 -> navController.navigate("settings")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         ) { innerPadding ->
             NavHost(
                 navController = navController,

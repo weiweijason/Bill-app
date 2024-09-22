@@ -107,6 +107,9 @@ class MainViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
+    private val _isUserLoggedIn = MutableStateFlow(false) // 初始值為 false
+    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn
+
     init {
         checkCurrentUser()
     }
@@ -118,6 +121,8 @@ class MainViewModel : ViewModel() {
         data class Error(val message: String) : AuthState()
     }
 
+
+
     private fun checkCurrentUser() {
         viewModelScope.launch {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -126,6 +131,7 @@ class MainViewModel : ViewModel() {
                 loadUserGroups()
                 loadUserTransactions()
             }
+            _isUserLoggedIn.value = currentUser != null
         }
     }
 
@@ -149,6 +155,7 @@ class MainViewModel : ViewModel() {
         FirebaseRepository.signOut()
         clearData()
         _authState.value = AuthState.Initial
+        _isUserLoggedIn.value = false
     }
 
     fun signIn(email: String, password: String) {
