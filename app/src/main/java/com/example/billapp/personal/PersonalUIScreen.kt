@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +35,9 @@ import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
 import com.example.billapp.YearPickerDialog
 import com.example.billapp.models.TransactionCategory
+import com.example.billapp.ui.theme.MainBackgroundColor
 import com.example.billapp.viewModel.MainViewModel
+import com.google.firebase.annotations.concurrent.Background
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -43,6 +46,7 @@ import java.util.*
 fun PersonalUIScreen(
     navController: NavController,
     viewModel: MainViewModel
+
 ) {
     val user by viewModel.user.collectAsState()
     var year by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
@@ -177,6 +181,10 @@ fun PersonalUIScreen(
 
     Scaffold(topBar = {
         TopAppBar(
+            colors = topAppBarColors(
+                containerColor = Color(0xFFE4DFCB),
+                titleContentColor = Color(0xFF000000),
+            ),
             title = {
                 Text(
                     text = "個人",
@@ -232,7 +240,8 @@ fun PersonalUIScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .background(Color(0xFFE4DFCB))
+                .padding(16.dp),
         ) {
             // 顯示年、月、日的 Row
             Row(
@@ -442,21 +451,8 @@ fun PersonalUIScreen(
     if (showDatePicker) {
 
         if (dateType == "自訂") {
-            /*
-            MyDatePickerDialog(
-                onDateSelected = { selectedDate ->
-                    startDate = selectedDate
-                    MyDatePickerDialog(
-                        onDateSelected = { endDateSelected ->
-                            endDate = endDateSelected
-                            filterRecords()
-                            showDatePicker = false
-                        },
-                        onDismiss = { showDatePicker = false }
-                    )
-                },
-                onDismiss = { showDatePicker = false }
-            )*/
+
+
         } else {
             ShowPickerDialog(
                 dateType = dateType,
