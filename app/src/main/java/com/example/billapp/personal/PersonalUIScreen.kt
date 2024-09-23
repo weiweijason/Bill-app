@@ -1,6 +1,7 @@
 package com.example.billapp.personal
 
 import android.net.Uri
+import android.text.style.BackgroundColorSpan
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +37,7 @@ import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
 import com.example.billapp.YearPickerDialog
 import com.example.billapp.models.TransactionCategory
+import com.example.billapp.ui.theme.ButtonRedColor
 import com.example.billapp.ui.theme.MainBackgroundColor
 import com.example.billapp.viewModel.MainViewModel
 import com.google.firebase.annotations.concurrent.Background
@@ -185,18 +188,22 @@ fun PersonalUIScreen(
                 containerColor = Color(0xFFE4DFCB),
                 titleContentColor = Color(0xFF000000),
             ),
-            title = {
+            /*title = {
                 Text(
                     text = "個人",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-            },
-            actions = {
+            },*/
+            title = {
                 Box {
-                    Button(onClick = { expanded = true }) {
-                    Text("收支分析")
+                    Button(onClick = { expanded = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFA68A68),  // 设置按钮背景色
+                                contentColor = Color(0xFF000000)    // 设置按钮文字颜色
+                    )) {
+                        Text("${selectedType}分析")
                 }
                     DropdownMenu(
                         expanded = expanded,
@@ -243,21 +250,61 @@ fun PersonalUIScreen(
                 .background(Color(0xFFE4DFCB))
                 .padding(16.dp),
         ) {
+            // 顯示年月的 Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = { updateDate(-1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "上一個"
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clickable { showDatePicker = true }
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = when (dateType) {
+                            "年" -> "$year"
+                            "月" -> "$year/$month"
+                            "日" -> "$year/$month/$day"
+                            else -> "$year/$month/"
+                        },
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                IconButton(onClick = { updateDate(1) }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "下一個"
+                    )
+                }
+            }
             // 顯示年、月、日的 Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    //                .border(1.dp, Color.Gray)
+                    //.clip(RoundedCornerShape(8.dp, 8.dp, 0.dp, 0.dp))
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                val selectedColor = Color.Gray
-                val defaultColor = Color.LightGray
+                val selectedColor = Color(0xFF8A7059)
+                val defaultColor = Color(0xFFD9C2A7)
 
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .clip(RoundedCornerShape(8.dp, 0.dp, 0.dp, 8.dp))
                         .background(if (dateType == "年") selectedColor else defaultColor)
                         .clickable { dateType = "年"; filterRecords() }
                         .padding(8.dp),
@@ -290,6 +337,7 @@ fun PersonalUIScreen(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .clip(RoundedCornerShape(0.dp, 8.dp, 8.dp, 0.dp))
                         .background(if (dateType == "自訂") selectedColor else defaultColor)
                         .clickable { dateType = "自訂"; filterRecords() }
                         .padding(8.dp),
@@ -357,45 +405,7 @@ fun PersonalUIScreen(
             }
 
  */
-            // 顯示年月的 Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { updateDate(-1) }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "上一個"
-                    )
-                }
 
-                Box(
-                    modifier = Modifier
-                        .clickable { showDatePicker = true }
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Text(
-                        text = when (dateType) {
-                            "年" -> "$year"
-                            "月" -> "$year/$month"
-                            "日" -> "$year/$month/$day"
-                            else -> "$year/$month/"
-                        },
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                IconButton(onClick = { updateDate(1) }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "下一個"
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
