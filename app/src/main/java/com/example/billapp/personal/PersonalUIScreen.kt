@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +36,7 @@ import com.example.billapp.MonthPickerDialog
 import com.example.billapp.MyDatePickerDialog
 import com.example.billapp.PieChart
 import com.example.billapp.PieChartWithCategory
+import com.example.billapp.R
 import com.example.billapp.YearPickerDialog
 import com.example.billapp.models.TransactionCategory
 import com.example.billapp.ui.theme.ButtonRedColor
@@ -81,6 +83,17 @@ fun PersonalUIScreen(
     // 添加选单状态
     var expanded by remember { mutableStateOf(false) }
     var selectedType by remember { mutableStateOf("結餘") }
+
+
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("首頁", "個人", "新增", "群組", "設定")
+    val icons = listOf(
+        R.drawable.baseline_home_24,
+        R.drawable.baseline_person_24,
+        R.drawable.baseline_add_24,
+        R.drawable.baseline_groups_24,
+        R.drawable.baseline_settings_24
+    )
 
     // 根據選中的類型過濾記錄
     fun filterRecords() {
@@ -240,9 +253,9 @@ fun PersonalUIScreen(
                             })
                     }
                 }
-            }
-        )
-    }) { innerPadding ->
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

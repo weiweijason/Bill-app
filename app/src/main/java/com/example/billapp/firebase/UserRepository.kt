@@ -19,7 +19,7 @@ class UserRepository(
                     firestore.collection(Constants.USERS)
                         .document(firebaseAuth.currentUser!!.uid)
                         .get()
-                        .addOnSuccessListener { document ->
+                       .addOnSuccessListener { document ->
                             val user = document.toObject(User::class.java)!!
                             continuation.resume(user)
                         }
@@ -50,5 +50,16 @@ class UserRepository(
                     continuation.resumeWithException(task.exception ?: Exception("Sign up failed"))
                 }
             }
+    }
+
+    fun getCurrentUserID(): String {
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        var currentUserID = ""
+        if(currentUser != null){
+            currentUserID = currentUser.uid
+        }
+
+        return currentUserID
     }
 }
