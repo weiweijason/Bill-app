@@ -24,6 +24,7 @@ val PrimaryFontColor = Color(0xFF404040)
 val SecondFontColor = Color(0xFF737373)
 val PieRedColor = Color(0xFFA95A63)
 val PieGreenColor = Color(0xFF90A171)
+
 //灰階
 val White = Color(0xFFFFFFFF)
 val LightGray = Color(0xFFD9D9D9)
@@ -44,6 +45,8 @@ val Brown1 = Color(0xFF403425)
 val Brown2 = Color(0xFFA68A68)
 val Brown3 = Color(0xFFD9C2A7)
 val Brown4 = Color(0xFF8A7059)
+val Brown5 = Color(0xFF7B533E)
+val Brown6 = Color(0xFFBFA588)
 
 val BlueGray = Color(0xFF8EB7D2)
 

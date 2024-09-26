@@ -18,6 +18,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +37,16 @@ fun DeptRelationDetailItem(
     deptRelation: DeptRelation,
     groupId: String,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+
+    var fromName by remember { mutableStateOf("") }
+    var toName by remember { mutableStateOf("") }
+
+    LaunchedEffect(deptRelation) {
+        fromName = viewModel.getUserName(deptRelation.from)
+        toName = viewModel.getUserName(deptRelation.to)
+    }
 
     Row(
         modifier = Modifier
@@ -48,7 +56,9 @@ fun DeptRelationDetailItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(text = "Transaction ID: ${deptRelation.groupTransactionId}")
+            //Text(text = "Transaction ID: ${deptRelation.groupTransactionId}")
+            Text(text = "Transaction Name: ${deptRelation.name}")
+            Text(text = "from:${fromName} -> to:${toName}")
             Text(text = "$${String.format("%.2f", deptRelation.amount)}")
         }
         IconButton(onClick = {
@@ -56,7 +66,6 @@ fun DeptRelationDetailItem(
         }) {
             Icon(Icons.Default.Clear, contentDescription = "Clear Debt")
         }
-
     }
 
     if (showBottomSheet) {
@@ -64,7 +73,6 @@ fun DeptRelationDetailItem(
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState
         ) {
-            // Bottom sheet content for clearing debt
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,3 +101,4 @@ fun DeptRelationDetailItem(
         }
     }
 }
+

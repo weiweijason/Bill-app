@@ -16,11 +16,61 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 object FirebaseRepository {
 
     private fun getFirestoreInstance() = FirebaseFirestore.getInstance()
     private fun getAuthInstance() = FirebaseAuth.getInstance()
+
+    suspend fun signIn(email: String, password: String): User = suspendCoroutine { continuation ->
+        getAuthInstance().signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    getFirestoreInstance().collection(Constants.USERS)
+                        .document(getAuthInstance().currentUser!!.uid)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            val user = document.toObject(User::class.java)!!
+                            continuation.resume(user)
+                        }
+                        .addOnFailureListener { e ->
+                            continuation.resumeWithException(e)
+                        }
+                } else {
+                    continuation.resumeWithException(task.exception ?: Exception("Sign in failed"))
+                }
+            }
+    }
+
+    fun signOut() {
+        getAuthInstance().signOut()
+    }
+
+    suspend fun signUp(name: String, email: String, password: String): User = suspendCoroutine { continuation ->
+        getAuthInstance().createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = getAuthInstance().currentUser
+                    val user = User(firebaseUser!!.uid, name, email)
+                    getFirestoreInstance().collection(Constants.USERS)
+                        .document(user.id)
+                        .set(user)
+                        .addOnSuccessListener {
+                            continuation.resume(user)
+                        }
+                        .addOnFailureListener { e ->
+                            continuation.resumeWithException(e)
+                        }
+                } else {
+                    continuation.resumeWithException(task.exception ?: Exception("Sign up failed"))
+                }
+            }
+    }
+
+
 
     suspend fun createGroup(group: Group): String = withContext(Dispatchers.IO) {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
@@ -51,6 +101,25 @@ object FirebaseRepository {
         val currentUser = getAuthInstance().currentUser ?: throw IllegalStateException("No user logged in")
         getFirestoreInstance().collection("users").document(currentUser.uid).get().await().toObject(User::class.java)
             ?: throw IllegalStateException("User data not found")
+    }
+
+    suspend fun getUserData(userId: String): User = withContext(Dispatchers.IO) {
+        try {
+            val userDocument = getFirestoreInstance().collection(Constants.USERS)
+                .document(userId)
+                .get()
+                .await()
+
+            if (userDocument.exists()) {
+                return@withContext userDocument.toObject(User::class.java)
+                    ?: throw Exception("Failed to convert document to User object")
+            } else {
+                throw Exception("User not found")
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepository", "Error getting user data", e)
+            throw e
+        }
     }
 
     suspend fun getUserGroups(): List<Group> = withContext(Dispatchers.IO) {

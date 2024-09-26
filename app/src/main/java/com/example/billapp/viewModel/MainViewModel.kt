@@ -103,30 +103,126 @@ class MainViewModel : ViewModel() {
     private var currentGroup = MutableStateFlow<Group?>(null)
     val group: StateFlow<Group?> = currentGroup.asStateFlow()
 
-    // 不要在這邊宣告firebase
+    // 用於登入和註冊的狀態流
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
+    val authState: StateFlow<AuthState> = _authState.asStateFlow()
+
+    private val _isUserLoggedIn = MutableStateFlow(false) // 初始值為 false
+    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn
+
     init {
-        loadUserData()
-        loadUserGroups()
-        loadUserTransactions()
+        checkCurrentUser()
     }
 
-    private fun loadUserData() {
+    sealed class AuthState {
+        object Initial : AuthState()
+        object Loading : AuthState()
+        data class Authenticated(val user: User) : AuthState()
+        data class Error(val message: String) : AuthState()
+    }
+
+
+
+    private fun checkCurrentUser() {
         viewModelScope.launch {
-            FirebaseFirestore.getInstance().collection(Constants.USERS)
-                .document(getCurrentUserID())
-                .get()
-                .addOnSuccessListener { document ->
-                    val loggedInUser = document.toObject(User::class.java)
-                    _user.value = loggedInUser
-                }
-                .addOnFailureListener { e ->
-                    Log.e(
-                        "loadUserData",
-                        "Error while getting loggedIn user details",
-                        e
-                    )
-                }
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            if (currentUser != null) {
+                loadUserData(currentUser.uid)
+                loadUserGroups()
+                loadUserTransactions()
+            }
+            _isUserLoggedIn.value = currentUser != null
         }
+    }
+
+    private fun loadUserData(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val userData = FirebaseRepository.getUserData(userId)
+                _user.value = userData
+                loadUserGroups()
+                loadUserTransactions()
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun logOut() {
+        FirebaseRepository.signOut()
+        clearData()
+        _authState.value = AuthState.Initial
+        _isUserLoggedIn.value = false
+    }
+
+    fun signIn(email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authState.value = AuthState.Loading
+            try {
+                val user = FirebaseRepository.signIn(email, password)
+                _user.value = user
+                _authState.value = AuthState.Authenticated(user)
+                loadUserData(user.id)
+            } catch (e: Exception) {
+                _error.value = e.message
+                _authState.value = AuthState.Error(e.message ?: "Unknown error occurred")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun signUp(name: String, email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authState.value = AuthState.Loading
+            try {
+                val user = FirebaseRepository.signUp(name, email, password)
+                _user.value = user
+                _authState.value = AuthState.Authenticated(user)
+                loadUserData(user.id)
+            } catch (e: Exception) {
+                _error.value = e.message
+                _authState.value = AuthState.Error(e.message ?: "Unknown error occurred")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    fun clearData() {
+        _groupCreationStatus.value = GroupCreationStatus.IDLE
+        _groupIdDeptRelations.value = emptyMap()
+        currentGroup.value = null
+        _user.value = null
+        _userTransactions.value = emptyList()
+        _groupTransactions.value = emptyList()
+        _deptRelations.value = emptyList()
+        _isLoading.value = false
+        _error.value = null
+        _dividers.value = emptyList()
+        _payers.value = emptyList()
+        _transactionType.value = "支出"
+        _amount.value = 0.0
+        _note.value = ""
+        _date.value = Timestamp.now()
+        _category.value = ""
+        _name.value = ""
+        _shareMethod.value = ""
+        _groupMembers.value = emptyList()
+        _transaction.value = null
+        _updatetime.value = Timestamp.now()
+        _userGroups.value = emptyList()
+        _userPercentages.value = emptyMap()
+        _userAdjustments.value = emptyMap()
+        _userExactAmounts.value = emptyMap()
+        _userShares.value = emptyMap()
+        _groupName.value = ""
     }
 
     fun reloadUserData() {
@@ -460,6 +556,10 @@ class MainViewModel : ViewModel() {
     fun setShareMethod(method: String) {
         _shareMethod.value = method
     }
+    // 設定群組交易名稱
+    fun setGroupTransactionName(groupName: String){
+        _groupName.value = groupName
+    }
 
     fun getGroupMembers(groupId: String) {
         viewModelScope.launch {
@@ -483,11 +583,15 @@ class MainViewModel : ViewModel() {
     val userExactAmounts: StateFlow<Map<String, Float>> = _userExactAmounts.asStateFlow()
     val userShares: StateFlow<Map<String, Int>> = _userShares.asStateFlow()
 
+    private val _groupName = MutableStateFlow("")
+    val groupName: StateFlow<String> get() = _groupName
+
     fun addGroupTransaction(groupId: String) {
         viewModelScope.launch {
             try {
                 val transaction = GroupTransaction(
                     id = "",
+                    name = _groupName.value,
                     payer = _payers.value,
                     divider = _dividers.value,
                     shareMethod = _shareMethod.value,
@@ -524,6 +628,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateGroupName(newName: String) {
+        _groupName.value = newName
+    }
+
     private fun calculateEvenSplitRelations(transaction: GroupTransaction): List<DeptRelation> {
         val deptRelations = mutableListOf<DeptRelation>()
         val amountPerDivider = transaction.amount / transaction.divider.size
@@ -534,6 +642,7 @@ class MainViewModel : ViewModel() {
                     deptRelations.add(
                         DeptRelation(
                             id = UUID.randomUUID().toString(),
+                            name = transaction.name,
                             groupTransactionId = transaction.id,
                             from = dividerId,
                             to = payerId,
