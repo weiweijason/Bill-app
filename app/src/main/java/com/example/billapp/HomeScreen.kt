@@ -68,6 +68,7 @@ fun HomeScreen(
     var selectedChart by remember { mutableStateOf("結餘") }
     val groups by viewModel.userGroups.collectAsState()
     val user by viewModel.user.collectAsState()
+
     fun filterRecords() {
         // 篩選出近期修改的兩筆交易紀錄
         val recentTransactions = transactions

@@ -231,7 +231,7 @@ fun EditTransactionDetailScreen(
                     },
                     label = { Text("金額") },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Box(
                     modifier = Modifier
