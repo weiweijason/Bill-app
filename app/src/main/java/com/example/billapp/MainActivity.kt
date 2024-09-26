@@ -7,9 +7,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.billapp.viewModel.AvatarViewModel
 import com.example.billapp.viewModel.MainViewModel
+import com.example.billapp.ui.theme.custom_jf_Typography
 
 
 class MainActivity : ComponentActivity() {
@@ -31,13 +33,17 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         installSplashScreen()
         setContent {
-            MainScreen(
-                viewModel = viewModel,
-                avatarViewModel = avatarViewModel,
-                requestPermission = { permission ->
-                    requestPermissionLauncher.launch(permission)
-                }
-            )
+            MaterialTheme (
+                typography = custom_jf_Typography
+            ) {
+                MainScreen(
+                    viewModel = viewModel,
+                    avatarViewModel = avatarViewModel,
+                    requestPermission = { permission ->
+                        requestPermissionLauncher.launch(permission)
+                    }
+                )
+            }
         }
     }
 }
