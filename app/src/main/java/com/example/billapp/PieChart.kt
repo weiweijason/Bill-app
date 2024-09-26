@@ -36,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.billapp.ui.theme.PieGreenColor
+import com.example.billapp.ui.theme.PieRedColor
 
 @Composable
 fun PieChart(income: Float, expense: Float, balance: Float, total: Float, modifier: Modifier = Modifier) {
@@ -43,19 +45,19 @@ fun PieChart(income: Float, expense: Float, balance: Float, total: Float, modifi
     val expenseAngle = (expense / total) * 360f
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
-        Canvas(modifier = Modifier.size(60.dp)) { // 調整圓餅圖大小
+        Canvas(modifier = Modifier.size(80.dp)) { // 調整圓餅圖大小
             withTransform({
                 rotate(270f)
             }) {
                 drawArc(
-                    color = Color.Green,
+                    color = PieGreenColor,
                     startAngle = 0f,
                     sweepAngle = incomeAngle,
                     useCenter = true, // 使用中心點
                     style = Fill // 改為實心
                 )
                 drawArc(
-                    color = Color.Red,
+                    color = PieRedColor,
                     startAngle = incomeAngle,
                     sweepAngle = expenseAngle,
                     useCenter = true, // 使用中心點
